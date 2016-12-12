@@ -7,5 +7,11 @@ class Pages {
 		
 		echo 'sdfdsf';
 	}
+	
+	//404
+	function notfound(){
+	
+		echo '404';
+	}
 }
 ?>
