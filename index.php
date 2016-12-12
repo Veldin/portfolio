@@ -6,7 +6,7 @@
 	
 	$core = new Core;
 	$pages = new Pages;
-	$dbc = '';
+	$dbc = $core->dbc();
 ?>
 <html>
 	<head>

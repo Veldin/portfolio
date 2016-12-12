@@ -36,5 +36,24 @@ class Core {
 		return $page;
 	}
 	
+	function dbc() { 
+			$servername = "db.veldin.com"; 
+			$username = "md253219db370063"; 
+			$password = "NiFQYCvz"; 
+			$dbname = "md253219db370063";  
+		
+		try {
+			$dbc = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+			// set the PDO error mode to exception
+			$dbc->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			
+			return $dbc;
+		}
+		catch(PDOException $e)
+		{
+			return "Connection failed: " . $e->getMessage();
+		}
+    } 
+	
 }
 ?>
