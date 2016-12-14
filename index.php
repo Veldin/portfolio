@@ -25,7 +25,8 @@
 		<?php
 			echo '<div id="container">';
 				$core->load();
-				$user = new User("piet@hotmail.com", "ditisechtgeenwachtwoord", $dbc);
+				$user = new User("pi2et@hotmail.com", "pieter", $dbc);
+				//$user->register();
 				$user->login();
 			echo '</div>';
 		?>
