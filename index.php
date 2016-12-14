@@ -3,9 +3,11 @@
 	session_start();
 	require ('core.php');
 	require ('pages.php');
+	require ('portfolio.php');
 	
 	$core = new Core;
 	$pages = new Pages;
+	$portfolio = new Portfolio;
 	$dbc = $core->dbc();
 ?>
 <html>
@@ -22,8 +24,18 @@
 	</head>
 	<body>
 		<?php 
-			echo '<div id="container">';
-				$core->load();
+			echo '<div id="headerOuter">';
+				echo '<div id="headerInner">';
+					$pages->header();
+				echo '</div>';
+			echo '</div>';
+		
+			$core->load();
+			
+			echo '<div id="footerOuter">';
+				echo '<div id="footerInner">';
+					$pages->footer();
+				echo '</div>';
 			echo '</div>';
 		?>
 	</body>
