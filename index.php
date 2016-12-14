@@ -28,6 +28,7 @@
 				$user = new User("pi2et@hotmail.com", "pieter", $dbc);
 				//$user->register();
 				$user->login();
+				echo $user->get()['address'];
 			echo '</div>';
 		?>
 	</body>

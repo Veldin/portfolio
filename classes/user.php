@@ -2,11 +2,9 @@
 
 class User
 {
-
-    private $userId;
     private $email;
     private $password;
-    private $credentials;
+    private $userdata;
     private $dbc;
 
     function __construct($email, $password, $dbc){
@@ -17,8 +15,7 @@ class User
 
     public function login(){
         if($this->auth()){
-            $this->getCredentials();
-            print_r($this->credentials);
+            $this->getUserData();
         }
     }
 
@@ -32,6 +29,10 @@ class User
         $stmt->execute();
     }
 
+    public function get(){
+        return $this->userdata;
+    }
+
     private function auth(){
         $stmt = $this->dbc->prepare("SELECT id, password FROM user WHERE email = :email");
         $stmt->bindParam(":email", $this->email);
@@ -40,7 +41,7 @@ class User
         if($stmt->rowCount() > 0){
             $results = $stmt->fetch(PDO::FETCH_ASSOC);
             if(hash_equals($results['password'], crypt($this->password, $results['password']))){
-                $this->userId = $results['id'];
+                $_SESSION['userId'] = $results['id'];
                 return true;
             }else{
                 return false;
@@ -50,19 +51,20 @@ class User
         }
     }
 
-    private function getCredentials(){
+    private function getUserData(){
         $stmt = $this->dbc->prepare("SELECT * FROM user WHERE id = :id");
-        $stmt->bindParam(":id", $this->userId);
+        $stmt->bindParam(":id", $_SESSION['userId']);
         $stmt->execute();
         $results = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $this->credentials['levelid'] = $results['levelid'];
-        $this->credentials['slb'] = $results['slb'];
-        $this->credentials['firstname'] = $results['firstname'];
-        $this->credentials['lastname'] = $results['lastname'];
-        $this->credentials['phone'] = $results['phone'];
-        $this->credentials['zipcode'] = $results['zipcode'];
-        $this->credentials['address'] = $results['address'];
+        $this->userdata['levelid'] = $results['levelid'];
+        $this->userdata['slb'] = $results['slb'];
+        $this->userdata['email'] = $this->email;
+        $this->userdata['firstname'] = $results['firstname'];
+        $this->userdata['lastname'] = $results['lastname'];
+        $this->userdata['phone'] = $results['phone'];
+        $this->userdata['zipcode'] = $results['zipcode'];
+        $this->userdata['address'] = $results['address'];
     }
 
 }
