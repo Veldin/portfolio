@@ -20,9 +20,7 @@ class User
     }
 
     public function register(){
-        if(CRYPT_BLOWFISH == 1){
-            $password = crypt($this->password);
-        }
+        $password = password_hash($this->password, CRYPT_BLOWFISH);
         $stmt = $this->dbc->prepare("INSERT INTO `user` VALUES (NULL, 1, 0, :email, :password, '', '', '', '', '', NOW())");
         $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":password", $password);
@@ -40,7 +38,7 @@ class User
 
         if($stmt->rowCount() > 0){
             $results = $stmt->fetch(PDO::FETCH_ASSOC);
-            if(hash_equals($results['password'], crypt($this->password, $results['password']))){
+            if(password_verify($this->password, $results['password'])){
                 $_SESSION['userId'] = $results['id'];
                 return true;
             }else{
