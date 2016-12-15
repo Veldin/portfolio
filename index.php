@@ -25,10 +25,19 @@
 		<?php
 			echo '<div id="container">';
 				$core->load();
+
 				$user = new User("pi2et@hotmail.com", "pieter", $dbc);
 				//$user->register();
 				$user->login();
-				echo $user->get()['firstname'];
+				echo "<pre>";
+				var_dump($user->get());
+				echo "</pre>";
+
+				if($user->isLoggedIn()){
+						echo "User is logged in";
+				}else{
+						echo "User is not logged in";
+				}
 			echo '</div>';
 		?>
 	</body>

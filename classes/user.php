@@ -2,23 +2,35 @@
 
 class User
 {
+    // Enkele private variabelen waar alleen de user class toegang tot heeft.
     private $email;
     private $password;
     private $userdata;
     private $dbc;
 
+    // Deze functie wordt aangeroepen wanneer er een instantie van de class wordt aangemaakt. Hier in worden de email, wachtwoord en de database connectie meegegeven.
     function __construct($email, $password, $dbc){
         $this->email = htmlentities($email);
         $this->password = htmlentities($password);
         $this->dbc = $dbc;
     }
 
+    // Deze functie doet op zichzelf vrij weinig behalve de 'loggedIn' sessie naar true zetten wanneer de gebruiker succesvol is geauthenticeerd.
     public function login(){
         if($this->auth()){
             $this->getUserData();
+            $_SESSION['loggedIn'] = true;
         }
     }
 
+    // Unset of destroy de sessie variabelen zodat de gebruiker niet meer als ingelogd wordt beschouwd.
+    public function logout(){
+        //session_destroy();
+        unset($_SESSION['userId']);
+        unset($_SESSION['loggedIn']);
+    }
+
+    // Deze function voert de query uit om de gebruiker te registreren in de database. Deze functie doet geen checks op de ingevulde data!
     public function register(){
         $password = password_hash($this->password, CRYPT_BLOWFISH);
         $stmt = $this->dbc->prepare("INSERT INTO `user` VALUES (NULL, 1, 0, :email, :password, '', '', '', '', '', NOW())");
@@ -27,10 +39,18 @@ class User
         $stmt->execute();
     }
 
+    // Returnd de 'credentials' array en wordt voornamelijk gebruik om gebruikerdata te verkrijgen op de volgende manier: get()['email']
     public function get(){
         return $this->userdata;
     }
 
+    // Checkt of de 'loggedIn' sessie is geset en of deze true bevat van het type boolean. Zoja, return true en anders return false;
+    public function isLoggedIn(){
+        return isset($_SESSION['loggedIn']) && $_SESSION['loggedIn'] === true ?: false;
+    }
+
+    // Deze functie haalt de userId en wachtwoord op aan de hand van de email die is ingevuld door de gebruiker. Wanneer er een resultaat uit de query komt worden de gehashte wachtwoorden
+    // vergeleken.
     private function auth(){
         $stmt = $this->dbc->prepare("SELECT id, password FROM user WHERE email = :email");
         $stmt->bindParam(":email", $this->email);
@@ -49,6 +69,7 @@ class User
         }
     }
 
+    // Een select all query voor wanneer de gebruiker geauthenticeerd is. In deze functie worden alle gebruikekrsgegevens opgeslagen in een PHP array.
     private function getUserData(){
         $stmt = $this->dbc->prepare("SELECT * FROM user WHERE id = :id");
         $stmt->bindParam(":id", $_SESSION['userId']);
