@@ -30,13 +30,21 @@ class User
         unset($_SESSION['loggedIn']);
     }
 
-    // Deze function voert de query uit om de gebruiker te registreren in de database. Deze functie doet geen checks op de ingevulde data!
+    // Deze function voert de query uit om de gebruiker te registreren in de database. Deze functie controleerd alleen voor bestaande email adressen!
     public function register(){
-        $password = password_hash($this->password, CRYPT_BLOWFISH);
-        $stmt = $this->dbc->prepare("INSERT INTO `user` VALUES (NULL, 1, 0, :email, :password, '', '', '', '', '', NOW())");
+        $stmt = $this->dbc->prepare("SELECT 1 FROM `user` WHERE email = :email");
         $stmt->bindParam(":email", $this->email);
-        $stmt->bindParam(":password", $password);
         $stmt->execute();
+        if($stmt->rowCount() == 0){
+            $password = password_hash($this->password, CRYPT_BLOWFISH);
+            $stmt = $this->dbc->prepare("INSERT INTO `user` VALUES (NULL, 1, 0, :email, :password, '', '', '', '', '', NOW())");
+            $stmt->bindParam(":email", $this->email);
+            $stmt->bindParam(":password", $password);
+            $stmt->execute();
+            return true;
+        }else{
+            return false;
+        }
     }
 
     // Returnd de 'credentials' array en wordt voornamelijk gebruik om gebruikerdata te verkrijgen op de volgende manier: get()['email']
@@ -47,6 +55,10 @@ class User
     // Checkt of de 'loggedIn' sessie is geset en of deze true bevat van het type boolean. Zoja, return true en anders return false;
     public function isLoggedIn(){
         return isset($_SESSION['loggedIn']) && $_SESSION['loggedIn'] === true ?: false;
+    }
+
+    public function updateUserData($array){
+
     }
 
     // Deze functie haalt de userId en wachtwoord op aan de hand van de email die is ingevuld door de gebruiker. Wanneer er een resultaat uit de query komt worden de gehashte wachtwoorden

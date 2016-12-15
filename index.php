@@ -26,10 +26,18 @@
 			echo '<div id="container">';
 				$core->load();
 
-				$user = new User("pi2et@hotmail.com", "pieter", $dbc);
-				//$user->register();
-				$user->login();
-				echo "<pre>";
+				$user = new User("pi3et@hotmail.com", "pieter", $dbc);
+				if($user->register()){
+						echo "Succesfully registered";
+				}else{
+						echo "There was an error registering your account!";
+				}
+				if($user->login()){
+						echo "Succesfully logged in";
+				}else{
+						echo "Invalid account credentials!";
+				}
+				/*echo "<pre>";
 				var_dump($user->get());
 				echo "</pre>";
 
@@ -37,7 +45,7 @@
 						echo "User is logged in";
 				}else{
 						echo "User is not logged in";
-				}
+				}*/
 			echo '</div>';
 		?>
 	</body>
