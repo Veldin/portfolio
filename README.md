@@ -18,6 +18,20 @@ if($user->login()){
 }
 ```
 
+## Hoe log je de gebruiker uit.
+```php
+$user->logout();
+```
+
+## Hoe check je of de gebruiker is ingelogd.
+```php
+if($user->isLoggedIn()){
+    // De gebruiker is ingelogd.
+}else{
+    // De gebruiker is niet ingelogd.
+}
+```
+
 ## Hoe registreer je de gebruiker.
 ```php
 if($user->register()){
