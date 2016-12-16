@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <?php
 	session_start();
-	require ('core.php');
-	require ('pages.php');
-	require ('portfolio.php');
+	require ('classes/core.php');
+	require ('classes/pages.php');
+	require ('classes/portfolio.php');
+	require ('classes/user.php');
 	
 	$core = new Core;
 	$pages = new Pages;
