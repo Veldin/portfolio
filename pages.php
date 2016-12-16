@@ -62,22 +62,67 @@ class Pages {
 		if(isset($_GET["u"])){
 			$user = htmlspecialchars($_GET["u"]);
 			
-			$portfolio = $dbc->prepare('SELECT * FROM `portfolio` WHERE `url` = "'.$user.'"');
-			$portfolio->execute();
-			$portfolio = $portfolio->fetchAll(PDO::FETCH_ASSOC);
+			$requestedPortfolio = $dbc->prepare('SELECT * FROM `portfolio` WHERE `url` = "'.$user.'"');
+			$requestedPortfolio->execute();
+			$requestedPortfolio = $requestedPortfolio->fetchAll(PDO::FETCH_ASSOC);
 			
-			if(!empty($portfolio)){
+			if(!empty($requestedPortfolio)){
 				//user bestaat
 			
-				$portfolio = $dbc->prepare('SELECT * FROM `portfolio` WHERE `url` = "'.$user.'"');
-				$portfolio->execute();
-				$portfolio = $portfolio->fetchAll(PDO::FETCH_ASSOC);
-			
-				/* echo '<div id="containerOuter">';
+				$requestedPortfolio = $dbc->prepare('SELECT * FROM `portfolio` WHERE `url` = "'.$user.'" LIMIT 1');
+				$requestedPortfolio->execute();
+				$requestedPortfolio = $requestedPortfolio->fetchAll(PDO::FETCH_ASSOC)[0];
+				
+				/* echo '<pre>';
+				print_r($requestedPortfolio);
+				echo '</pre>'; */
+				
+				$modules = $dbc->prepare('SELECT * FROM `module` WHERE `portfolioid` = "'.$requestedPortfolio['userid'].'" ORDER BY `position`');
+				$modules->execute();
+				$modules = $modules->fetchAll(PDO::FETCH_ASSOC);
+				
+				/*  echo '<pre>';
+				print_r($modules);
+				echo '</pre>'; */
+				
+				echo '<div id="containerOuter">';
 					echo '<div id="containerInner">';
-						echo 'User exists.';
+				
+					foreach ($modules as $module) {
+						$moduletemplate = $dbc->prepare('SELECT * FROM `moduletemplate` WHERE `id` = "'.$module['moduleid'].'" LIMIT 1');
+						$moduletemplate->execute();
+						$moduletemplate = $moduletemplate->fetchAll(PDO::FETCH_ASSOC)[0];
+
+						if (method_exists($portfolio,$moduletemplate['function'])){
+							//echo 'Function Found';
+							$input = explode(",", $module['input']);
+							$fields = explode(",", $moduletemplate['field']);
+							
+							/* print_r($moduletemplate);*/
+							
+							echo '<div class="module coll-'.$module['size'].'">';
+								echo '<div class="contentMargin">';
+								if(count($input) == count($fields)){
+									//TODO: meer dan 2 inputs (loop)
+									if(count($input) == 1){
+										echo $portfolio->$moduletemplate['function']($input[0]);
+									}else if(count($input) == 2){
+										echo $portfolio->$moduletemplate['function']($input[0], $input[1]);
+									}
+								}else{
+									echo 'Aantal inputs komt niet overeen met het aantal benodigde velden.';
+								}
+								echo '</div>';
+							echo '</div>';
+						//echo $portfolio->$moduletemplate['function']('sdfdsf');
+						}else{
+							echo 'Methode niet gevonden!';
+						}
+					}
+					
+					echo '<div class="clear"></div>';
 					echo '</div>';
-				echo '</div>'; */
+				echo '</div>';
 			}else{
 				//Gebruiker niet gevonden.
 				echo '<div id="containerOuter">';

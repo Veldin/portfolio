@@ -17,6 +17,11 @@ body,html{
 transition: all 0.3s linear;
 }
 
+.clear,
+.Clear{
+	clear:both;
+}
+
 #headerOuter{
 	width: 100%;
 	background-color: #e4e4e4;
@@ -45,3 +50,80 @@ transition: all 0.3s linear;
 	max-width: 1200px;
 	margin: 0 auto;
 }
+
+.contentMargin{
+	width: 98%;
+	width: calc(100% - 8px);
+	margin: 0 auto;
+}
+
+/* colls */
+.coll-10{
+	width: 10%;
+	min-height: 1px;
+	float: left;
+	position: relative;
+}
+
+.coll-20{
+	width: 20%;
+	min-height: 1px;
+	float: left;
+	position: relative;
+}
+
+.coll-33{
+	width: 33.33%;
+	min-height: 1px;
+	float: left;
+	position: relative;
+}
+
+.coll-50{
+	width: 50%;
+	min-height: 1px;
+	float: left; 
+	position: relative;
+}
+
+.coll-66{
+	width: 66.66%;
+	min-height: 1px;
+	float: left;
+	position: relative;
+}
+
+.coll-80{
+	width: 80%;
+	min-height: 1px;
+	float: left;
+	position: relative;
+}
+
+.coll-90{
+	width: 90%;
+	min-height: 1px;
+	float: left;
+	position: relative;
+}
+
+.coll-100{
+	width: 100%;
+	min-height: 1px;
+	float: left;
+	position: relative;
+}
+
+@media only screen and (max-width: 700px) {
+	.coll-100,
+	.coll-90,
+	.coll-80,
+	.coll-66,
+	.coll-50,
+	.coll-33,
+	.coll-20,
+	.coll-10{
+		width: 100%;
+	}
+}
+
