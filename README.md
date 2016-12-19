@@ -6,12 +6,12 @@ _____
 Zo maak je de een nieuwe instantie van de gebruiker class aan:
 ```php
 require ('classes/user.php');
-$user = new User("email", "wachtwoord", $dbc);
+$user = new User($dbc);
 ```
 
 ## Hoe log je de gebruiker in.
 ```php
-if($user->login()){
+if($user->login("email", "wachtwoord")){
     // De gebruiker is succesvol ingelogd.
 }else{
     // De gebruik is niet succesvol ingelogd. Oorzaak kan zijn: account bestaat niet, wachtwoord komt niet overeen.
