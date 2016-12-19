@@ -30,6 +30,17 @@
 					$pages->header();
 				echo '</div>';
 			echo '</div>';
+			
+			//$user = new User("amr.jonkman@gmail.com", "pass", $dbc);
+			$user = new User("amr.jonkman@gmail.com", "pass", $dbc);
+			
+			if($user->login()){
+				echo "User is logged in";
+			}
+			
+			if($user->isLoggedIn()){
+				echo "User is logged in";
+			}
 		
 			$core->load();
 			

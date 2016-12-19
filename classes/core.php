@@ -55,5 +55,16 @@ class Core {
 		}
     } 
 	
+	function input($type = 'text', $title = 'naam', $name = 'naam', $value = ' '){
+		echo $title.': <input type="'.$type.'" name="'.$name.'" value="'.$value.'" ><br>';
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 }
 ?>

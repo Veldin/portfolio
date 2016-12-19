@@ -5,16 +5,6 @@ body,html{
     font-size: 19px;
     font-family: 'Open Sans', sans-serif;
     color: #333;
-	
-	/* Normalise */
-	box-sizing: border-box;
-	line-height: 1.42857143;
-	
-	-webkit-tap-highlight-color: rgba(0,0,0,0);
-}
-
-*{
-transition: all 0.3s linear;
 }
 
 .clear,
@@ -127,3 +117,21 @@ transition: all 0.3s linear;
 	}
 }
 
+.module .editModule{
+    color: #000002;
+    text-align: center;
+    background-color: rgb(177, 177, 208);
+    border-radius: 14px;
+    position: absolute;
+    width: 50px;
+    border: 1px solid black;
+    /* height: 50px; */
+    right: 1%;
+	bottom: 1%;
+    z-index: 2;
+}
+
+.borderSmall{
+	border: 2px solid black;
+	
+}
