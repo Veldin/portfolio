@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <?php
 	session_start();
-	require ('core.php');
-	require ('pages.php');
-	require ('portfolio.php');
+	require ('classes/core.php');
+	require ('classes/pages.php');
+	require ('classes/portfolio.php');
+	require ('classes/user.php');
 	
 	$core = new Core;
 	$pages = new Pages;
@@ -29,6 +30,17 @@
 					$pages->header();
 				echo '</div>';
 			echo '</div>';
+			
+			//$user = new User("amr.jonkman@gmail.com", "pass", $dbc);
+			$user = new User("amr.jonkman@gmail.com", "pass", $dbc);
+			
+			if($user->login()){
+				echo "User is logged in";
+			}
+			
+			if($user->isLoggedIn()){
+				echo "User is logged in";
+			}
 		
 			$core->load();
 			

@@ -5,16 +5,11 @@ body,html{
     font-size: 19px;
     font-family: 'Open Sans', sans-serif;
     color: #333;
-	
-	/* Normalise */
-	box-sizing: border-box;
-	line-height: 1.42857143;
-	
-	-webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
-*{
-transition: all 0.3s linear;
+.clear,
+.Clear{
+	clear:both;
 }
 
 #headerOuter{
@@ -44,4 +39,99 @@ transition: all 0.3s linear;
 #footerInner{
 	max-width: 1200px;
 	margin: 0 auto;
+}
+
+.contentMargin{
+	width: 98%;
+	width: calc(100% - 8px);
+	margin: 0 auto;
+}
+
+/* colls */
+.coll-10{
+	width: 10%;
+	min-height: 1px;
+	float: left;
+	position: relative;
+}
+
+.coll-20{
+	width: 20%;
+	min-height: 1px;
+	float: left;
+	position: relative;
+}
+
+.coll-33{
+	width: 33.33%;
+	min-height: 1px;
+	float: left;
+	position: relative;
+}
+
+.coll-50{
+	width: 50%;
+	min-height: 1px;
+	float: left; 
+	position: relative;
+}
+
+.coll-66{
+	width: 66.66%;
+	min-height: 1px;
+	float: left;
+	position: relative;
+}
+
+.coll-80{
+	width: 80%;
+	min-height: 1px;
+	float: left;
+	position: relative;
+}
+
+.coll-90{
+	width: 90%;
+	min-height: 1px;
+	float: left;
+	position: relative;
+}
+
+.coll-100{
+	width: 100%;
+	min-height: 1px;
+	float: left;
+	position: relative;
+}
+
+@media only screen and (max-width: 700px) {
+	.coll-100,
+	.coll-90,
+	.coll-80,
+	.coll-66,
+	.coll-50,
+	.coll-33,
+	.coll-20,
+	.coll-10{
+		width: 100%;
+	}
+}
+
+.module .editModule{
+    color: #000002;
+    text-align: center;
+    background-color: rgb(177, 177, 208);
+    border-radius: 14px;
+    position: absolute;
+    width: 50px;
+    border: 1px solid black;
+    /* height: 50px; */
+    right: 1%;
+	bottom: 1%;
+    z-index: 2;
+}
+
+.borderSmall{
+	border: 2px solid black;
+	
 }
