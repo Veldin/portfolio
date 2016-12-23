@@ -7,6 +7,30 @@ class Pages {
 
 	}
 	
+	function generatecsscolls(){
+	
+		for ($x = 0; $x <= 100; $x++) {
+			echo "<br>";
+			echo ".coll-".$x."{";
+				echo"width: ".$x."%;";
+				echo"min-height: 1px;";
+				echo"float: left;";
+				echo"position: relative;";
+			echo"}";
+		}
+		
+		echo"<br>@media only screen and (max-width: 700px) {<br>";
+		for ($x = 0; $x <= 99; $x++) {
+			echo".coll-".$x.",<br>";
+		}
+			echo"{<br>";
+				echo"width: 100%;<br>";
+			echo"}<br>";
+		echo"}<br>";
+		
+		
+	}
+	
 	function header(){
 		echo 'HEADER';
 	}
@@ -170,7 +194,7 @@ class Pages {
 				$moduleId = preg_replace("/[^0-9,.]/", "", $moduleId);
 				
 				$user = 1; //loged in user
-			
+
 				$module = $dbc->prepare('SELECT * FROM `module` WHERE `id` = "'.$moduleId.'" AND `portfolioid` = '.$user.' LIMIT 1');
 				$module->execute();
 				$module = $module->fetchAll(PDO::FETCH_ASSOC);
@@ -183,8 +207,6 @@ class Pages {
 							//verwerken
 						
 							if(isset($_POST['Submit'])){
-								
-								
 								$input = ''; 
 								
 								for ($x = 0; $x < 10; $x++) {
@@ -193,7 +215,6 @@ class Pages {
 										$input .= ','.str_replace(",","、",htmlspecialchars($_POST[$x]));
 									}
 								}
-																
 								//replace '
 								$input = str_replace("'","`",$input);
 								
@@ -205,14 +226,6 @@ class Pages {
 									$size = htmlspecialchars($_POST['size']);
 									$size = preg_replace("/[^0-9,.]/", "", $size);
 								}
-
-								
-								/* echo '<br>';
-								echo $input;
-								echo '<br>';
-								echo $size;
-								echo '<br>';
-								echo $moduleId; */
 								
 								$sql = "UPDATE `module` SET `input`='".$input."',`size`='".$size."'  WHERE id=".$moduleId;
 								
@@ -244,25 +257,44 @@ class Pages {
 							
 							echo '<h1>Aanpassen Module</h1>';
 							
-							echo '<h2>'.$moduletemplate['name'].'</h2>';
-							echo '<p>'.$moduletemplate['description'].'</p>';
+							$url = $core->getPortfolioURL($module['portfolioid']);
+							echo $url;
+							//Links
+							echo '<div></div>';
 							
-							$inputs = explode(",", $module['input']);
-							$fields = explode(",", $moduletemplate['field']);
-							$titles = explode(",", $moduletemplate['fieldTitle']);
-							
-							
-							echo '<form action="#" method="post">';
-								for ($x = 0; $x < count($fields); $x++) {
-									 
-									echo $core->input($fields[$x],$titles[$x],$x,$inputs[$x]);
-								} 
+							echo '<div class="coll-50">';
+								echo '<h2>'.$moduletemplate['name'].'</h2>';
+								echo '<p>'.$moduletemplate['description'].'</p>';
 								
-								echo 'Groote: <input min="0" min="100" type="number" name="size" value="'.$module['size'].'" ><br>';
+								$inputs = explode(",", $module['input']);
+								$fields = explode(",", $moduletemplate['field']);
+								$titles = explode(",", $moduletemplate['fieldTitle']);
 								
-								echo '<input type="submit" name="Submit" value="Submit">';
-							echo '</form>';
+								echo '<form action="#" method="post">';
+									for ($x = 0; $x < count($fields); $x++) {
+										 
+										echo $core->input($fields[$x],$titles[$x],$x,$inputs[$x]);
+									} 
+									
+									echo 'Groote: <input min="0" min="100" type="number" name="size" value="'.$module['size'].'" ><br>';
+									
+									echo '<input type="submit" name="Submit" value="Submit">';
+								echo '</form>';
+							echo '</div>';
 							
+							echo '<div class="coll-50">';
+								echo '<h2>Portfolio Layout</h2>';
+
+									echo '<div class="coll-33">';
+										$core->portfoliolayout($module['portfolioid'], $moduleId);
+									echo '</div>';
+									
+									echo '<div class="clear"></div>';
+
+								echo '<div class="clear"></div>';
+							echo '</div>';
+							
+							echo '<div class="clear"></div>';
 							
 							//Tonen van de uitkomst
 							echo '<h2>Dit is hoe hij er uit komt!</h2>';
