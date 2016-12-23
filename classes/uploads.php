@@ -50,13 +50,9 @@ class Uploads
     function uploadFile($file){
         $targetFile = $this->uploadDir . basename($file["name"]);
         $fileName = basename($file["name"]);
-        echo $file["type"] . "<br>";
 
-        if(in_array($file["type"], $this->mimes)){
-            echo $fileName . " is allowed!";
-        }else{
-            echo $fileName . " is not allowed!";
-        }
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        echo finfo_file();
     }
 
 }
