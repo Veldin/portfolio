@@ -52,14 +52,23 @@ class Uploads
         $fileName = basename($file["name"]);
 
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        echo finfo_file();
+        $mimeType = finfo_file($finfo, $file["tmp_name"]);
+        finfo_close($finfo);
+
+        if(in_array($mimeType, $this->mimes)){
+            return true;
+        }else{
+            return false;
+        }
     }
 
 }
 
 if(isset($_POST["upload"])){
     $uploads = new Uploads;
-    $uploads->uploadFile($_FILES["fileToUpload"]);
+    if($uploads->uploadFile($_FILES["fileToUpload"])){
+        header("Location: " . $_POST["previous_page"]);
+    }
 }
 
 

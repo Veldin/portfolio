@@ -57,6 +57,7 @@
 		<form action="classes/uploads.php" method="post" enctype="multipart/form-data">
     Select image to upload:
     <input type="file" name="fileToUpload" id="fileToUpload">
+		<input type="hidden" name="previous_page" value='<?php echo $_SERVER['REQUEST_URI'];?>'>
     <input type="submit" value="Upload Image" name="upload">
 </form>
 
