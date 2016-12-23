@@ -54,9 +54,9 @@ class User
     // Returnd de 'credentials' array en wordt voornamelijk gebruik om gebruikerdata te verkrijgen op de volgende manier: get()['email']
     public function get(){
         if(isset($this->userdata) && !empty($this->userdata)){
-          return $this->userdata;
+            return $this->userdata;
         }else{
-            $this->getUserData();
+            return $this->getUserData();
         }
     }
 
