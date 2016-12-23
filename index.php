@@ -10,6 +10,7 @@
 	$core = new Core;
 	$pages = new Pages;
 	$portfolio = new Portfolio;
+	$uploads = new Uploads;
 	$dbc = $core->dbc();
 ?>
 <html>
@@ -43,14 +44,7 @@
 				echo "User is logged in";
 			}
 
-			$uploads = new Uploads($dbc);
-			foreach($uploads->getUserUploads(0) as $key => $value){
-					//echo $key . ": " . $value . "<br>";
-			}
-			// ??????????
-			foreach($i = 0; $i < count($uploads->getAllUploads()[][]); $i++){
-					echo $uploads->getAllUploads();
-			}
+			$uploads->getUserUploads(1);
 
 			$core->load();
 
@@ -60,5 +54,11 @@
 				echo '</div>';
 			echo '</div>';
 		?>
+		<form action="classes/uploads.php" method="post" enctype="multipart/form-data">
+    Select image to upload:
+    <input type="file" name="fileToUpload" id="fileToUpload">
+    <input type="submit" value="Upload Image" name="upload">
+</form>
+
 	</body>
 </html>
