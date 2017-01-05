@@ -117,8 +117,6 @@ body,html{
 	}
 }
 
-/* editmodule */
-
 .module .editModule{
     color: #000002;
     text-align: center;
@@ -137,34 +135,3 @@ body,html{
 	border: 2px solid black;
 	
 }
-
-
-.portfoliolayoutscema {
-	height: 25px;
-	width: calc(100% - 4px);
-    margin: 0 auto;
-    margin-bottom: 10px;
-    background-color: #aaaaaa;
-	text-align: center;
-}
-
-.active.portfoliolayoutscema{
-	background-color: green;
-}
-
-.portfoliolayoutscema:hover{
-	background-color: #8cbd8c;
-}
-
-.active.portfoliolayoutscema:hover{
-	background-color: #06d606;
-}
-
-
-/* .coll-50 > .portfoliolayoutscema{
-    width: 92%;
-}
-
-.coll-33 > .portfoliolayoutscema{
-    width: 88%;
-} */

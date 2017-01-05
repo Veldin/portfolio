@@ -7,107 +7,8 @@ class Pages {
 
 	}
 	
-	function generatecsscolls(){
-	
-		for ($x = 0; $x <= 100; $x++) {
-			echo "<br>";
-			echo ".coll-".$x."{";
-				echo"width: ".$x."%;";
-				echo"min-height: 1px;";
-				echo"float: left;";
-				echo"position: relative;";
-			echo"}";
-		}
-		
-		echo"<br>@media only screen and (max-width: 700px) {<br>";
-		for ($x = 0; $x <= 99; $x++) {
-			echo".coll-".$x.",<br>";
-		}
-			echo"{<br>";
-				echo"width: 100%;<br>";
-			echo"}<br>";
-		echo"}<br>";
-		
-		
-	}
-	
 	function header(){
-		global $pages;
-		
-		echo $pages->navigation();
-	}
-	
-	function navigation() {
-	
-		// $levelID is het niveau wat aan de user mee gegeven wordt, 1 student, 2 docent en 3 admin.
-		$levelID = 1;
-		// $hasPortfolio is het niveau wat wordt meegegeven wanneer de gebruiker een portfolio heeft, 1 voor ja 0 voor nee.
-		$hasPortfolio = 1;
-		// $isSLB geeft aan of een docent een studieloopbaanbegeleider is, 1 voor ja 0 voor nee.
-		$isSLB = 1;
-		// Deze variabelen zijn voor de linkjes naar de bijbehorende paginas.
-		$viewFiles = "linkie1";
-		$uploadFiles = "linkie2";
-		$viewPortfolio = "linkie3";
-		$editPortfolio = "linkie4";
-		$createPortfolio = "linkie5";
-		$overviewPort = "linkie6";
-		$overviewFiles = "linkie7";
-		$guidedStudents = "linkie8";
-		// checked of levelID het ID van een student is.
-		if($levelID === 1){
-			// maakt de array aan met de navigatie structuur.
-			$menu = array(
-				"Bekijk jou bestanden" => $viewFiles,
-				"Upload jou bestanden" => $uploadFiles,
-			);
-			// checked of de leerling een portfolio heeft.
-			if($hasPortfolio === 1){
-				// voegt extra opties toe voor leerling met portfolio.
-				$menu += array(
-					"Bekijk jou portfolio" => $viewPortfolio,
-					"Bewerk jou portfolio" => $editPortfolio
-				);
-			// checked of de leerling geen portfolio heeft.
-			}elseif($hasPortfolio === 0){
-				// voegt extra opties toe voor leerling zonder portfolio.
-				$menu += array(
-					"Creëer een portfolio" => $createPortfolio
-				);
-			}
-		}
-		// checked of levelID het ID van een docent is //
-		if($levelID === 2){
-			// maakt de array aan met de navigatie structuur //
-			$menu = array(
-				"Overzicht van portfolios" => $overviewPort,
-				"Overzicht van bestanden" => $overviewFiles
-			);
-			// checked of de docent een studieloopbaanbegeleider is //
-			if($isSLB === 1){
-				// voegt extra menu opties toe voor SLBers //
-				$menu += array(
-					"Overzicht van begeleide studenten" => $guidedStudents
-				);
-			}
-		}
-		if($levelID === 3){
-			$menu = array(
-				"Overzicht van portfolios" => $overviewPort,
-				"Overzicht van bestanden" => $overviewFiles,
-				"Overzicht van gegevens studenten" => $guidedStudents
-			);
-		}
-		/* echo "<pre>";
-		var_export($menu);
-		echo "</pre>"; */
-		//je krijgt een lijst doormiddel van deze foreach:
-		
-		echo "<ul>";
-		foreach($menu as $optionDesc => $option){
-			echo "<li><a href=$option>$optionDesc</a></li>";
-		}
-		echo "</ul>";
+		echo 'HEADER';
 	}
 	
 	function footer(){
@@ -185,12 +86,7 @@ class Pages {
 				echo '</pre>'; */
 				
 				echo '<div id="containerOuter">';
-					echo '<div class="portfolio" id="containerInner">';
-				
-					//variable om op teslaan waneer er een nieuwe break toegevoegd moet worden.
-					$break = 0;
-				
-					echo '<div class="moduleSeparator coll-100">';
+					echo '<div id="containerInner">';
 				
 					foreach ($modules as $module) {
 						$moduletemplate = $dbc->prepare('SELECT * FROM `moduletemplate` WHERE `id` = "'.$module['moduleid'].'" LIMIT 1');
@@ -202,12 +98,8 @@ class Pages {
 							$input = explode(",", $module['input']);
 							$fields = explode(",", $moduletemplate['field']);
 							
-							//Headers tellen niet mee met de break!
-							if($moduletemplate['function'] !== 'header'){
-								$break += $module['size'];
-							}
+							/* print_r($moduletemplate);*/
 							
-
 							echo '<div class="module coll-'.$module['size'].'">';
 								echo '<div class="contentMargin">';
 								if(count($input) == count($fields)){
@@ -233,20 +125,11 @@ class Pages {
 								
 								echo '</div>';
 							echo '</div>';
-							
-							if($break > 99){
-								echo '</div>';
-								echo '<div class="moduleSeparator coll-100">';
-								$break = 0;
-							}
-
 						//echo $portfolio->$moduletemplate['function']('sdfdsf');
 						}else{
 							echo 'Methode niet gevonden!';
 						}
 					}
-					
-					echo '</div>';
 					
 					echo '<div class="clear"></div>';
 					echo '</div>';
@@ -267,6 +150,12 @@ class Pages {
 				echo '</div>';
 			echo '</div>';
 		}
+		
+		echo '<div id="containerOuter">';
+			echo '<div id="containerInner">';
+				echo 'Comentaar';
+			echo '</div>';
+		echo '</div>';
 	}
 	
 	
@@ -275,15 +164,14 @@ class Pages {
 		global $dbc;
 		global $core;
 		global $portfolio;
-		global $user;
 		
 		if(isset($_GET["m"])){
 				$moduleId = htmlspecialchars($_GET["m"]);
 				$moduleId = preg_replace("/[^0-9,.]/", "", $moduleId);
 				
-				$userID = $user->get()['id']; //loged in userID
-
-				$module = $dbc->prepare('SELECT * FROM `module` WHERE `id` = "'.$moduleId.'" AND `portfolioid` = '.$userID.' LIMIT 1');
+				$user = 1; //loged in user
+			
+				$module = $dbc->prepare('SELECT * FROM `module` WHERE `id` = "'.$moduleId.'" AND `portfolioid` = '.$user.' LIMIT 1');
 				$module->execute();
 				$module = $module->fetchAll(PDO::FETCH_ASSOC);
 
@@ -295,6 +183,8 @@ class Pages {
 							//verwerken
 						
 							if(isset($_POST['Submit'])){
+								
+								
 								$input = ''; 
 								
 								for ($x = 0; $x < 10; $x++) {
@@ -303,6 +193,7 @@ class Pages {
 										$input .= ','.str_replace(",","、",htmlspecialchars($_POST[$x]));
 									}
 								}
+																
 								//replace '
 								$input = str_replace("'","`",$input);
 								
@@ -314,6 +205,14 @@ class Pages {
 									$size = htmlspecialchars($_POST['size']);
 									$size = preg_replace("/[^0-9,.]/", "", $size);
 								}
+
+								
+								/* echo '<br>';
+								echo $input;
+								echo '<br>';
+								echo $size;
+								echo '<br>';
+								echo $moduleId; */
 								
 								$sql = "UPDATE `module` SET `input`='".$input."',`size`='".$size."'  WHERE id=".$moduleId;
 								
@@ -328,7 +227,7 @@ class Pages {
 							}
 						
 							//ophalen module
-							$module = $dbc->prepare('SELECT * FROM `module` WHERE `id` = "'.$moduleId.'" AND `portfolioid` = '.$userID.' LIMIT 1');
+							$module = $dbc->prepare('SELECT * FROM `module` WHERE `id` = "'.$moduleId.'" AND `portfolioid` = '.$user.' LIMIT 1');
 							$module->execute();
 							$module = $module->fetchAll(PDO::FETCH_ASSOC)[0];
 							
@@ -345,44 +244,25 @@ class Pages {
 							
 							echo '<h1>Aanpassen Module</h1>';
 							
-							$url = $core->getPortfolioURL($module['portfolioid']);
-							echo $url;
-							//Links
-							echo '<div></div>';
+							echo '<h2>'.$moduletemplate['name'].'</h2>';
+							echo '<p>'.$moduletemplate['description'].'</p>';
 							
-							echo '<div class="coll-50">';
-								echo '<h2>'.$moduletemplate['name'].'</h2>';
-								echo '<p>'.$moduletemplate['description'].'</p>';
+							$inputs = explode(",", $module['input']);
+							$fields = explode(",", $moduletemplate['field']);
+							$titles = explode(",", $moduletemplate['fieldTitle']);
+							
+							
+							echo '<form action="#" method="post">';
+								for ($x = 0; $x < count($fields); $x++) {
+									 
+									echo $core->input($fields[$x],$titles[$x],$x,$inputs[$x]);
+								} 
 								
-								$inputs = explode(",", $module['input']);
-								$fields = explode(",", $moduletemplate['field']);
-								$titles = explode(",", $moduletemplate['fieldTitle']);
+								echo 'Groote: <input min="0" min="100" type="number" name="size" value="'.$module['size'].'" ><br>';
 								
-								echo '<form action="#" method="post">';
-									for ($x = 0; $x < count($fields); $x++) {
-										 
-										echo $core->input($fields[$x],$titles[$x],$x,$inputs[$x]);
-									} 
-									
-									echo 'Groote: <input min="0" min="100" type="number" name="size" value="'.$module['size'].'" ><br>';
-									
-									echo '<input type="submit" name="Submit" value="Submit">';
-								echo '</form>';
-							echo '</div>';
+								echo '<input type="submit" name="Submit" value="Submit">';
+							echo '</form>';
 							
-							echo '<div class="coll-50">';
-								echo '<h2>Portfolio Layout</h2>';
-
-									echo '<div class="coll-33">';
-										$core->portfoliolayout($module['portfolioid'], $moduleId);
-									echo '</div>';
-									
-									echo '<div class="clear"></div>';
-
-								echo '<div class="clear"></div>';
-							echo '</div>';
-							
-							echo '<div class="clear"></div>';
 							
 							//Tonen van de uitkomst
 							echo '<h2>Dit is hoe hij er uit komt!</h2>';

@@ -7,19 +7,16 @@ class User
     private $userdata;
     private $dbc;
     // Deze functie wordt aangeroepen wanneer er een instantie van de class wordt aangemaakt. Hier in worden de email, wachtwoord en de database connectie meegegeven.
-    function __construct($dbc){
+    function __construct($email, $password, $dbc){
+        $this->email = htmlentities($email);
+        $this->password = htmlentities($password);
         $this->dbc = $dbc;
     }
     // Deze functie doet op zichzelf vrij weinig behalve de 'loggedIn' sessie naar true zetten wanneer de gebruiker succesvol is geauthenticeerd.
-    public function login($email, $password){
-        $this->email = htmlentities($email);
-        $this->password = htmlentities($password);
+    public function login(){
         if($this->auth()){
             $this->getUserData();
             $_SESSION['loggedIn'] = true;
-            return true;
-        }else{
-            return false;
         }
     }
     // Unset of destroy de sessie variabelen zodat de gebruiker niet meer als ingelogd wordt beschouwd.
@@ -46,11 +43,7 @@ class User
     }
     // Returnd de 'credentials' array en wordt voornamelijk gebruik om gebruikerdata te verkrijgen op de volgende manier: get()['email']
     public function get(){
-        if(isset($this->userdata) && !empty($this->userdata)){
-          return $this->userdata;
-        }else{
-            $this->getUserData();
-        }
+        return $this->userdata;
     }
     // Checkt of de 'loggedIn' sessie is geset en of deze true bevat van het type boolean. Zoja, return true en anders return false;
     public function isLoggedIn(){
@@ -82,7 +75,6 @@ class User
         $stmt->bindParam(":id", $_SESSION['userId']);
         $stmt->execute();
         $results = $stmt->fetch(PDO::FETCH_ASSOC);
-		$this->userdata['id'] = $results['id'];
         $this->userdata['levelid'] = $results['levelid'];
         $this->userdata['slb'] = $results['slb'];
         $this->userdata['email'] = $this->email;
