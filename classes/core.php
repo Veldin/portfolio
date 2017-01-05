@@ -36,6 +36,72 @@ class Core {
 		return $page;
 	}
 	
+	function getUserFromURL($url){
+		global $dbc;
+	
+		$portfolio = $dbc->prepare('SELECT * FROM `portfolio` WHERE `url` = "'.$url.'" LIMIT 1');
+		$portfolio->execute();
+		$portfolio = $portfolio->fetchAll(PDO::FETCH_ASSOC)[0];
+	
+		return $portfolio['userid'];
+	}
+	
+	function getPortfolioURL($userid){
+		global $dbc;
+	
+		$portfolio = $dbc->prepare('SELECT * FROM `portfolio` WHERE `userid` = "'.$userid.'" LIMIT 1');
+		$portfolio->execute();
+		$portfolio = $portfolio->fetchAll(PDO::FETCH_ASSOC)[0];
+	
+		return $portfolio['url'];
+	}
+	
+	//Functie voor het maken van een portfolio layout scema.
+	function portfoliolayout($userid, $active = ''){
+		global $dbc;
+		global $portfolio;
+		global $user;
+		
+		$requestedPortfolio = $dbc->prepare('SELECT * FROM `portfolio` WHERE `userid` = "'.$userid.'" LIMIT 1');
+		$requestedPortfolio->execute();
+		$requestedPortfolio = $requestedPortfolio->fetchAll(PDO::FETCH_ASSOC)[0];
+		
+		$modules = $dbc->prepare('SELECT * FROM `module` WHERE `portfolioid` = "'.$requestedPortfolio['userid'].'" ORDER BY `position`');
+		$modules->execute();
+		$modules = $modules->fetchAll(PDO::FETCH_ASSOC);
+		
+		foreach ($modules as $module) {
+			$moduletemplate = $dbc->prepare('SELECT * FROM `moduletemplate` WHERE `id` = "'.$module['moduleid'].'" LIMIT 1');
+			$moduletemplate->execute();
+			$moduletemplate = $moduletemplate->fetchAll(PDO::FETCH_ASSOC)[0];
+			
+			if (method_exists($portfolio,$moduletemplate['function'])){
+
+				$input = explode(",", $module['input']);
+				$fields = explode(",", $moduletemplate['field']);
+
+			
+				
+				echo '<a href="?p=editmodule&m='.$module['id'].'">';
+					if($module['id'] == $active){
+						echo '<div class="coll-'.$module['size'].'">'; 
+							echo '<div class="active portfoliolayoutscema">';
+								//echo $moduletemplate['name'];
+							echo '</div>';
+						echo '</div>';
+					}else{
+						echo '<div class="coll-'.$module['size'].'">'; 
+							echo '<div class="portfoliolayoutscema">';
+								//echo $moduletemplate['name'];
+							echo '</div>';
+						echo '</div>';
+					}
+				echo '</a>';
+			}
+		}
+	
+	}
+	
 	function dbc() { 
 			$servername = "db.veldin.com"; 
 			$username = "md253219db370063"; 
