@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <?php
 	session_start();
+	
+	//Alle benodigde bestanden.
 	require ('classes/core.php');
 	require ('classes/pages.php');
 	require ('classes/portfolio.php');
 	require ('classes/user.php');
 	
+	//Initialiseren van benodigde classen.
 	$core = new Core;
 	$pages = new Pages;
 	$portfolio = new Portfolio;
 	$dbc = $core->dbc();
+	//$user = new User("amr.jonkman@gmail.com", "pass", $dbc);
+	$user = new User($dbc);
 ?>
 <html>
 	<head>
 		<?php
-			echo '<title>Hallo - '.$core->paginaTitel().'</title>';
+			echo '<title>Portfolio - '.$core->paginaTitel().'</title>';
 		?>
 		<meta http-equiv="content-type" content="text/html;charset=UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,16 +37,14 @@
 					$pages->header();
 				echo '</div>';
 			echo '</div>';
-			
-			//$user = new User("amr.jonkman@gmail.com", "pass", $dbc);
-			$user = new User($dbc);
+
 			
 			if($user->login("amr.jonkman@gmail.com", "pass")){
-				echo "User is logged in";
+				//echo "Gebruiker logged in.";
 			}
 			
 			if($user->isLoggedIn()){
-				echo "User is logged in";
+				//echo "Gebruiker is ingelogd";
 			}
 		
 			$core->load();

@@ -292,11 +292,12 @@ class Pages {
 					$module = $module[0];
 					echo '<div id="containerOuter">';
 						echo '<div id="containerInner">';
-							//verwerken
+							//verwerken van POST (module aanpassen)
 						
 							if(isset($_POST['Submit'])){
 								$input = ''; 
 								
+								//De elementen van de module worden genummerd opgestuurd.
 								for ($x = 0; $x < 10; $x++) {
 									if(isset($_POST[$x])){
 										//Replace commas
@@ -309,7 +310,7 @@ class Pages {
 								//eerste comma verwijderen
 								$input = substr($input, 1);
 								
-								$size = 100;
+								$size = 100; //Standaard breete
 								if(isset($_POST['size'])){		
 									$size = htmlspecialchars($_POST['size']);
 									$size = preg_replace("/[^0-9,.]/", "", $size);
@@ -320,10 +321,11 @@ class Pages {
 								$update = $dbc->prepare($sql);
 								$update->execute();
 								
+								//berichtgeving
 								if($update == true){
-									echo '<p>Module is bijgewerkt.</p>';
+									echo '<p class="alert">Module is bijgewerkt.</p>';
 								}else{
-									echo '<p>Er is een fout voorgekomen. Probeer het opnieuw.</p>';
+									echo '<p class="alert">Er is een fout voorgekomen. Probeer het opnieuw.</p>';
 								}
 							}
 						
@@ -345,35 +347,40 @@ class Pages {
 							
 							echo '<h1>Aanpassen Module</h1>';
 							
+							//URL van deze gebruiker
 							$url = $core->getPortfolioURL($module['portfolioid']);
-							echo $url;
-							//Links
-							echo '<div></div>';
+							
+							echo '<div class="coll-100">';
+								echo 'links voor module toevoegen en module verwijderen hier!';
+							echo '</div>';
 							
 							echo '<div class="coll-50">';
-								echo '<h2>'.$moduletemplate['name'].'</h2>';
-								echo '<p>'.$moduletemplate['description'].'</p>';
+								echo '<h2>'.ucfirst($moduletemplate['name']).'</h2>';
+								echo '<p>'.ucfirst($moduletemplate['description']).'</p>';
 								
 								$inputs = explode(",", $module['input']);
 								$fields = explode(",", $moduletemplate['field']);
 								$titles = explode(",", $moduletemplate['fieldTitle']);
 								
 								echo '<form action="#" method="post">';
+								
+									//Voeg alle inputvelden toe die bij deze module horen.
 									for ($x = 0; $x < count($fields); $x++) {
-										 
 										echo $core->input($fields[$x],$titles[$x],$x,$inputs[$x]);
 									} 
 									
-									echo 'Groote: <input min="0" min="100" type="number" name="size" value="'.$module['size'].'" ><br>';
+									// Plus de standart inputvelden.
+									echo 'Breedte van de module in procent:<br> <input min="0" min="100" type="number" name="size" value="'.$module['size'].'" ><br><br>';
 									
-									echo '<input type="submit" name="Submit" value="Submit">';
+									echo '<input type="submit" name="Submit" value="Verstuur">';
 								echo '</form>';
 							echo '</div>';
 							
 							echo '<div class="coll-50">';
 								echo '<h2>Portfolio Layout</h2>';
-
+								
 									echo '<div class="coll-33">';
+										//Portfolio layout met links tonen.
 										$core->portfoliolayout($module['portfolioid'], $moduleId);
 									echo '</div>';
 									
@@ -385,8 +392,8 @@ class Pages {
 							echo '<div class="clear"></div>';
 							
 							//Tonen van de uitkomst
-							echo '<h2>Dit is hoe hij er uit komt!</h2>';
-							echo '<p>Dit is hoe hij er uit komt te zien op de portfolio!</p>';
+							echo '<h2>Live module</h2>';
+							echo '<p>Dit is hoe de module eruit ziet op uw portfolio!</p>';
 							
 							if (method_exists($portfolio,$moduletemplate['function'])){
 								//echo 'Function Found';

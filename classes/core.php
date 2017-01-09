@@ -121,8 +121,9 @@ class Core {
 		}
     } 
 	
+	//genereren van de inputvelden voor het aanpassen van de modules
 	function input($type = 'text', $title = 'naam', $name = 'naam', $value = ' '){
-		echo $title.': <input type="'.$type.'" name="'.$name.'" value="'.$value.'" ><br>';
+		echo $title.':<br> <input type="'.$type.'" name="'.$name.'" value="'.$value.'" ><br><br>';
 	}
 	
 	

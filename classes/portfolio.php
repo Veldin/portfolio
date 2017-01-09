@@ -33,7 +33,7 @@ class Portfolio {
 		$return = '';
 
 		//Haal alle reacties op!
-		$comments = $dbc->prepare('SELECT * FROM `chat` WHERE `targetid` = "'.$userId.'" ORDER BY `timestamp` DESC');
+		$comments = $dbc->prepare('SELECT * FROM `chat` WHERE `targetid` = "'.$userId.'" ORDER BY `timestamp` DESC LIMIT '.$ammount.'');
 		$comments->execute();
 		$comments = $comments->fetchAll(PDO::FETCH_ASSOC);
 	
@@ -43,7 +43,7 @@ class Portfolio {
 			foreach ($comments as $comment) {
 				//print_r($comment);
 				
-				$CommentUser = $dbc->prepare('SELECT * FROM `user` WHERE `id` = "'.$comment['userid'].'"');
+				$CommentUser = $dbc->prepare('SELECT * FROM `user` WHERE `id` = "'.$comment['userid'].' LIMIT 0"');
 				$CommentUser->execute();
 				$CommentUser = $CommentUser->fetchAll(PDO::FETCH_ASSOC)[0];
 				
