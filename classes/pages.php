@@ -1,11 +1,7 @@
 <?php
 //Een class met al mijn paginas als functies
 class Pages {  
-	//Hoofd pagina
-	function home(){
-		global $core;
 
-	}
 	
 	function generatecsscolls(){
 	
@@ -269,6 +265,96 @@ class Pages {
 		}
 	}
 	
+	//Hoofd pagina
+	function home(){
+		global $core;
+		global $pages;
+		
+		echo $pages->login();
+		
+		//if not loged in show login pages
+		
+		
+		//if login true
+			//if teacher 
+			
+			//admin
+			
+			//if student
+	}
+	
+	function login(){
+		echo "<form method='' action=''
+		>E-MAIL:<br><input type='text' pattern='/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/' required><br>";
+		echo "PASSWORD:<br><input type='password' name='password' required><br>";
+		echo "<input type='submit' name='submit' value='Login'></form>";
+		
+		echo 'link naar register';
+	}
+	
+	function register(){
+		
+		echo 'register templ';
+	}
+	
+	function teacherHome(){
+		global $dbc;
+		
+		$SQLstring = $dbc->prepare('SELECT lastname, firstname, zipcode, phone, email, url FROM user, portfolio
+						WHERE user.levelid = 1 AND user.id = portfolio.userid 
+						ORDER BY lastname ASC'
+						);
+		$SQLstring->execute();
+		$SQLstring = $SQLstring->fetchAll(PDO::FETCH_ASSOC);
+		
+		echo "<table border='1'>";
+		echo "<tr><th>Achternaam</th> <th>Voornaam</th> <th>Postcode</th> <th>Telefoonnummer</th> <th>E-mail</th> <th>url</th></tr>";
+		foreach($SQLstring as $key => $value)
+                    {
+                        echo "<tr><td>{$value['lastname']}</td>";
+                        echo "<td>{$value['firstname']}</td>";
+                        echo "<td>{$value['zipcode']}</td>";
+                        echo "<td>{$value['phone']}</td>";
+                        echo "<td>{$value['email']}</td>";
+						echo "<td><a href='{$value['url']}'>portfolio</a></td></tr>";
+                        
+                    }
+                
+		echo "</table>";
+	}
+	
+	function studentHome(){
+		global $dbc;
+		global $user;
+		
+		$editprofile = "Link";	//Link naar de profile edit
+		$viewprofile = "Link";	//Link naar het profile overzicht
+		$viewportfolio = "Link";	//Link naar je portfolio
+		$createportfolio = "Link";	//Link naar de pagina voor het aanmaken van je portfolio
+		
+		$userdata = $user->get();
+		$currentuser = 1;
+		
+		$SQLstring = $dbc->prepare("SELECT user.timestamp, user.firstname, user.lastname FROM user 
+						WHERE user.id = $currentuser");
+		$SQLstring->execute();
+		$SQLstring = $SQLstring->fetchAll(PDO::FETCH_ASSOC);
+		
+		foreach($SQLstring as $key => $value){
+		echo "<p>Hallo {$value['firstname']} {$value['lastname']}.</p>";
+		echo "<p>Dit account is aangemaakt op {$value['timestamp']}.</p>";
+		}		
+		$SQLstring2 = $dbc->prepare("SELECT COUNT(chat.targetid) AS commentamount, chat.timestamp FROM chat 
+									WHERE chat.targetid = $currentuser");
+		$SQLstring2->execute();
+		$SQLstring2 = $SQLstring2->fetchAll(PDO::FETCH_ASSOC);
+		foreach($SQLstring2 as $key => $value){
+		echo "<p>Er zijn {$value['commentamount']} comments op jou portfolio.</p>";
+		echo "<p>De laatste comment was op {$value['timestamp']}.</p>";
+		}
+		
+		
+	}
 	
 	//functie voor het editen van een module
 	function editmodule(){
