@@ -123,7 +123,15 @@ class Core {
 	
 	//genereren van de inputvelden voor het aanpassen van de modules
 	function input($type = 'text', $title = 'naam', $name = 'naam', $value = ' '){
-		echo $title.':<br> <input type="'.$type.'" name="'.$name.'" value="'.$value.'" ><br><br>';
+		echo '<div class="form-group">';
+			echo '<label>'.$title.':</label>';
+			
+			if ($type == 'textarea'){
+				echo '<textarea class="form-control" rows="12" name="'.$name.'">'.$value.'</textarea>';
+			}else{
+				echo '<input class="form-control"  type="'.$type.'" name="'.$name.'" value="'.$value.'" >';
+			}
+		echo '</div>';
 	}
 	
 	

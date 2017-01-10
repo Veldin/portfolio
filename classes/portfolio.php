@@ -39,6 +39,53 @@ class Portfolio {
 	
 		echo '<div class="comments coll-100">';
 	
+		echo '<h2>Reacties</h2>';
+	
+		if($page == 'portfolio' && $user->isLoggedIn()){
+		
+			if(isset($_POST["reactie"])){
+				$comment = htmlspecialchars($_POST["reactie"]);
+			
+				if(!empty($comment)){
+					//$toevoegen = $dbc->prepare('INSERT INTO `chat` VALUES ('..',timestamp,targetid,message)');
+					//$toevoegen->execute();
+
+					$toevoegen = $dbc->prepare('INSERT INTO `chat` VALUES ('.$user->get()['id'].','.time().','.$userId.',"'.$comment.'")');
+					$toevoegen->execute();
+					
+					if($toevoegen){
+						echo '<div class="alert alert-success">';
+							echo '<strong>Succces!</strong> Uw bericht is toegevoegd.';
+						echo '</div>';
+						
+						//haal alle reacties opnieuw op.
+						$comments = $dbc->prepare('SELECT * FROM `chat` WHERE `targetid` = "'.$userId.'" ORDER BY `timestamp` DESC LIMIT '.$ammount.'');
+						$comments->execute();
+						$comments = $comments->fetchAll(PDO::FETCH_ASSOC);
+					}else{
+						echo '<div class="alert alert-danger">';
+							echo '<strong>:(</strong> Er is iets fout gegaan, probeer het later opnieuw.';
+						echo '</div>';
+					}
+					
+				}else{
+					echo '<div class="alert alert-danger">';
+					  echo '<strong>:(</strong> U heeft geen bericht ingevuld.';
+					echo '</div>';
+				}
+			}
+		
+			
+		
+			echo '<form action="#" method="post">';
+				echo '<div class="form-group">';
+					echo '<textarea class="form-control" rows="5" name="reactie"></textarea>';
+				echo '</div>';
+				echo '<input  type="submit" class="btn btn-default" type="submit" name="Submit" value="Verstuur">';
+			echo '</form>';
+		}
+	
+	
 		if(!empty($comments)){
 			foreach ($comments as $comment) {
 				//print_r($comment);
@@ -54,11 +101,11 @@ class Portfolio {
 				echo '<div class="comment coll-100">';
 				}
 					echo '<div class="coll-25">';
-						echo $CommentUser['firstname']." ".$CommentUser['lastname'];
+						echo htmlspecialchars($CommentUser['firstname'])." ".htmlspecialchars($CommentUser['lastname']);
 					echo '</div>';
 					
 					echo '<div class="coll-75">';
-						echo $comment['message'];
+						echo htmlspecialchars($comment['message']);
 					echo '</div>';
 				echo '</div>';
 			}
