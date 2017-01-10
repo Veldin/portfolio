@@ -320,31 +320,106 @@ class Pages {
 	function showUploads(){
 			global $dbc;
 
-			
+			$uploads = new Uploads;
+
+			// Wanneer een get request wordt gedaan om een bestand te verwijderen.
+			if(isset($_GET['id'])){
+					if(isset($_GET['action'])){
+							if($_GET['action'] == "remove"){
+									if($uploads->hasRemovePermission($_GET['id'])){
+											unlink($uploads->getFileLocationById($_GET['id']));
+											if($uploads->deleteFile($_GET['id'])){
+													$url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+													$url =  strtok($url, '?');
+													header("Location: " . $url);
+											}
+									}
+							}
+					}
+			}
+
+			echo
+			"
+			<div class='table-responsive'>
+				<table class='table table-bordered'>
+					<tr>
+						<th>Bestandsnaam</th>
+						<th>Beschrijving</th>
+						<th>Publiekelijk</th>
+						<th>Download</th>
+						<th>Verwijder</th>
+					</tr>";
+					if($uploads->getUserUploads(1)){
+							foreach($uploads->getUserUploads(1) as $upload){
+									$id = $upload['id'];
+									$name = $upload['name'];
+									$description = $upload['description'];
+									$downloadUrl = $upload['url'];
+									$public = $upload['public'];
+
+									echo
+									"<tr>
+										<td>$name</td>
+										<td>$description</td>";
+										if($public)
+												echo "<td><input type='checkbox' name='filePublic' value='public' checked></td>";
+											else
+												echo "<td><input type='checkbox' name='filePublic' value='public'></td>";
+									echo
+										"<td><a href='$downloadUrl'><i class='fa fa-download' aria-hidden='true'></i></a></td>
+										<td><a href='?id=$id&action=remove'><i class='fa fa-trash' aria-hidden='true'></i></a></td></tr>";
+							}
+					}else{
+							echo "Er zijn nog geen bestanden geüpload.";
+					}
+				echo
+				"</table>
+				<button type='submit' class='btn btn-info'>Wijzigingen opslaan</button>
+			</div>";
 	}
 
 	// Functie voor het uploaden van files
 	function uploadFile(){
 			global $dbc;
 
-			$uploads = new Uploads;
-			echo "<pre>";
-			$uploads->getUserUploads(1);
-			echo "</pre>";
-
 			if(isset($_POST["upload"])){
-			    $uploads = new Uploads;
-			    if($uploads->uploadFile($_FILES["fileToUpload"])){
-			        //header("Location: " . $_POST["previous_page"]);
-			    }else{
-							echo "Could not upload file!";
+					if(!empty($_POST['fileName']) && !empty($_POST['fileDescription']) && !empty($_FILES['fileToUpload']['name'])){
+							$name = stripslashes($_POST['fileName']);
+							$description = stripslashes($_POST['fileDescription']);
+
+							$uploads = new Uploads;
+							if($uploads->uploadFile($_FILES["fileToUpload"], $name, $description) == "OK"){
+									//header("Location: " . $_POST["previous_page"]);
+									echo "<div style='color:green;'>Uw bestand is geüpload.</div>";
+							}else if($uploads->uploadFile($_FILES["fileToUpload"], $name, $description) == "FILE_EXISTS"){
+									echo "<div style='color:red;'>Een bestand met die naam bestaat al.</div>";
+							}else if($uploads->uploadFile($_FILES["fileToUpload"], $name, $description) == "FILE_NOT_ALLOWED"){
+									echo "<div style='color:red;'>U bent niet bevoegd om bestanden met deze extensie te uploaden.</div>";
+							}else{
+									echo "<div style='color:red;'>Het bestand kon niet worden geüpload, probeer het later opnieuw.</div>";
+							}
+					}else{
+							echo "<div style='color:red;'>Je moet elk veld invullen en/of een bestand selecteren.</div>";
 					}
 			}
 
-			echo "<form action='#' method='post' enctype='multipart/form-data'>
-	    Select image to upload:
-	    <input type='file' name='fileToUpload' id='fileToUpload'>
-	    <input type='submit' value='Upload' name='upload'>";
+			echo
+				"<form action='#' method='post' enctype='multipart/form-data'>
+					<div class='form-group'>
+		    		<label for='fileName'>Bestandsnaam</label>
+						<input type='text'' class='form-control' id='fileName' name='fileName' placeholder='Powerpoint Project'>
+					</div>
+					<div class='form-group'>
+		    		<label for='fileDescription'>Beschrijving</label>
+						<input type='text'' class='form-control' id='fileDescription' name='fileDescription' placeholder='Een presentatie van het school project'>
+					</div>
+					<div class='form-group'>
+				    <label for='fileUpload'>Bestand</label>
+				    <input type='file' id='fileToUpload' name='fileToUpload'>
+				    <p class='help-block'>Selecteer hier boven het bestand dat u wilt uploaden.</p>
+  				</div>
+		    		<button type='submit' name='upload' class='btn btn-default'>Upload</button>
+				</form>";
 	}
 
 	//404

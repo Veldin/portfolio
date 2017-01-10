@@ -45,11 +45,11 @@ class User
         }
     }
     // Returnd de 'credentials' array en wordt voornamelijk gebruik om gebruikerdata te verkrijgen op de volgende manier: get()['email']
-    public function get(){
+    public function get($param){
         if(isset($this->userdata) && !empty($this->userdata)){
-            return $this->userdata;
+            return $this->userdata[$param];
         }else{
-            return $this->getUserData();
+            return $this->getUserData()[$param];
         }
     }
     // Checkt of de 'loggedIn' sessie is geset en of deze true bevat van het type boolean. Zoja, return true en anders return false;

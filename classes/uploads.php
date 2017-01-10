@@ -38,18 +38,34 @@ class Uploads
     function getUserUploads($userid, $publicOnly = false){
         global $dbc;
 
-        $stmt = $dbc->prepare("SELECT * FROM uploads WHERE userid = :userid AND public = :public");
+        if($publicOnly){
+            $stmt = $dbc->prepare("SELECT * FROM uploads WHERE userid = :userid AND public = :public");
+            $stmt->bindParam(":public", $publicOnly);
+        }else{
+            $stmt = $dbc->prepare("SELECT * FROM uploads WHERE userid = :userid");
+        }
         $stmt->bindParam(":userid", $userid);
-        $stmt->bindParam(":public", $publicOnly);
         $stmt->execute();
 
         if($stmt->rowCount() > 0){
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            var_dump($results);
+            return $results;
+        }else{
+            return false;
         }
     }
 
-    function uploadFile($file){
+    function getFileLocationById($id){
+        global $dbc;
+
+        $stmt = $dbc->prepare("SELECT url FROM uploads WHERE id = :id");
+        $stmt->bindParam(":id", $id);
+        if($stmt->execute()){
+            return $stmt->fetch(PDO::FETCH_ASSOC)['url'];
+        }
+    }
+
+    function uploadFile($file, $name, $description){
         global $dbc;
 
         if($file['name'] == ''){
@@ -64,14 +80,49 @@ class Uploads
         finfo_close($finfo);
 
         if(in_array($mimeType, $this->mimes)){
-            move_uploaded_file($file["tmp_name"], $targetFile);
+            if(!file_exists($targetFile)){
+                move_uploaded_file($file["tmp_name"], $targetFile);
 
-            $userId = 1;
-            $stmt = $dbc->prepare("INSERT INTO `uploads` VALUES (NULL, :userid, 'name', 'description', :target, 0)");
-            $stmt->bindParam(":userid", $userId);
-            $stmt->bindParam(":target", $targetFile);
-            $stmt->execute();
+                $userId = 1;
+                $stmt = $dbc->prepare("INSERT INTO `uploads` VALUES (NULL, :userid, :name, :description, :target, 0)");
+                $stmt->bindParam(":userid", $userId);
+                $stmt->bindParam(":name", $name);
+                $stmt->bindParam(":description", $description);
+                $stmt->bindParam(":target", $targetFile);
+                $stmt->execute();
 
+                return "OK";
+            }else{
+              return "FILE_EXISTS";
+            }
+        }else{
+            return "FILE_NOT_ALLOWED";
+        }
+    }
+
+    function hasRemovePermission($id){
+        global $dbc;
+        $userId = 1;
+
+        $stmt = $dbc->prepare("SELECT id FROM uploads WHERE id = :id AND userid = :userid");
+        $stmt->bindParam(":id", $id);
+        //$stmt->bindParam(":userid", $_SESSION['userid']);
+        $stmt->bindParam(":userid", $userId);
+        $stmt->execute();
+        if($stmt->rowCount() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    function deleteFile($id, $file){
+        global $dbc;
+
+        $stmt = $dbc->prepare("DELETE FROM uploads WHERE id = :id");
+        $stmt->bindParam(":id", $id);
+        if($stmt->execute()){
+            unlink();
             return true;
         }else{
             return false;
