@@ -269,32 +269,64 @@ class Pages {
 	function home(){
 		global $core;
 		global $pages;
+		global $dbc;
+		global $user;
 		
-		echo $pages->login();
-		
-		//if not loged in show login pages
-		
+		//$levelid = $user->get()['levelid'];
+		$currentuser = 1;
 		
 		//if login true
-			//if teacher 
+		if($user->isLoggedIn()){
+						
+			$SQLstring = $dbc->prepare("SELECT user.levelid FROM user
+						WHERE user.id = $currentuser");
+			$SQLstring->execute();
+			foreach($SQLstring as $key => $value)
+			{
+				//if student
+				if($value['levelid'] == 1){	//$value['levelid'] wordt $levelid
+					echo $pages->studentHome();
+				//if teacher 
+				}elseif($value['levelid'] == 2){
+					echo $pages->teacherHome();
+				//if admin
+				}elseif($value['levelid'] == 3){
+					echo $pages->adminHome();
+				}
+			}
+		//if not logged in show login pages
+		}else{
 			
-			//admin
-			
-			//if student
+			echo $pages->login();
+		}				
 	}
 	
 	function login(){
-		echo "<form method='' action=''
-		>E-MAIL:<br><input type='text' pattern='/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/' required><br>";
-		echo "PASSWORD:<br><input type='password' name='password' required><br>";
+		echo "<h2>Login</h2>";
+		echo "<form method='' action=''>
+				E-mail:<br><input type='text' pattern='/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/' required><br>";
+		echo "	Wachtwoord:<br><input type='password' name='password' required><br>";
 		echo "<input type='submit' name='submit' value='Login'></form>";
 		
-		echo 'link naar register';
+		echo "<a href='index.php?p=register'>Registreer</a>";
 	}
 	
 	function register(){
-		
-		echo 'register templ';
+		echo "<h2>Maak een account aan</h2>";
+			
+		echo "	<form method='' action=''>
+				<input type='text' placeholder='E-mail' required><br>
+				<input type='password' placeholder='Wachtwoord' required><br>
+				<input type='password' placeholder='Herhaal wachtwoord' required><br>
+				<input type='text' placeholder='Voornaam' required><br>
+				<input type='text' placeholder='Achternaam' required><br>
+				<input type='number' placeholder='Telefoonnummer' required><br>
+				<input type='text' placeholder='Postcode' required><br>
+				<input type='text' placeholder='Adres' required><br>
+				<input type='submit' value='Registreer'>
+				</form>";
+				
+		echo "<p>Heb je al een account? <a href='index.php?p=login'>Log in</a></p>";
 	}
 	
 	function teacherHome(){
