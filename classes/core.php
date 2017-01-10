@@ -103,10 +103,10 @@ class Core {
 	}
 	
 	function dbc() { 
-			$servername = "db.veldin.com"; 
-			$username = "md253219db370063"; 
-			$password = "NiFQYCvz"; 
-			$dbname = "md253219db370063";  
+			$servername = "127.0.0.1"; 
+			$username = "root"; 
+			$password = ""; 
+			$dbname = "portfolio";  
 		
 		try {
 			$dbc = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);

@@ -329,6 +329,39 @@ class Pages {
 		echo "<p>Heb je al een account? <a href='index.php?p=login'>Log in</a></p>";
 	}
 	
+	function adminHome(){
+		global $dbc;
+		global $user;
+		
+		$firstname = $user->get()['firstname'];
+		$lastname = $user->get()['lastname'];
+		
+		echo "<h2>Welkom ".$firstname." ".$lastname.".</h2>";
+		
+		$SQLstring = $dbc->prepare("SELECT COUNT(user.id) AS useramount FROM user");
+		$SQLstring->execute();
+		foreach($SQLstring as $key => $value){
+			echo "<p>Er zijn ".$value['useramount']." accounts aangemaakt:</p>";
+		}
+
+		$SQLstring = $dbc->prepare("SELECT COUNT(user.id) AS useramount FROM user WHERE levelid = 1");
+		$SQLstring->execute();
+		foreach($SQLstring as $key => $value){
+			echo "<p>	".$value['useramount']." studenten accounts.<br>";
+		}
+		
+		$SQLstring = $dbc->prepare("SELECT COUNT(user.id) AS useramount FROM user WHERE levelid = 2");
+		$SQLstring->execute();
+		foreach($SQLstring as $key => $value){
+			echo $value['useramount']." docenten accounts.</p>";
+		}
+		
+		echo "<p><a href='LINK'>Overzicht accounts</a><p>";	//Link naar overzicht account
+		echo "<p><a href='LINK'>Aanpassen accounts</a><p>";	//Link naar de wijzig account pagina
+		
+		
+	}
+	
 	function teacherHome(){
 		global $dbc;
 		
