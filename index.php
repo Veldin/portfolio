@@ -10,8 +10,8 @@
 	$core = new Core;
 	$pages = new Pages;
 	$portfolio = new Portfolio;
-	$uploads = new Uploads;
 	$dbc = $core->dbc();
+
 ?>
 <html>
 	<head>
@@ -33,18 +33,7 @@
 				echo '</div>';
 			echo '</div>';
 
-			//$user = new User("amr.jonkman@gmail.com", "pass", $dbc);
-			$user = new User("amr.jonkman@gmail.com", "pass", $dbc);
-
-			if($user->login()){
-				echo "User is logged in";
-			}
-
-			if($user->isLoggedIn()){
-				echo "User is logged in";
-			}
-
-			$uploads->getUserUploads(1);
+			$pages->uploadFile();
 
 			$core->load();
 
@@ -54,11 +43,6 @@
 				echo '</div>';
 			echo '</div>';
 		?>
-		<form action="classes/uploads.php" method="post" enctype="multipart/form-data">
-    Select image to upload:
-    <input type="file" name="fileToUpload" id="fileToUpload">
-		<input type="hidden" name="previous_page" value='<?php echo $_SERVER['REQUEST_URI'];?>'>
-    <input type="submit" value="Upload Image" name="upload">
 </form>
 
 	</body>

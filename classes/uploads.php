@@ -2,7 +2,6 @@
 
 class Uploads
 {
-
     private $uploadDir = "uploads/";
     private $mimes = [
         "application/postscript",
@@ -14,6 +13,9 @@ class Uploads
         "multipart/x-gzip",
         "application/mspowerpoint",
         "application/mspowerpoint",
+        "application/vnd.ms-office",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-powerpoint",
         "application/pdf",
         "image/jpeg",
         "image/pjpeg",
@@ -42,12 +44,18 @@ class Uploads
         $stmt->execute();
 
         if($stmt->rowCount() > 0){
-            $results = $stmt->fetch(PDO::FETCH_ASSOC);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             var_dump($results);
         }
     }
 
     function uploadFile($file){
+        global $dbc;
+
+        if($file['name'] == ''){
+            return false;
+        }
+
         $targetFile = $this->uploadDir . basename($file["name"]);
         $fileName = basename($file["name"]);
 
@@ -56,19 +64,20 @@ class Uploads
         finfo_close($finfo);
 
         if(in_array($mimeType, $this->mimes)){
+            move_uploaded_file($file["tmp_name"], $targetFile);
+
+            $userId = 1;
+            $stmt = $dbc->prepare("INSERT INTO `uploads` VALUES (NULL, :userid, 'name', 'description', :target, 0)");
+            $stmt->bindParam(":userid", $userId);
+            $stmt->bindParam(":target", $targetFile);
+            $stmt->execute();
+
             return true;
         }else{
             return false;
         }
     }
 
-}
-
-if(isset($_POST["upload"])){
-    $uploads = new Uploads;
-    if($uploads->uploadFile($_FILES["fileToUpload"])){
-        header("Location: " . $_POST["previous_page"]);
-    }
 }
 
 
