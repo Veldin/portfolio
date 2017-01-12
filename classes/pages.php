@@ -364,7 +364,11 @@ class Pages {
 		echo "<p><a href='LINK'>Overzicht accounts</a><p>";	//Link naar overzicht account
 		echo "<p><a href='LINK'>Aanpassen accounts</a><p>";	//Link naar de wijzig account pagina
 		
-		
+		//if not logged in go to home
+		}else{
+			
+			echo $pages->home();
+		}
 	}
 	
 	function teacherHome(){
