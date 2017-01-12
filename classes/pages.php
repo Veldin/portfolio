@@ -337,44 +337,64 @@ class Pages {
 							}
 					}
 			}
+			if(isset($_POST['saveChanges'])){
+					foreach($uploads->getUserUploads(1) as $id){
+							if($_POST['public_' . $id['id']] == "non_public"){
+									$records[$id['id']] = 0;
+							}else if($_POST['public_' . $id['id']] == "public"){
+									$records[$id['id']] = 1;
+							}
+					}
+					if($uploads->updateFile($records)){
+							echo "<div class='alert alert-success alert-dismissible' role='alert'><strong>Succes!</strong> Wijzigingen zijn opgeslagen.</div>";
+					}else{
+							echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> De wijzingen konden niet worden opgeslagen, probeer het later opnieuw.</div>";
+					}
+			}
 
 			echo
 			"
 			<div class='table-responsive'>
-				<table class='table table-bordered'>
-					<tr>
-						<th>Bestandsnaam</th>
-						<th>Beschrijving</th>
-						<th>Publiekelijk</th>
-						<th>Download</th>
-						<th>Verwijder</th>
-					</tr>";
-					if($uploads->getUserUploads(1)){
-							foreach($uploads->getUserUploads(1) as $upload){
-									$id = $upload['id'];
-									$name = $upload['name'];
-									$description = $upload['description'];
-									$downloadUrl = $upload['url'];
-									$public = $upload['public'];
+				<form action='#' method='post'>
+					<table class='table table-bordered'>
+						<tr>
+							<th>Bestandsnaam</th>
+							<th>Beschrijving</th>
+							<th>Publiekelijk</th>
+							<th>Download</th>
+							<th>Verwijder</th>
+						</tr>";
+						if($uploads->getUserUploads(1)){
+								$arrayLength = count($uploads->getUserUploads(1));
 
-									echo
-									"<tr>
-										<td>$name</td>
-										<td>$description</td>";
-										if($public)
-												echo "<td><input type='checkbox' name='filePublic' value='public' checked></td>";
-											else
-												echo "<td><input type='checkbox' name='filePublic' value='public'></td>";
-									echo
-										"<td><a href='$downloadUrl'><i class='fa fa-download' aria-hidden='true'></i></a></td>
-										<td><a href='?id=$id&action=remove'><i class='fa fa-trash' aria-hidden='true'></i></a></td></tr>";
-							}
-					}else{
-							echo "Er zijn nog geen bestanden geüpload.";
-					}
-				echo
-				"</table>
-				<button type='submit' class='btn btn-info'>Wijzigingen opslaan</button>
+								foreach($uploads->getUserUploads(1) as $upload){
+										$id = $upload['id'];
+										$name = $upload['name'];
+										$description = $upload['description'];
+										$downloadUrl = $upload['url'];
+										$public = $upload['public'];
+
+										echo
+										"<tr>
+											<td>$name</td>
+											<td>$description</td>
+											<input type='hidden' name='public_$id' value='non_public'>";
+											if($public)
+													echo "<td><input type='checkbox' name='public_$id' value='public' checked></td>";
+												else
+													echo "<td><input type='checkbox' name='public_$id' value='public'></td>";
+										echo
+											"<td><a href='$downloadUrl'><i class='fa fa-download' aria-hidden='true'></i></a></td>
+											<td><a href='?id=$id&action=remove'><i class='fa fa-trash' aria-hidden='true'></i></a></td></tr>";
+								}
+								echo "<input type='hidden' name='size' value='$arrayLength'>";
+						}else{
+								echo "<div class='alert alert-warning' role='alert'><strong>Oh nee!</strong> Er zijn nog geen bestanden geüpload.</div>";
+						}
+					echo
+					"</table>
+					<button type='submit' name='saveChanges' class='btn btn-info'>Wijzigingen opslaan</button>
+				</form>
 			</div>";
 	}
 
@@ -390,16 +410,16 @@ class Pages {
 							$uploads = new Uploads;
 							if($uploads->uploadFile($_FILES["fileToUpload"], $name, $description) == "OK"){
 									//header("Location: " . $_POST["previous_page"]);
-									echo "<div style='color:green;'>Uw bestand is geüpload.</div>";
+									echo "<div class='alert alert-success' role='alert'><strong>Succes!</strong> Uw bestand is geüpload</div>";
 							}else if($uploads->uploadFile($_FILES["fileToUpload"], $name, $description) == "FILE_EXISTS"){
-									echo "<div style='color:red;'>Een bestand met die naam bestaat al.</div>";
+									echo "<div class='alert alert-danger' role='alert'><strong>Oh nee!</strong> Een bestand met die naam bestaat al!</div>";
 							}else if($uploads->uploadFile($_FILES["fileToUpload"], $name, $description) == "FILE_NOT_ALLOWED"){
-									echo "<div style='color:red;'>U bent niet bevoegd om bestanden met deze extensie te uploaden.</div>";
+									echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> U bent niet bevoegd om bestanden met deze extensie te uploaden.</div>";
 							}else{
-									echo "<div style='color:red;'>Het bestand kon niet worden geüpload, probeer het later opnieuw.</div>";
+									echo "<div class='alert alert-warning' role='alert'><strong>Oops!</strong> Het bestand kon niet worden geüpload, probeer het later opnieuw.</div>";
 							}
 					}else{
-							echo "<div style='color:red;'>Je moet elk veld invullen en/of een bestand selecteren.</div>";
+							echo "<div class='alert alert-danger' role='alert'><strong>Mislukt!</strong> Je moet elk veld invullen en/of een bestand selecteren.</div>";
 					}
 			}
 
@@ -418,7 +438,7 @@ class Pages {
 				    <input type='file' id='fileToUpload' name='fileToUpload'>
 				    <p class='help-block'>Selecteer hier boven het bestand dat u wilt uploaden.</p>
   				</div>
-		    		<button type='submit' name='upload' class='btn btn-default'>Upload</button>
+		    		<button type='submit' name='upload' class='btn btn-info'>Upload</button>
 				</form>";
 	}
 

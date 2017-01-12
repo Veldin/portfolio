@@ -39,10 +39,10 @@ class Uploads
         global $dbc;
 
         if($publicOnly){
-            $stmt = $dbc->prepare("SELECT * FROM uploads WHERE userid = :userid AND public = :public");
+            $stmt = $dbc->prepare("SELECT * FROM uploads WHERE userid = :userid AND public = :public ORDER BY id DESC");
             $stmt->bindParam(":public", $publicOnly);
         }else{
-            $stmt = $dbc->prepare("SELECT * FROM uploads WHERE userid = :userid");
+            $stmt = $dbc->prepare("SELECT * FROM uploads WHERE userid = :userid ORDER BY id DESC");
         }
         $stmt->bindParam(":userid", $userid);
         $stmt->execute();
@@ -52,6 +52,20 @@ class Uploads
             return $results;
         }else{
             return false;
+        }
+    }
+
+    function getUserUploadsIds($userid){
+        global $dbc;
+
+        $stmt = $dbc->prepare("SELECT id FROM uploads WHERE userid = :userid");
+        $stmt->bindParam(":userid", $userid);
+        if($stmt->execute()){
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach($results as $result){
+                $uploadIds[] = $result['id'];
+            }
+            return $uploadIds;
         }
     }
 
@@ -100,6 +114,20 @@ class Uploads
         }
     }
 
+    function updateFile($records){
+        global $dbc;
+        $sql = "";
+
+        foreach($records as $key => $value){
+            $sql .= "UPDATE uploads SET public = $value WHERE id = $key;";
+        }
+        $stmt = $dbc->prepare($sql);
+        if($stmt->execute()){
+            return true;
+        }
+        return false;
+    }
+
     function hasRemovePermission($id){
         global $dbc;
         $userId = 1;
@@ -116,13 +144,12 @@ class Uploads
         }
     }
 
-    function deleteFile($id, $file){
+    function deleteFile($id){
         global $dbc;
 
         $stmt = $dbc->prepare("DELETE FROM uploads WHERE id = :id");
         $stmt->bindParam(":id", $id);
         if($stmt->execute()){
-            unlink();
             return true;
         }else{
             return false;
