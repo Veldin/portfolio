@@ -27,10 +27,8 @@
 				$core->load();
 
 				$user = new User($dbc);
-				$user->login("pi5et@hotmail.com", "harry");
-				//if($user->isLoggedIn()) echo "logged in";
-				echo $user->get()['email'];
-			echo '</div>';
+				echo $user->register("test2@test.com", "aB3@", "aB3@", "Arjan", "Kuiper", "1234567890", "1234CC", "123");
+				echo '</div>';
 		?>
 	</body>
 </html>

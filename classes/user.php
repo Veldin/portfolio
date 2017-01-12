@@ -35,19 +35,60 @@ class User
     }
 
     // Deze function voert de query uit om de gebruiker te registreren in de database. Deze functie controleerd alleen voor bestaande email adressen!
-    public function register(){
-        $stmt = $this->dbc->prepare("SELECT 1 FROM `user` WHERE email = :email");
-        $stmt->bindParam(":email", $this->email);
-        $stmt->execute();
-        if($stmt->rowCount() == 0){
-            $password = password_hash($this->password, CRYPT_BLOWFISH);
-            $stmt = $this->dbc->prepare("INSERT INTO `user` VALUES (NULL, 1, 0, :email, :password, '', '', '', '', '', NOW())");
-            $stmt->bindParam(":email", $this->email);
-            $stmt->bindParam(":password", $password);
-            $stmt->execute();
-            return true;
+    // Error codes:
+      // 99 - Velden niet ingevuld
+      // 100 - Email is niet correct
+      // 101 - Wachtwoorden komen niet overeen
+      // 102 - Password voldoet niet aan de eisen
+      // 103 - Ingevoerde telefoonnummer is niet numeriek en/of 10 lang
+      // 104 - Ingevoerde postcode is niet volgens het 1234AB formaat
+      // 105 - Email al in gebruik
+    public function register($email, $password, $password_repeat, $firstname, $lastname, $phone, $zipcode, $address){
+        if(!empty($email) && !empty($password) && !empty($password_repeat) && !empty($firstname) && !empty($lastname) && !empty($phone) && !empty($zipcode) && !empty($address)){
+            if(filter_var($email, FILTER_VALIDATE_EMAIL)){
+                if($password === $password_repeat){
+                    $email = stripslashes($email);
+                    $password = stripslashes($password);
+                    $password_repeat = stripslashes($password_repeat);
+                    $firstname = stripslashes($firstname);
+                    $lastname = stripslashes($lastname);
+                    $phone = stripslashes($phone);
+                    $zipcode = stripslashes($zipcode);
+                    $address = stripslashes($address);
+
+                    if(preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/', $password)){
+                        if(is_numeric($phone) && (strlen($phone) === 10)){
+                            if(preg_match('/^[0-9]{4}[A-Z]{2}$/', $zipcode)){
+                                $stmt = $this->dbc->prepare("SELECT 1 FROM `user` WHERE email = :email");
+                                $stmt->bindParam(":email", $email);
+                                $stmt->execute();
+                                if($stmt->rowCount() == 0){
+                                    $password = password_hash($password, CRYPT_BLOWFISH);
+                                    $stmt = $this->dbc->prepare("INSERT INTO `user` VALUES (NULL, 1, 0, :email, :password, '', '', '', '', '', NOW())");
+                                    $stmt->bindParam(":email", $email);
+                                    $stmt->bindParam(":password", $password);
+                                    $stmt->execute();
+                                    return true;
+                                }else{
+                                    return 105;
+                                }
+                            }else{
+                              return 104;
+                            }
+                        }else{
+                            return 103;
+                        }
+                    }else{
+                      return 102;
+                    }
+                }else{
+                    return 101;
+                }
+            }else{
+
+            }
         }else{
-            return false;
+            return 99;
         }
     }
 
