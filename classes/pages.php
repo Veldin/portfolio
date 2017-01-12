@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 //Een class met al mijn paginas als functies
 class Pages {  
 
@@ -529,6 +529,93 @@ class Pages {
 		}
 	
 	}
+//functie voor het laten zien van het profiel+button naar edit page
+        function profile(){
+                global $dbc;
+		global $user;
+                $user->login('testuser@stest.com', 'aB3@');
+                
+                //uitsluiten errors, checken of er gepost is of niet
+                if(isset($_POST['address'])){
+                    
+                    $id = $user->get()['id'];
+                    $adress = htmlentities($_POST['address']);
+                    $zipcode = htmlentities($_POST['zipcode']);
+                    $phone = htmlentities($_POST['phone']);
+                    $slb = htmlentities($_POST['slb']);
+
+                    //queries uitvoeren
+                    $query = "UPDATE user SET address='$adress', zipcode='$zipcode', phone='$phone', slb='$slb' WHERE id='$id'";
+                    echo $query;
+                    $result = $dbc->prepare($query);
+                    $result->execute();
+                    if('result'){
+                        echo "updates";
+                        header("Refresh:0; url=?p=profile");
+                    }
+                }
+                
+                //queries uitvoeren
+                
+                
+                echo "<html>"
+                        ."<head>"
+                            ."<meta charset='UTF-8'>"
+                            ."<title>Profiel overzicht</title>"
+                        ."<body>"
+                            ."<h1>Profiel Overzicht</h1>"
+                        . "<div class='tableitems'>"
+                        . "<p>Voornaam</p>"
+                        . "<p>Achternaam</p>"
+                        . "<p>Adres</p>"
+                        . "<p>Postcode</p>"
+                        . "<p>Telefoon nummer</p>"
+                        . "<p>Email adres</p>"
+                        . "<p>Studieloopbaan begeleider</p>"
+                        . "</div>";
+                        
+                        echo"<div class='tableitems'>"
+                        . "<p>" . $user->get()['firstname'] . "</p>"
+                        . "<p>" . $user->get()['lastname'] . "</p>"
+                        . "<p>" . $user->get()['address'] . "</p>"
+                        . "<p>" . $user->get()['zipcode'] . "</p>"
+                        . "<p>" . $user->get()['phone'] . "</p>"
+                        . "<p>" . $user->get()['email'] . "</p>"
+                        . "<p>" . $user->get()['slb'] . "</p>"
+                        . "</div>";
+
+                            "<div class='tableitems'><form method='GET' action='editprofile.php'>"
+                                ."<input type='submit' value='Profiel aanpassen'>"
+                            ."</form></div>"
+                        ."</body>"
+                    ."</html>";
+                        
+        
+        }
+	function editprofile(){
+                global $dbc;
+		global $user;
+                $user->login('testuser@stest.com', 'aB3@');
+                
+                echo"<html>"
+                . "<head>"
+                        . "<meta charset='UTF-8'>"
+                        . "<title>Profiel aanpassen</title>"
+                        . "<body>"
+                        . "<h1>Profiel aanpassen</h1>"
+                        . "<p>Hier kun je jou profiel aanpassen als je verhuist bent of van telefoon nummer veranderd bent</p>"
+                        . "<form method='post' action='index.php?p=profile'>"
+                        . "<label>Adres aanpassen</label>"
+                        . "<input type='text' name='address' value=" . $user->get()['address'] . ">"
+                        . "<label>Postcode aanpassen</label>"
+                        . "<input type='text' name='zipcode' value=" . $user->get()['zipcode'] . ">"
+                        . "<label>Telefoon nummer aanpassen</label>"
+                        . "<input type='text' name='phone' value=" . $user->get()['phone'] . ">"
+                        . "<label>Studieloopbaanbegeleider aanpassen</label>"
+                        . "<input type='text' name='slb' value=" . $user->get()['slb'] . ">"
+                        . "<input type='submit' name='Aanpassen'"
+                        . "</form>";
+        }
 	
 	//404
 	function notfound(){
