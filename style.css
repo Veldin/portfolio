@@ -52,6 +52,10 @@ body,html{
 	margin: 0 auto;
 }
 
+.center{
+	text-align: center;
+}
+
 /* colls */
 .coll-10{
 	width: 10%;
@@ -187,6 +191,10 @@ body,html{
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
     border-radius: 4px;
     text-align: center;
+	
+	line-height: 1.8;
+    font-size: 12px;
+    color: white;
 }
 
 .active.portfoliolayoutscema{
@@ -204,9 +212,132 @@ body,html{
 	background-color: #06d606;
 }
 
+/* commentaar sectie */
+
+.comments form{
+	margin-bottom: 15px;
+	margin-bottom: 5vh;
+}
+
+.comment{
+    min-height: 5vh;
+	padding: 5px;
+}
+
+.comment .coll-25{
+	font-weight: bold;
+}
+
+.comment:nth-child(even) {
+	 background: rgba(204, 204, 204, 0.2);
+}
+
+/* youtube form */
+
+.youtube-form span{
+    display: inline;
+    height: 34px;
+    padding: 7px 12px;
+    padding-bottom: 9px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #ccc;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px 0px 0px 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+
+}
+
+.youtube-form input{
+    display: inline;
+    width: 25%;
+    height: 34px;
+    padding: 5px 4px;
+    ont-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 0px 4px 4px 0px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+
+}
 
 
+/* inhoudsopgave */ 
 
+.inhoudsopgave .size1{
+	font-size: 25px;
+}
+
+.inhoudsopgave .size2{
+	font-size: 20px;
+    margin-left: 15px;
+}
+
+.inhoudsopgave .size3{
+	font-size: 17px;
+    margin-left: 18px;
+}
+
+.inhoudsopgave .size3{
+	font-size: 15px;
+    margin-left: 20px;
+}
+
+/* slider */
+
+input[type=range]{
+    -webkit-appearance: none;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    display: block;
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: url("SliderBG.jpg");
+	background-size: 100%,100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+
+@media only screen and (max-width: 700px) {
+	input[type=range]::-webkit-slider-runnable-track {
+		background-image: none;
+	}
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 30px;
+    width: 16px;
+    border-radius: 4px;
+    background-color: #aaaaaa;
+    border: 1px solid #aaaaaa;
+    margin-top: -4px;
+}
 /* .coll-50 > .portfoliolayoutscema{
     width: 92%;
 }
@@ -214,3 +345,15 @@ body,html{
 .coll-33 > .portfoliolayoutscema{
     width: 88%;
 } */
+
+
+
+/*youtube */
+.Iframe{
+	width: 100%;
+	height: 50vh;
+}
+
+
+
+

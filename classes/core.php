@@ -86,13 +86,13 @@ class Core {
 					if($module['id'] == $active){
 						echo '<div class="coll-'.$module['size'].'">'; 
 							echo '<div class="active portfoliolayoutscema">';
-								//echo $moduletemplate['name'];
+								echo $moduletemplate['name'];
 							echo '</div>';
 						echo '</div>';
 					}else{
 						echo '<div class="coll-'.$module['size'].'">'; 
 							echo '<div class="portfoliolayoutscema">';
-								//echo $moduletemplate['name'];
+								echo $moduletemplate['name'];
 							echo '</div>';
 						echo '</div>';
 					}
@@ -127,7 +127,16 @@ class Core {
 			echo '<label>'.$title.':</label>';
 			
 			if ($type == 'textarea'){
-				echo '<textarea class="form-control" rows="12" name="'.$name.'">'.$value.'</textarea>';
+				echo '<textarea id="tinymce" rows="25" name="'.$name.'">'.$value.'</textarea>';
+			}else if ($type == 'youtube'){
+				
+				echo '<div class="coll-100">';
+					echo '<div class="coll-75 youtube-form">';
+					echo '<span>https://www.youtube.com/watch?v=</span><input  type="text" name="'.$name.'" value="'.$value.'" >';
+					echo '</div><br>';
+					echo '</div><br>';
+				echo '</div>';
+				
 			}else{
 				echo '<input class="form-control"  type="'.$type.'" name="'.$name.'" value="'.$value.'" >';
 			}

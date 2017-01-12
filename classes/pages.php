@@ -165,16 +165,55 @@ class Pages {
 			if(!empty($requestedPortfolio)){
 
 				echo '<style>
+				
+					.inhoudsopgave {
+					  list-style-type: none;
+					}
+					
+					.inhoudsopgave li { 
+						padding-left: 1em; 
+						text-indent: -.7em;
+					}
+
+					.inhoudsopgave li:before {
+						content: "• ";
+						color: #'.$requestedPortfolio['tertiarycolour'].';
+					}
+					
+					.moduleSeparator a{
+						color: #'.$requestedPortfolio['colour'].';
+						text-decoration: underline;
+						-moz-text-decoration-color: #'.$requestedPortfolio['tertiarycolour'].';
+						text-decoration-color: #'.$requestedPortfolio['tertiarycolour'].';
+					}
+					
+					.moduleSeparator.odd a{
+						color: #'.$requestedPortfolio['secondarycolour'].';
+						text-decoration: underline;
+						-moz-text-decoration-color: #'.$requestedPortfolio['tertiarycolour'].';
+						text-decoration-color: #'.$requestedPortfolio['tertiarycolour'].';
+					}
+				
 					.moduleSeparator{
 						color: #'.$requestedPortfolio['colour'].';
 						background-color: #'.$requestedPortfolio['secondarycolour'].';
 						border-bottom: 2px solid #'.$requestedPortfolio['tertiarycolour'].';
-						padding-bottom: 5px;
+						
+						padding-top: 10px;
+						padding-bottom: 10px;
+						
+						padding-top: 10vh;
+						padding-bottom: 10vh;
 					}
 					.moduleSeparator.odd{
-							padding-top: 5px;
-							color: #'.$requestedPortfolio['secondarycolour'].';
-							background-color: #ffffff;
+						padding-top: 10px;
+						padding-bottom: 10px;
+				
+						padding-top: 10vh;
+						padding-bottom: 10vh;
+						
+						color: #'.$requestedPortfolio['secondarycolour'].';
+						background-color: #ffffff;
 					}
 				</style>';
 			}
@@ -431,15 +470,27 @@ class Pages {
 									echo '<form action="#" method="post">';
 									
 										//Voeg alle inputvelden toe die bij deze module horen.
+										
 										for ($x = 0; $x < count($fields); $x++) {
-											echo $core->input($fields[$x],$titles[$x],$x,$inputs[$x]);
+											
+											if(!empty($fields[$x])){
+												echo $core->input($fields[$x],$titles[$x],$x,$inputs[$x]);
+											}
+											
 										} 
 										
 										// Plus de standart inputvelden.
 										
-										echo '<div class="form-group">';
-											echo '<label>Breedte van de module in procent:</label>';
+										//Input tekst voor breete
+										/* echo '<div class="form-group">';
+											echo '<label>Breedte van de module:</label>';
 											echo '<input min="0" class="form-control" min="100" type="number" name="size" value="'.$module['size'].'">';
+										echo '</div>'; */
+										
+										//Range slider voor breete
+										echo '<div class="form-group">';
+											echo '<label>Breedte van de module:</label>';
+											echo '<input type="range" name="size" min="0" max="100" step="5" value="'.$module['size'].'">';
 										echo '</div>';
 						
 										echo '<input type="submit" class="btn btn-default" type="submit" name="Submit" value="Verstuur">';

@@ -2,17 +2,61 @@
 //Een class met alle portfolio functies.
 class Portfolio {  
 	//Hoofd pagina
-	function header($text,$size){
 	
-		return('<h'.$size.'>'.$text.'</h'.$size.'>');
+	function header($text,$size){
+
+		$id = str_replace(' ', '_', $text);
+		return('<h'.$size.' id="header'.$id.'">'.$text.'</h'.$size.'>');
+	}
+	
+	function tableOfContents(){
+		global $core;
+		global $dbc;
+		
+		$page = $_GET["p"];
+	
+		//Verkrijg het userID (voor op de edit pagina en op portfolio zelf)
+		if($page == 'editmodule'){
+			$userId = $user->get()['id'];
+		}elseif($page == 'portfolio'){
+			$userId = $core->getUserFromURL($_GET["u"]);
+		}
+		
+		$headers = $dbc->prepare('SELECT * FROM `module` WHERE `portfolioid` = "'.$userId.'" AND `moduleid` = 3 ORDER BY `position`');
+		$headers->execute();
+		$headers = $headers->fetchAll(PDO::FETCH_ASSOC);
+		
+		echo '<ul class="inhoudsopgave">';
+		foreach ($headers as &$header) {
+			$header = explode(",", $header['input']);
+			$header[2] = str_replace(' ', '_', $header[0]);
+			
+			echo '<li class="size'.$header[1].'">';
+				echo '<a href="#header'.$header[2].'">'.$header[0].'</a>';
+			echo '</li>';
+		}
+		echo '</ul>';
+		
 	}
 	
 	function paragraph($text){
-		return('<p>'.$text.'</p>');
+		return(html_entity_decode ( $text));
 	}
 	
 	function imageFromLink($link,$title){
 		return ('<img src="'.$link.'" style="width:100%;" alt="'.$title.'">');
+	}
+	
+	function youtube($watch,$beschrijving){
+		
+		$return = '';
+		
+		$return .= '<div class="coll-100">';
+			$return .= '<iframe class="Iframe" src="https://www.youtube.com/embed/'.$watch.'"></iframe>';
+			$return .= '<div class="center coll-95"> '.$beschrijving.' </div>';
+		$return .= '</div>';
+		//qzQO5a9F328
+		return($return);
 	}
 	
 	function comments($ammount){
@@ -38,8 +82,6 @@ class Portfolio {
 		$comments = $comments->fetchAll(PDO::FETCH_ASSOC);
 	
 		echo '<div class="comments coll-100">';
-	
-		echo '<h2>Reacties</h2>';
 	
 		if($page == 'portfolio' && $user->isLoggedIn()){
 		
