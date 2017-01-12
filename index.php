@@ -34,7 +34,7 @@
 				echo '</div>';
 			echo '</div>';
 
-			$pages->uploadFile();
+			//$pages->uploadFile();
 			//$pages->showUploads();
 
 			$core->load();

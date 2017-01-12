@@ -331,7 +331,7 @@ class Pages {
 											if($uploads->deleteFile($_GET['id'])){
 													$url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
 													$url =  strtok($url, '?');
-													header("Location: " . $url);
+													header("Location: ?p=showUploads" . $url);
 											}
 									}
 							}
@@ -385,7 +385,7 @@ class Pages {
 													echo "<td><input type='checkbox' name='public_$id' value='public'></td>";
 										echo
 											"<td><a href='$downloadUrl'><i class='fa fa-download' aria-hidden='true'></i></a></td>
-											<td><a href='?id=$id&action=remove'><i class='fa fa-trash' aria-hidden='true'></i></a></td></tr>";
+											<td><a href='?p=showUploads&id=$id&action=remove'><i class='fa fa-trash' aria-hidden='true'></i></a></td></tr>";
 								}
 								echo "<input type='hidden' name='size' value='$arrayLength'>";
 						}else{
