@@ -332,6 +332,11 @@ class Pages {
 	function adminHome(){
 		global $dbc;
 		global $user;
+		global $pages;
+		
+		$levelid = $user->get()['levelid'];
+		if($user->isLoggedIn() AND $levelid == 3){
+												
 		
 		$firstname = $user->get()['firstname'];
 		$lastname = $user->get()['lastname'];
@@ -364,6 +369,16 @@ class Pages {
 	
 	function teacherHome(){
 		global $dbc;
+		global $user;
+		global $pages;
+		
+		$levelid = $user->get()['levelid'];
+		if($user->isLoggedIn() AND $levelid == 2){
+		
+		$firstname = $user->get()['firstname'];
+		$lastname = $user->get()['lastname'];
+		
+		echo "<h2>Welkom ".$firstname." ".$lastname.".</h2>";
 		
 		$SQLstring = $dbc->prepare('SELECT lastname, firstname, zipcode, phone, email, url FROM user, portfolio
 						WHERE user.levelid = 1 AND user.id = portfolio.userid 
@@ -386,11 +401,21 @@ class Pages {
                     }
                 
 		echo "</table>";
+		
+		//if not logged in go to home
+		}else{
+			
+			echo $pages->home();	//HOME REGELT DE REST
+		}
 	}
 	
 	function studentHome(){
 		global $dbc;
 		global $user;
+		global $pages;
+		
+		$levelid = $user->get()['levelid'];
+		if($user->isLoggedIn() AND $levelid == 1){
 		
 		$editprofile = "Link";	//Link naar de profile edit
 		$viewprofile = "Link";	//Link naar het profile overzicht
@@ -418,7 +443,11 @@ class Pages {
 		echo "<p>De laatste comment was op {$value['timestamp']}.</p>";
 		}
 		
-		
+		//if not logged in go to home
+		}else{
+			
+			echo $pages->home();	//HOME REGELT DE REST
+		}
 	}
 	
 	//functie voor het editen van een module
