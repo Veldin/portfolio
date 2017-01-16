@@ -329,8 +329,6 @@ class Pages {
 									if($uploads->hasRemovePermission($_GET['id'])){
 											unlink($uploads->getFileLocationById($_GET['id']));
 											if($uploads->deleteFile($_GET['id'])){
-													$url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-													$url =  strtok($url, '?');
 													header("Location: ?p=showUploads" . $url);
 											}
 									}
@@ -369,6 +367,9 @@ class Pages {
 
 								foreach($uploads->getUserUploads(1) as $upload){
 										$id = $upload['id'];
+										$extension = $upload['extension'];
+										$fileIcon = $upload['fileicon'];
+										if(empty($fileIcon)) $fileIcon = "<i class='fa fa-file-o' aria-hidden='true'></i>";
 										$name = $upload['name'];
 										$description = $upload['description'];
 										$downloadUrl = $upload['url'];
@@ -376,7 +377,7 @@ class Pages {
 
 										echo
 										"<tr>
-											<td>$name</td>
+											<td>$fileIcon $name</td>
 											<td>$description</td>
 											<input type='hidden' name='public_$id' value='non_public'>";
 											if($public)
@@ -384,7 +385,7 @@ class Pages {
 												else
 													echo "<td><input type='checkbox' name='public_$id' value='public'></td>";
 										echo
-											"<td><a href='$downloadUrl'><i class='fa fa-download' aria-hidden='true'></i></a></td>
+											"<td><a href='$downloadUrl'><i class='fa fa-download' aria-hidden='true'></i> .$extension</a></td>
 											<td><a href='?p=showUploads&id=$id&action=remove'><i class='fa fa-trash' aria-hidden='true'></i></a></td></tr>";
 								}
 								echo "<input type='hidden' name='size' value='$arrayLength'>";
@@ -406,6 +407,8 @@ class Pages {
 					if(!empty($_POST['fileName']) && !empty($_POST['fileDescription']) && !empty($_FILES['fileToUpload']['name'])){
 							$name = stripslashes($_POST['fileName']);
 							$description = stripslashes($_POST['fileDescription']);
+							$name = htmlentities($name);
+							$description = htmlentities($description);
 
 							$uploads = new Uploads;
 							if($uploads->uploadFile($_FILES["fileToUpload"], $name, $description) == "OK"){

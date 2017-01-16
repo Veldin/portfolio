@@ -34,6 +34,20 @@ class Uploads
         "audio/mpeg3",
         "audio/x-mpeg-3"
     ];
+    private $fileIcons = array(
+        "docx" => "<i class='fa fa-file-word-o' aria-hidden='true'></i>",
+        "zip" => "<i class='fa fa-file-archive-o' aria-hidden='true'></i>",
+        "gz" => "<i class='fa fa-file-archive-o' aria-hidden='true'></i>",
+        "ppt" => "<i class='fa fa-file-powerpoint-o' aria-hidden='true'></i>",
+        "pdf" => "<i class='fa fa-file-pdf-o' aria-hidden='true'></i>",
+        "xlsx" => "<i class='fa fa-file-excel-o' aria-hidden='true'></i>",
+        "gif" => "<i class='fa fa-file-image-o' aria-hidden='true'></i>",
+        "ico" => "<i class='fa fa-file-image-o' aria-hidden='true'></i>",
+        "png" => "<i class='fa fa-file-image-o' aria-hidden='true'></i>",
+        "jpg" => "<i class='fa fa-file-image-o' aria-hidden='true'></i>",
+        "mp3" => "<i class='fa fa-file-audio-o' aria-hidden='true'></i>",
+        "mpeg" => "<i class='fa fa-file-audio-o' aria-hidden='true'></i>"
+    );
 
     function getUserUploads($userid, $publicOnly = false){
         global $dbc;
@@ -49,6 +63,10 @@ class Uploads
 
         if($stmt->rowCount() > 0){
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach($results as &$result){
+                $result['extension'] = pathinfo($result['url'], PATHINFO_EXTENSION);
+                $result['fileicon'] = $this->fileIcons[pathinfo($result['url'], PATHINFO_EXTENSION)];
+            }
             return $results;
         }else{
             return false;
