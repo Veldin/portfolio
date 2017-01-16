@@ -27,7 +27,7 @@
 				$core->load();
 
 				$user = new User($dbc);
-				echo $user->register("testuser@stest.com", "aB3@", "aB3@", "Test", "User", "1234567890", "1234CC", "123");
+				echo $user->register("peter2@stest.com", "aB3@", "aB3@", "Peter", "Pad", "1234567890", "1234CC", "123");
 				echo '</div>';
 		?>
 	</body>
