@@ -1,14 +1,14 @@
 <?php
 //Een class met al mijn paginas als functies
-class Pages {  
+class Pages {
 	//Hoofd pagina
 	function home(){
 		global $core;
 
 	}
-	
+
 	function generatecsscolls(){
-	
+
 		for ($x = 0; $x <= 100; $x++) {
 			echo "<br>";
 			echo ".coll-".$x."{";
@@ -18,7 +18,7 @@ class Pages {
 				echo"position: relative;";
 			echo"}";
 		}
-		
+
 		echo"<br>@media only screen and (max-width: 700px) {<br>";
 		for ($x = 0; $x <= 99; $x++) {
 			echo".coll-".$x.",<br>";
@@ -27,18 +27,18 @@ class Pages {
 				echo"width: 100%;<br>";
 			echo"}<br>";
 		echo"}<br>";
-		
-		
+
+
 	}
-	
+
 	function header(){
 		global $pages;
-		
+
 		echo $pages->navigation();
 	}
-	
+
 	function navigation() {
-	
+
 		// $levelID is het niveau wat aan de user mee gegeven wordt, 1 student, 2 docent en 3 admin.
 		$levelID = 1;
 		// $hasPortfolio is het niveau wat wordt meegegeven wanneer de gebruiker een portfolio heeft, 1 voor ja 0 voor nee.
@@ -102,34 +102,34 @@ class Pages {
 		var_export($menu);
 		echo "</pre>"; */
 		//je krijgt een lijst doormiddel van deze foreach:
-		
+
 		echo "<ul>";
 		foreach($menu as $optionDesc => $option){
 			echo "<li><a href=$option>$optionDesc</a></li>";
 		}
 		echo "</ul>";
 	}
-	
+
 	function footer(){
 		echo 'FOOTER';
 	}
-	
+
 	//Test voor de database.
 	//Toon alle info in de database.
 	function testdb(){
 		global $dbc;
 
-		//Test 
+		//Test
 		$sth = $dbc->prepare('show tables');
 		$sth->execute();
-		
+
 		$all = $sth->fetchAll(PDO::FETCH_OBJ);
-		
+
 		foreach ($all as $value) {
 			echo '<hr>';
 			echo '<h2>'.$value->Tables_in_md253219db370063.'</h2>';
 			echo '<br>';
-			
+
 			echo '<b>Describe</b><br>';
 			$describe = $dbc->prepare('describe '.$value->Tables_in_md253219db370063);
 			$describe->execute();
@@ -138,7 +138,7 @@ class Pages {
 				print_r($describe_value);
 				echo '<br>';
 			}
-			
+
 			echo '<b>Select</b><br>';
 			$display = $dbc->prepare('select * from '.$value->Tables_in_md253219db370063);
 			$display->execute();
@@ -148,30 +148,30 @@ class Pages {
 				print_r($value);
 				echo '<br>';
 			}
-			
+
 		}
 	}
-	
+
 	//Laden Custom CSS van potfolio
 	function portfolioCSS(){
 		global $dbc;
-	
+
 		if(isset($_GET["u"])){
 			$userId = htmlspecialchars($_GET["u"]);
 			$requestedPortfolio = $dbc->prepare('SELECT * FROM `portfolio` WHERE `url` = "'.$userId.'"');
 			$requestedPortfolio->execute();
 			$requestedPortfolio = $requestedPortfolio->fetchAll(PDO::FETCH_ASSOC)[0];
-			
+
 			if(!empty($requestedPortfolio)){
 
 				echo '<style>
-				
+
 					.inhoudsopgave {
 					  list-style-type: none;
 					}
-					
-					.inhoudsopgave li { 
-						padding-left: 1em; 
+
+					.inhoudsopgave li {
+						padding-left: 1em;
 						text-indent: -.7em;
 					}
 
@@ -179,39 +179,39 @@ class Pages {
 						content: "• ";
 						color: #'.$requestedPortfolio['tertiarycolour'].';
 					}
-					
+
 					.moduleSeparator a{
 						color: #'.$requestedPortfolio['colour'].';
 						text-decoration: underline;
 						-moz-text-decoration-color: #'.$requestedPortfolio['tertiarycolour'].';
 						text-decoration-color: #'.$requestedPortfolio['tertiarycolour'].';
 					}
-					
+
 					.moduleSeparator.odd a{
 						color: #'.$requestedPortfolio['secondarycolour'].';
 						text-decoration: underline;
 						-moz-text-decoration-color: #'.$requestedPortfolio['tertiarycolour'].';
 						text-decoration-color: #'.$requestedPortfolio['tertiarycolour'].';
 					}
-				
+
 					.moduleSeparator{
 						color: #'.$requestedPortfolio['colour'].';
 						background-color: #'.$requestedPortfolio['secondarycolour'].';
 						border-bottom: 2px solid #'.$requestedPortfolio['tertiarycolour'].';
-						
+
 						padding-top: 10px;
 						padding-bottom: 10px;
-						
+
 						padding-top: 10vh;
 						padding-bottom: 10vh;
 					}
 					.moduleSeparator.odd{
 						padding-top: 10px;
 						padding-bottom: 10px;
-				
+
 						padding-top: 10vh;
 						padding-bottom: 10vh;
-						
+
 						color: #'.$requestedPortfolio['secondarycolour'].';
 						background-color: #ffffff;
 					}
@@ -219,64 +219,64 @@ class Pages {
 			}
 		}
 	}
-	
+
 	//Laten zien van portfolio
 	function portfolio(){
 		global $dbc;
 		global $core;
 		global $portfolio;
 		global $user;
-		
+
 		if(isset($_GET["u"])){
 			$userId = htmlspecialchars($_GET["u"]);
-			
+
 			$requestedPortfolio = $dbc->prepare('SELECT * FROM `portfolio` WHERE `url` = "'.$userId.'"');
 			$requestedPortfolio->execute();
 			$requestedPortfolio = $requestedPortfolio->fetchAll(PDO::FETCH_ASSOC);
-			
+
 			if(!empty($requestedPortfolio)){
 				//user bestaat
-			
+
 				$requestedPortfolio = $dbc->prepare('SELECT * FROM `portfolio` WHERE `url` = "'.$userId.'" LIMIT 1');
 				$requestedPortfolio->execute();
 				$requestedPortfolio = $requestedPortfolio->fetchAll(PDO::FETCH_ASSOC)[0];
-				
+
 				//print_r($requestedPortfolio);
-				
-				
-				
+
+
+
 				/* echo '<pre>';
 				print_r($requestedPortfolio);
 				echo '</pre>'; */
-				
+
 				$modules = $dbc->prepare('SELECT * FROM `module` WHERE `portfolioid` = "'.$requestedPortfolio['userid'].'" ORDER BY `position`');
 				$modules->execute();
 				$modules = $modules->fetchAll(PDO::FETCH_ASSOC);
-				
+
 				/*  echo '<pre>';
 				print_r($modules);
 				echo '</pre>'; */
-				
+
 				echo '<div id="containerOuter">';
 					echo '<div class="portfolio" id="containerInner">';
-				
+
 					//variable om op teslaan waneer er een nieuwe break toegevoegd moet worden.
 					$break = 0;
 					$countbreaks = 0;
-					
+
 					if($user->get()['id'] == $core->getUserFromURL($userId) && isset($_GET["edit"])){
 						echo '<a href="index.php?p=portfolio&u='.$userId.'"><div class="EditModusAan">Edit modus aan.</div></a>';
 					}
-					
+
 					if($user->get()['id'] == $core->getUserFromURL($userId) && !isset($_GET["edit"])){
 						echo '<a href="index.php?p=portfolio&u='.$userId.'&edit"><div class="EditModusUit">Edit modus uit.</div></a>';
 					}
-				
-					
-				
+
+
+
 					echo '<div class="moduleSeparator">';
 					echo '<div class="coll-100">';
-				
+
 					foreach ($modules as $module) {
 						$moduletemplate = $dbc->prepare('SELECT * FROM `moduletemplate` WHERE `id` = "'.$module['moduleid'].'" LIMIT 1');
 						$moduletemplate->execute();
@@ -286,12 +286,12 @@ class Pages {
 							//echo 'Function Found';
 							$input = explode(",", $module['input']);
 							$fields = explode(",", $moduletemplate['field']);
-							
+
 							//Headers tellen niet mee met de break!
 							if($moduletemplate['function'] !== 'header'){
 								$break += $module['size'];
 							}
-							
+
 
 							echo '<div class="module coll-'.$module['size'].'">';
 								echo '<div class="contentMargin">';
@@ -301,7 +301,7 @@ class Pages {
 									}else if(count($input) == 2){
 										echo $portfolio->$moduletemplate['function']($input[0], $input[1]);
 									}
-									
+
 									//$user = new User("amr.jonkman@gmail.com", "pass", $dbc);
 									//print_r($user);
 									if($user->isLoggedIn()){
@@ -314,21 +314,21 @@ class Pages {
 								}else{
 									echo 'Aantal inputs komt niet overeen met het aantal benodigde velden.';
 								}
-								
-								
-								
+
+
+
 								echo '</div>';
 							echo '</div>';
-							
+
 							if($break > 99){
 									echo '</div>';
 									echo '<div class="clear"></div>';
 								echo '</div>';
-								
+
 								if ($countbreaks % 2 == 0) {
 									echo '<div class="moduleSeparator odd">';
 										echo '<div class="coll-100">';
-											
+
 								}else{
 									echo '<div class="moduleSeparator">';
 										echo '<div class="coll-100">';
@@ -342,9 +342,9 @@ class Pages {
 							echo 'Methode niet gevonden!';
 						}
 					}
-					
+
 					echo '</div>';
-					
+
 					echo '<div class="clear"></div>';
 					echo '</div>';
 				echo '</div>';
@@ -365,47 +365,47 @@ class Pages {
 			echo '</div>';
 		}
 	}
-	
-		
+
+
 	function addmodule(){
 		global $user;
 		global $dbc;
-	
+
 		//echo "Gebruiker is ingelogd";
 		if($user->isLoggedIn()){
 
 			echo '<div id="containerOuter">';
 				echo '<div id="containerInner">';
 					echo '<h1>Module toevoegen</h1>';
-				
+
 					echo '<p>Selecteer een module die u wilt toevoegen, deze word dan direct toegevoegd.</P>';
-				
+
 					if(!isset($_GET["id"])){
 						$moduleTemplates = $dbc->prepare('SELECT * FROM `moduletemplate`');
 						$moduleTemplates->execute();
 						$moduleTemplates = $moduleTemplates->fetchAll(PDO::FETCH_ASSOC);
-						
+
 						if(!empty($moduleTemplates)){
 
 							echo '<div class="coll-100">';
 								$count = 0;
 								foreach($moduleTemplates as $moduleTemplate){
-								
+
 									if($count == 3){
 										echo '<div class="clear"></div>';
 										$count = 0;
 									}
-									
+
 									echo '<div class="coll-33 selectModule">';
-										
+
 										echo '<h3 class=>'.$moduleTemplate['name'].'</h2>';
 										echo $moduleTemplate['description'];
 										echo '<br>';
 										echo '<br>';
-										
+
 										echo '<a href="index.php?p=addmodule&id='.$moduleTemplate['id'].'" class="btn btn-default" role="button">Toevoegen</a>';
 									echo '</div>';
-									
+
 									$count++;
 								}
 							echo '</div>';
@@ -413,54 +413,54 @@ class Pages {
 						}
 					}else{
 						$id = htmlentities($_GET["id"]);
-						
+
 						$moduleUser = $dbc->prepare('SELECT * FROM `module` WHERE `portfolioid` = "'.$user->get()['id'].'"');
 						$moduleUser->execute();
 						$moduleUser = $moduleUser->fetchAll(PDO::FETCH_ASSOC);
-						
+
 						$moduleTemplates = $dbc->prepare('SELECT * FROM `moduletemplate` WHERE `id` = "'.$id .'"');
 						$moduleTemplates->execute();
 						$moduleTemplates = $moduleTemplates->fetchAll(PDO::FETCH_ASSOC);
-						
-						
+
+
 						if(!empty($moduleTemplates)){
 							$moduleTemplates = $moduleTemplates[0];
-							
+
 							$position = 0;
 							foreach ($moduleUser as &$module) {
 								if ($module['position'] > $position){
 									$position = $module['position'] + 1;
 								}
 							}
-							
+
 							Print_r($moduleTemplates);
-							
+
 							$insert = "INSERT INTO `module` (portfolioid, moduleid, position, size, input, timestamp)
 							VALUES (".$user->get()['id'].",".$id.",".$position.",100,' ',".TIME().")";
-							
+
 							$dbcInsert = $dbc->prepare($insert);
 							$dbcInsert->execute();
-							
-							
+
+
 							if($dbcInsert){
 								$lastId = $dbc->lastInsertId();
-							
+
 								echo '<div class="alert alert-success">
 								  <strong>Success!</strong> De module is toegevoegd!.
 								</div>';
-								
+
 								header('Location: index.php?p=editmodule&m='.$lastId.'&add');
-								
+
 							}else{
 								echo '<div class="alert alert-danger">
 								  <strong>:(</strong> Er is iets fout gegaan probeer het later opnieuw.
 								</div>';
 							}
 						}
-						
-						
+
+
 					}
-					
+
 					echo '<div class="clear"></div>';
 
 				echo '</div>';
@@ -473,19 +473,19 @@ class Pages {
 			echo '</div>';
 		}
 	}
-	
-	
+
+
 	//functie voor het editen van een module
 	function editmodule(){
 		global $dbc;
 		global $core;
 		global $portfolio;
 		global $user;
-		
+
 		if(isset($_GET["m"])){
 				$moduleId = htmlspecialchars($_GET["m"]);
 				$moduleId = preg_replace("/[^0-9,.]/", "", $moduleId);
-				
+
 				$userID = $user->get()['id']; //loged in userID
 
 				$module = $dbc->prepare('SELECT * FROM `module` WHERE `id` = "'.$moduleId.'" AND `portfolioid` = '.$userID.' LIMIT 1');
@@ -498,20 +498,20 @@ class Pages {
 					echo '<div id="containerOuter">';
 						echo '<div id="containerInner">';
 							//verwerken van POST (module aanpassen)
-						
+
 							echo '<h1>Aanpassen Module</h1>';
-						
+
 							//Als het een nieuwe module is
 							if(isset($_GET["add"])){
 								echo '<div class="alert alert-success">';
 								  echo '<strong>success!</strong> Module is toegevoegd.';
 								echo '</div>';
 							}
-						
-						
+
+
 							if(isset($_POST['Submit'])){
-								$input = ''; 
-								
+								$input = '';
+
 								//De elementen van de module worden genummerd opgestuurd.
 								for ($x = 0; $x < 10; $x++) {
 									if(isset($_POST[$x])){
@@ -521,24 +521,24 @@ class Pages {
 								}
 								//replace '
 								$input = str_replace("'","`",$input);
-								
+
 								//eerste comma verwijderen
 								$input = substr($input, 1);
-								
+
 								$size = 100; //Standaard breete
-								if(isset($_POST['size'])){		
+								if(isset($_POST['size'])){
 									$size = htmlspecialchars($_POST['size']);
 									$size = preg_replace("/[^0-9,.]/", "", $size);
 								}
-								
+
 								$sql = "UPDATE `module` SET `input`='".$input."',`size`='".$size."'  WHERE id=".$moduleId;
-								
+
 								$update = $dbc->prepare($sql);
 								$update->execute();
-								
+
 								//berichtgeving
-								
-								
+
+
 								if($update == true){
 									echo '<div class="alert alert-success">';
 									  echo '<strong>success!</strong> Module is aangepast.';
@@ -549,93 +549,93 @@ class Pages {
 									echo '</div>';
 								}
 							}
-						
+
 							//ophalen module
 							$module = $dbc->prepare('SELECT * FROM `module` WHERE `id` = "'.$moduleId.'" AND `portfolioid` = '.$userID.' LIMIT 1');
 							$module->execute();
 							$module = $module->fetchAll(PDO::FETCH_ASSOC)[0];
-							
+
 							$moduletemplate = $dbc->prepare('SELECT * FROM `moduletemplate` WHERE `id` = "'.$module['moduleid'].'" LIMIT 1');
 							$moduletemplate->execute();
 							$moduletemplate = $moduletemplate->fetchAll(PDO::FETCH_ASSOC)[0];
-						
+
 							/* echo '<pre>';
 							print_r($module);
 							echo '</pre>';
 							echo '<pre>';
-							print_r($moduletemplate);	
+							print_r($moduletemplate);
 							echo '</pre>'; */
-							
-							
-							
+
+
+
 							//URL van deze gebruiker
 							$url = $core->getPortfolioURL($module['portfolioid']);
-							
+
 							echo '<div class="coll-100">';
 								echo 'links voor module toevoegen en module verwijderen hier!';
 							echo '</div>';
-							
+
 							echo '<div class="coll-75">';
 								echo '<h2>'.ucfirst($moduletemplate['name']).'</h2>';
 								echo '<p>'.ucfirst($moduletemplate['description']).'</p>';
-								
+
 								$inputs = explode(",", $module['input']);
 								$fields = explode(",", $moduletemplate['field']);
 								$titles = explode(",", $moduletemplate['fieldTitle']);
-								
+
 								echo '<div class="coll-90">';
 									echo '<form action="#" method="post">';
-									
+
 										//Voeg alle inputvelden toe die bij deze module horen.
-										
+
 										for ($x = 0; $x < count($fields); $x++) {
 											if(!empty($fields[$x])){
 												if(!isset($inputs[$x])){
 													$inputs[$x] = '';
 												}
-											
+
 												echo $core->input($fields[$x],$titles[$x],$x,$inputs[$x]);
 											}
-										} 
-										
+										}
+
 										//Range slider voor breete
 										echo '<div class="form-group">';
 											echo '<label>Breedte van de module:</label>';
 											echo '<input type="range" name="size" min="0" max="100" step="5" value="'.$module['size'].'">';
 										echo '</div>';
-						
+
 										echo '<input type="submit" class="btn btn-default" type="submit" name="Submit" value="Verstuur">';
 									echo '</form>';
 								echo '</div>';
 							echo '</div>';
-							
+
 							echo '<div class="coll-25">';
 								echo '<h2>Portfolio Layout</h2>';
-								
 
-									
+
+
 									echo '<div class="coll-100">';
 										//Portfolio layout met links tonen.
 										$core->portfoliolayout($module['portfolioid'], $moduleId);
 									echo '</div>';
-			
-									
+
+
 									echo '<div class="clear"></div>';
 
 								echo '<div class="clear"></div>';
 							echo '</div>';
-							
+
 							echo '<div class="clear"></div>';
-							
+
 							//Tonen van de uitkomst
 							echo '<h2>Live module</h2>';
 							echo '<p>Dit is hoe de module eruit ziet op uw portfolio!</p>';
-							
+
 							if (method_exists($portfolio,$moduletemplate['function'])){
 								//echo 'Function Found';
 								$input = explode(",", $module['input']);
 								$fields = explode(",", $moduletemplate['field']);
-								
+
 								/* print_r($moduletemplate);*/
 								echo '<div class="coll-100 borderSmall">';
 									echo '<div class="module coll-'.$module['size'].'">';
@@ -651,7 +651,7 @@ class Pages {
 										}
 										echo '</div>';
 									echo '</div>';
-									
+
 									echo '<div class="clear"></div>';
 								echo '</div>';
 							//echo $portfolio->$moduletemplate['function']('sdfdsf');
@@ -667,7 +667,7 @@ class Pages {
 							echo 'Module niet gevonden.';
 						echo '</div>';
 					echo '</div>';
-				}	
+				}
 		}else{
 			//Portfolio niet gevonden.
 			echo '<div id="containerOuter">';
@@ -676,14 +676,14 @@ class Pages {
 				echo '</div>';
 			echo '</div>';
 		}
-	
+
 	}
 
-	
+
 	function showUploads(){
 			global $dbc;
 			global $user;
-			
+
 			$userID = $user->get()['id'];
 
 			$uploads = new Uploads;
@@ -703,7 +703,7 @@ class Pages {
 					}
 			}
 			if(isset($_POST['saveChanges'])){
-			
+
 					if($uploads->getUserUploads($userID) != false){
 						foreach($uploads->getUserUploads($userID) as $id){
 								if($_POST['public_' . $id['id']] == "non_public"){
@@ -712,7 +712,7 @@ class Pages {
 										$records[$id['id']] = 1;
 								}
 						}
-					
+
 						if($uploads->updateFile($records)){
 								echo "<div class='alert alert-success alert-dismissible' role='alert'><strong>Succes!</strong> Wijzigingen zijn opgeslagen.</div>";
 						}else{
@@ -763,14 +763,14 @@ class Pages {
 				</form>
 			</div>";
 	}
-	
+
 	// Functie voor het uploaden van files
 	function uploadFile(){
 			global $dbc;
 			global $user;
-			
+
 			$userID = $user->get()['id'];
-			
+
 			if(isset($_POST["upload"])){
 					if(!empty($_POST['fileName']) && !empty($_POST['fileDescription']) && !empty($_FILES['fileToUpload']['name'])){
 							$name = stripslashes($_POST['fileName']);
@@ -794,7 +794,7 @@ class Pages {
 				"<form action='#' method='post' enctype='multipart/form-data'>
 					<div class='form-group'>
 		    		<label for='fileName'>Bestandsnaam</label>
-						<input type='text'' class='form-control' id='fileName' name='fileName' placeholder='Powerpoint Project'>
+						<input type='text' class='form-control' id='fileName' name='fileName' placeholder='Powerpoint Project'>
 					</div>
 					<div class='form-group'>
 		    		<label for='fileDescription'>Beschrijving</label>
@@ -808,10 +808,91 @@ class Pages {
 		    		<button type='submit' name='upload' class='btn btn-info'>Upload</button>
 				</form>";
 	}
-	
+
+	function updateUser(){
+			global $dbc;
+			global $user;
+
+			if(isset($_POST['update_user'])){
+					if(!empty($_POST['newslb']) && **!empty($_POST['email']) && !empty($_POST['firstname']) && !empty($_POST['lastname']) && !empty($_POST['phone']) && !empty($_POST['zipcode']) && !empty($_POST['address'])){
+							$phone = stripslashes($_POST['phone']);
+							$zipcode = stripslashes($_POST['zipcode']);
+							$address = stripslashes($_POST['address']);
+
+							if(Validate::phone($phone)){
+									if(Validate::zipcode($zipcode)){
+											$update = $user->updateUserData($user->get()['id'], array(
+													"phone" => $phone,
+													"zipcode" => $zipcode,
+													"address" => $address
+											));
+											if($update){
+													echo "<div class='alert alert-success' role='alert'><strong>Succes!</strong> Wijzigingen opgeslagen.</div>";
+											}else{
+													echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> Kon de wijzigingen niet opslaan.</div>";
+											}
+									}else{
+											echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> Een postcode bestaat uit 4 cijfers en 2 letters.</div>";
+									}
+							}else{
+									echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> Een telefoonnummer bestaat uit 10 cijfers.</div>";
+							}
+					}else{
+							echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> Je moet wel elk veld invullen.</div>";
+					}
+			}
+
+			echo
+				"<form action'#' method='post'>
+					<div class='form-group'>
+						<label for='email'>Email</label>
+						<input type='text' class='form-control' id='email' name='email' value='" . $user->get()['email'] . "' readonly>
+					</div>
+					<div class='form-group'>
+						<label for='firstname'>Voornaam</label>
+						<input type='text' class='form-control' id='firstname' name='firstname' value='" . $user->get()['firstname'] . "' readonly>
+					</div>
+					<div class='form-group'>
+						<label for='lastname'>Achternaam</label>
+						<input type='text' class='form-control' id='lastname' name='lastname' value='" . $user->get()['lastname'] . "' readonly>
+					</div>
+					<div class='form-group'>";
+
+					$stmt = $dbc->prepare("SELECT id, firstname, lastname FROM user WHERE id = slb AND levelid = 2");
+					$stmt->execute();
+
+					echo "<p>Studieloopbaanbegeleider: <select name='newslb'>";
+					echo "<option value='' >Geen SLBer</option>";
+					foreach($stmt->fetchAll(PDO::FETCH_ASSOC) as $result){
+						if($user->get()['slb'] == $result['id']){
+							$selected = " selected='selected'";
+						}else{
+							$selected = FALSE;
+						}
+						echo "<option value='" . $result['id'] ."' $selected'>" . $result['firstname'] . " " . $result['lastname'] . "</option>";
+					}
+					echo "</select></p>";
+
+					echo "</div>
+					<div class='form-group'>
+						<label for='phone'>Telefoon</label>
+						<input type='text' class='form-control' id='phone' name='phone' value='" . $user->get()['phone'] . "'>
+					</div>
+					<div class='form-group'>
+						<label for='zipcode'>Postcode</label>
+						<input type='text' class='form-control' id='zipcode' name='zipcode' value='" . $user->get()['zipcode'] . "'>
+					</div>
+					<div class='form-group'>
+						<label for='address'>Adres</label>
+						<input type='text' class='form-control' id='address' name='address' value='" . $user->get()['address'] . "'>
+					</div>
+					<button type='submit' name='update_user' class='btn btn-info'>Wijzigen</button>
+				</form>";
+	}
+
 	//404
 	function notfound(){
-	
+
 		echo '404';
 	}
 }

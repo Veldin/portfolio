@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <?php
 	session_start();
-	
+
 	//Alle benodigde bestanden.
 	require ('classes/core.php');
 	require ('classes/pages.php');
 	require ('classes/portfolio.php');
 	require ('classes/user.php');
 	require ('classes/uploads.php');
-	
+
 	//Initialiseren van benodigde classen.
 	$core = new Core;
 	$pages = new Pages;
@@ -25,15 +25,15 @@
 		?>
 		<meta http-equiv="content-type" content="text/html;charset=UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		
+
 		<link href="coll.css" rel="stylesheet" type="text/css">
 		<link href="style.css" rel="stylesheet" type="text/css">
-		
+
 		<!-- Editor -->
 		<script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
-  <script>tinymce.init({ 
-  
-  
+  <script>tinymce.init({
+
+
   selector:'#tinymce' ,
         style_formats: [
             {title: 'Open Sans', inline: 'span', styles: { 'font-family':'Open Sans'}},
@@ -51,39 +51,37 @@
             {title: 'Verdana', inline: 'span', styles: { 'font-family':'Verdana'}}
         ],
 		plugins: "link",
-		
 
-  
-  
+
+
+
   });</script>
-		
+
 		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-	
 
-	
 		<?php $pages->portfolioCSS(); ?>
 	</head>
 	<body>
-		<?php 
+		<?php
 			echo '<div id="headerOuter">';
 				echo '<div id="headerInner">';
 					$pages->header();
 				echo '</div>';
 			echo '</div>';
 
-			
+
 			if($user->login("amr.jonkman@gmail.com", "pass")){
 				//echo "Gebruiker logged in.";
 			}
-			
+
 			if($user->isLoggedIn()){
 				//echo "Gebruiker is ingelogd";
 			}
-		
+
 			$core->load();
-			
+
 			echo '<div id="footerOuter">';
 				echo '<div id="footerInner">';
 					$pages->footer();
@@ -92,8 +90,3 @@
 		?>
 	</body>
 </html>
-
-
-
-
-
