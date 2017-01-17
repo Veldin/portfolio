@@ -275,6 +275,18 @@ body,html{
 }
 
 
+/* Download section */
+
+.iconHuge i.fa{
+	margin: 5px;
+    font-size: 90px;
+}
+
+.extension{
+	    color: gray;
+    font-size: 10px;
+}
+
 /* inhoudsopgave */ 
 
 .inhoudsopgave .size1{
@@ -294,6 +306,21 @@ body,html{
 .inhoudsopgave .size3{
 	font-size: 15px;
     margin-left: 20px;
+}
+
+/* Add module */
+
+.selectModule{
+	text-align: center;
+	
+	padding-bottom: 5px;
+	padding-bottom: 2vh;
+	
+}
+
+.selectModule a{
+	color: black!important;
+	text-decoration: none!important;
 }
 
 /* slider */
