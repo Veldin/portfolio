@@ -27,7 +27,11 @@
 				$core->load();
 
 				$user = new User($dbc);
-				echo $user->register("peter2@stest.com", "aB3@", "aB3@", "Peter", "Pad", "1234567890", "1234CC", "123");
+				//echo $user->register("peter2@stest.com", "aB3@", "aB3@", "Peter", "Pad", "1234567890", "1234CC", "123");
+				echo $user->login("admin@test.com", "aB3@");
+				if($user->isLoggedIn()){
+						echo 1;
+				}
 				echo '</div>';
 		?>
 	</body>

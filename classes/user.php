@@ -142,8 +142,27 @@ class User
         return isset($_SESSION['loggedIn']) && $_SESSION['loggedIn'] === true ?: false;
     }
 
-    public function updateUserData($array){
+    public function updateUserData($id, $array){
+        $sql = "UPDATE user SET ";
 
+        $i = 0;
+        foreach($array as $set => $value){
+            if(++$i !== count($array)){
+                $sql .= $set . " = '" . $value . "', ";
+            }else{
+                $sql .= $set . " = '" . $value . "'";
+            }
+
+        }
+        $sql .= " WHERE id = :id";
+        //echo $sql;
+
+        $stmt = $this->dbc->prepare($sql);
+        $stmt->bindParam(":id", $id);
+        if($stmt->execute()){
+            return true;
+        }
+        return false;
     }
 
     // Deze functie haalt de userId en wachtwoord op aan de hand van de email die is ingevuld door de gebruiker. Wanneer er een resultaat uit de query komt worden de gehashte wachtwoorden
@@ -173,6 +192,7 @@ class User
         $stmt->execute();
         $results = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        $this->userdata['id'] = $results['id'];
         $this->userdata['levelid'] = $results['levelid'];
         $this->userdata['slb'] = $results['slb'];
         $this->userdata['email'] = $this->email;
