@@ -59,6 +59,47 @@ class Portfolio {
 		return($return);
 	}
 	
+	function files(){
+		global $core;
+	
+		$uploads = new Uploads;
+		
+		$page = $_GET["p"];
+		
+		//Verkrijg het userID (voor op de edit pagina en op portfolio zelf)
+		if($page == 'editmodule'){
+			$userId = $user->get()['id'];
+		}elseif($page == 'portfolio'){
+			$userId = $core->getUserFromURL($_GET["u"]);
+		}
+
+		//est wainting for icon xD
+		$count = 0;
+		foreach($uploads->getUserUploads($userId,true) as $upload){
+		
+			if($count == 3){
+				echo '<div class="clear"></div>';
+				$count = 0;
+			}
+			
+			echo '<div class="coll-33 selectModule">';
+
+				echo '<h3 class=>'.$upload['name'].'</h2>';
+				echo '<div class="iconHuge">'.$upload['fileicon'].'</div>';
+				echo '<p>'.$upload['description'].'<br></p>';
+				
+				echo '<a href="'.$upload['url'].'" class="btn btn-default" role="button" download>Download<br><span class="extension">als: .'.$upload['extension'].'</span></a>';
+			echo '</div>';
+			
+			$count++;
+		}
+		
+	
+		
+	
+		return '';
+	}
+	
 	function comments($ammount){
 		global $core;
 		global $user;

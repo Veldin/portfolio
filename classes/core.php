@@ -133,8 +133,7 @@ class Core {
 				echo '<div class="coll-100">';
 					echo '<div class="coll-75 youtube-form">';
 					echo '<span>https://www.youtube.com/watch?v=</span><input  type="text" name="'.$name.'" value="'.$value.'" >';
-					echo '</div><br>';
-					echo '</div><br>';
+					echo '</div><br><br>';
 				echo '</div>';
 				
 			}else{

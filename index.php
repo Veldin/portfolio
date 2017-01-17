@@ -7,6 +7,7 @@
 	require ('classes/pages.php');
 	require ('classes/portfolio.php');
 	require ('classes/user.php');
+	require ('classes/uploads.php');
 	
 	//Initialiseren van benodigde classen.
 	$core = new Core;
@@ -33,7 +34,7 @@
   <script>tinymce.init({ 
   
   
-  selector:'textarea' ,
+  selector:'#tinymce' ,
         style_formats: [
             {title: 'Open Sans', inline: 'span', styles: { 'font-family':'Open Sans'}},
             {title: 'Arial', inline: 'span', styles: { 'font-family':'arial'}},
@@ -49,12 +50,18 @@
             {title: 'Times New Roman', inline: 'span', styles: { 'font-family':'times new roman,times'}},
             {title: 'Verdana', inline: 'span', styles: { 'font-family':'Verdana'}}
         ],
+		plugins: "link",
+		
+
   
   
   });</script>
 		
 		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	
+
 	
 		<?php $pages->portfolioCSS(); ?>
 	</head>
