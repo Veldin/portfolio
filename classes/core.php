@@ -121,6 +121,25 @@ class Core {
 		}
     } 
 	
+	function mysqliconnect(){
+
+		$dbname = "portfolio";
+		
+		$dbconnect = mysqli_connect("127.0.0.1", "root", "");
+		
+		if($dbconnect == FALSE){
+			echo "<p>Unable to connect to database.</p>"
+			. "<p>Erro code" . mysqli_errno($dbconnect) . ": " . mysqli_error($dbconnect) . "</p>";
+		}else{
+			$selectdb = mysqli_select_db($dbconnect, $dbname);
+		}
+		if($selectdb == FALSE) {
+			echo "<p>Unable to select the database.</p>"
+			. "<p>Erro code" . mysqli_errno($selectdb) . ": " . mysqli_error($selectdb) . "</p>";
+		}
+		
+	}
+	
 	//genereren van de inputvelden voor het aanpassen van de modules
 	function input($type = 'text', $title = 'naam', $name = 'naam', $value = ' '){
 		echo $title.':<br> <input type="'.$type.'" name="'.$name.'" value="'.$value.'" ><br><br>';

@@ -302,13 +302,33 @@ class Pages {
 	}
 	
 	function login(){
-		echo "<h2>Login</h2>";
-		echo "<form method='' action=''>
-				E-mail:<br><input type='text' pattern='/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/' required><br>";
-		echo "	Wachtwoord:<br><input type='password' name='password' required><br>";
-		echo "<input type='submit' name='submit' value='Login'></form>";
+		global $user;
+		global $mysqliconnect;
+		global $pages;
+		global $core;
 		
-		echo "<a href='index.php?p=register'>Registreer</a>";
+		if($user->isLoggedIn() == FALSE){
+			if(isset($_POST['submit'])){
+				if(empty($_POST['email']) OR empty($_POST['password'])){
+					echo "<p>Vul alle velden in.</p>";
+				}else{
+					$email = $_POST['email'];
+					$password = $_POST['password'];
+					
+					$user->login($email, $password);
+				}
+			}
+			echo "<h2>Login</h2>";
+			echo "<form method='POST' action='#'>
+					E-mail:<br><input type='text' name='email' pattern='/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/' required><br>";
+			echo "	Wachtwoord:<br><input type='password' name='password' required><br>";
+			echo "<input type='submit' name='submit' value='Login'></form>";
+			echo "<a href='index.php?p=register'>Registreer</a>";
+		}else{ //Als $isLoggedIn == TRUE
+			echo "U bent al ingelogd.";
+		}
+		
+		
 	}
 	
 	function register(){
@@ -426,8 +446,7 @@ class Pages {
 		$viewportfolio = "Link";	//Link naar je portfolio
 		$createportfolio = "Link";	//Link naar de pagina voor het aanmaken van je portfolio
 		
-		$userdata = $user->get();
-		$currentuser = 1;
+		$currentuser = $user->get()['id'];
 		
 		$SQLstring = $dbc->prepare("SELECT user.timestamp, user.firstname, user.lastname FROM user 
 						WHERE user.id = $currentuser");
@@ -438,13 +457,27 @@ class Pages {
 		echo "<p>Hallo {$value['firstname']} {$value['lastname']}.</p>";
 		echo "<p>Dit account is aangemaakt op {$value['timestamp']}.</p>";
 		}		
-		$SQLstring2 = $dbc->prepare("SELECT COUNT(chat.targetid) AS commentamount, chat.timestamp FROM chat 
+		$SQLstring2 = $dbc->prepare("SELECT COUNT(chat.targetid) AS commentamount, MIN(chat.timestamp) AS lasttimestamp FROM chat 
 									WHERE chat.targetid = $currentuser");
 		$SQLstring2->execute();
 		$SQLstring2 = $SQLstring2->fetchAll(PDO::FETCH_ASSOC);
 		foreach($SQLstring2 as $key => $value){
-		echo "<p>Er zijn {$value['commentamount']} comments op jou portfolio.</p>";
-		echo "<p>De laatste comment was op {$value['timestamp']}.</p>";
+		echo "<p>Je hebt ".$value['commentamount']." comment(s) op jou portfolio.</p>";
+		if($value['lasttimestamp'] < 60){
+			$seconds = $value['lasttimestamp'];
+			echo "<p>De laatste comment was ".floor($seconds)." seconden geleden.</p>";
+		}elseif($value['lasttimestamp'] > 60 AND $value['lasttimestamp'] < 3600){
+			$minutes = $value['lasttimestamp']/60;	
+			echo "<p>De laatste comment was ".floor($minutes)." minuten geleden.</p>";
+		}elseif($value['lasttimestamp'] > 3600 AND $value['lasttimestamp'] < 86400){
+			$hours = $value['lasttimestamp']/3600;
+			echo "<p>De laatste comment was ".floor($hours)." uur geleden.</p>";
+		}elseif($value['lasttimestamp'] > 86400){
+			$days = $value['lasttimestamp']/86400;
+			echo "<p>De laatste comment was ".floor($days)." dag(en) geleden.</p>";
+		}else{
+			echo "<p>Je hebt nog geen comments.</p>";
+		}
 		}
 		
 		//if not logged in go to home
