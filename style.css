@@ -7,6 +7,14 @@ body,html{
     color: #333;
 }
 
+body{
+	background: url(bg20.png) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
 .clear,
 .Clear{
 	clear:both;
@@ -15,6 +23,7 @@ body,html{
 #headerOuter{
 	width: 100%;
 	background-color: #e4e4e4;
+	background-color: #222222;
 }
 
 #headerInner{
@@ -54,6 +63,29 @@ body,html{
 
 .center{
 	text-align: center;
+}
+
+/* navigaton */
+
+#headerInner ul{
+	list-style-type: none;
+	display: block;
+	margin:0;
+}
+
+#headerInner ul li{
+	float: left;
+	display: block;
+	margin:0;
+	padding:0;
+}
+
+#headerInner ul li.right{
+	float: right;
+}
+
+#headerInner ul li a{
+	margin: 0px;
 }
 
 /* colls */
@@ -365,6 +397,10 @@ input[type=range]::-webkit-slider-thumb {
     border: 1px solid #aaaaaa;
     margin-top: -4px;
 }
+
+.table-striped>tbody>tr:nth-of-type(odd){
+    background-color: rgba(249, 249, 249, 0.2)!important;
+}
 /* .coll-50 > .portfoliolayoutscema{
     width: 92%;
 }
@@ -381,6 +417,15 @@ input[type=range]::-webkit-slider-thumb {
 	height: 50vh;
 }
 
+/* change aimation */
 
+.changed{
+	animation: changed 1s linear;
+}
+
+@keyframes changed {
+  0% {background-color: #dff0d8;}
+  100% {background-color: initial;}
+}
 
 

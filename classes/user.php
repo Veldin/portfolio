@@ -78,6 +78,7 @@ class User
     }
     // Een select all query voor wanneer de gebruiker geauthenticeerd is. In deze functie worden alle gebruikekrsgegevens opgeslagen in een PHP array.
     private function getUserData(){
+		
         $stmt = $this->dbc->prepare("SELECT * FROM user WHERE id = :id");
         $stmt->bindParam(":id", $_SESSION['userId']);
         $stmt->execute();

@@ -51,9 +51,14 @@ class Core {
 	
 		$portfolio = $dbc->prepare('SELECT * FROM `portfolio` WHERE `userid` = "'.$userid.'" LIMIT 1');
 		$portfolio->execute();
-		$portfolio = $portfolio->fetchAll(PDO::FETCH_ASSOC)[0];
-	
-		return $portfolio['url'];
+		$portfolio = $portfolio->fetchAll(PDO::FETCH_ASSOC);
+
+		if(!empty($portfolio)){
+			$portfolio = $portfolio[0];
+		
+			return $portfolio['url'];
+		}
+		return false;
 	}
 	
 	//Functie voor het maken van een portfolio layout scema.
@@ -100,6 +105,38 @@ class Core {
 			}
 		}
 	
+	}
+	
+		
+	function mysqlcon(){
+	
+		$servername = "db.veldin.com"; 
+		$username = "md253219db370063"; 
+		$password = "NiFQYCvz"; 
+		$DBName = "md253219db370063";  
+
+		$DBConnect = mysqli_connect($servername,$username,$password);
+		
+		if($DBConnect === FALSE){
+			echo "<p>Unable to connect to the database server!</p>" 
+			. "<p>Error code" . mysqli_errno() . ": "
+			. mysqli_error() . "</p>";
+			
+			return mysqli_error();
+		}else{
+			$SelectDB = mysqli_select_db($DBConnect, $DBName);
+		}
+		
+		if($SelectDB === FALSE){
+			echo "<p>Unable to connect to the database server.</p>"
+			. "<p>Error code " . mysqli_errno() . ": "
+			. mysqli_error() . "</p>";
+			
+			return mysqli_error();
+		}else{
+			return $DBConnect;
+		}
+		
 	}
 	
 	function dbc() { 

@@ -62,7 +62,7 @@ class Uploads
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             foreach($results as &$result){
                 $result['extension'] = pathinfo($result['url'], PATHINFO_EXTENSION);
-                $result['fileicon'] = $this->fileIcons[pathinfo($result['url'], PATHINFO_EXTENSION)];
+                @$result['fileicon'] = $this->fileIcons[pathinfo($result['url'], PATHINFO_EXTENSION)];
             }
             return $results;
         }else{
