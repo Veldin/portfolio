@@ -1,5 +1,8 @@
 <?php
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
 class User
 {
     // Enkele private variabelen waar alleen de user class toegang tot heeft.
@@ -7,17 +10,26 @@ class User
     private $password;
     private $userdata;
     private $dbc;
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
     // Deze functie wordt aangeroepen wanneer er een instantie van de class wordt aangemaakt. Hier in worden de email, wachtwoord en de database connectie meegegeven.
     function __construct($dbc){
         $this->dbc = $dbc;
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
     // Deze functie doet op zichzelf vrij weinig behalve de 'loggedIn' sessie naar true zetten wanneer de gebruiker succesvol is geauthenticeerd.
     public function login($email, $password){
         $this->email = htmlentities($email);
         $this->password = htmlentities($password);
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
         if($this->auth()){
             $this->getUserData();
             $_SESSION['loggedIn'] = true;
@@ -26,14 +38,20 @@ class User
             return false;
         }
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
     // Unset of destroy de sessie variabelen zodat de gebruiker niet meer als ingelogd wordt beschouwd.
     public function logout(){
         //session_destroy();
         unset($_SESSION['userId']);
         unset($_SESSION['loggedIn']);
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
     // Deze function voert de query uit om de gebruiker te registreren in de database. Deze functie controleerd alleen voor bestaande email adressen!
     // Error codes:
       // 99 - Velden niet ingevuld
@@ -56,7 +74,10 @@ class User
                     $phone = stripslashes($phone);
                     $zipcode = stripslashes($zipcode);
                     $address = stripslashes($address);
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
                     if(Validate::password($password)){
                         if(Validate::phone($phone)){
                             if(Validate::zipcode($zipcode)){
@@ -74,7 +95,10 @@ class User
                                     $stmt->bindParam(":zipcode", $zipcode);
                                     $stmt->bindParam(":address", $address);
                                     $stmt->execute();
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
                                     if($this->populatePortfolio($this->dbc->lastInsertId(), $firstname, $lastname)){
                                         return true;
                                     }else{
@@ -102,11 +126,17 @@ class User
             return 99;
         }
     }
+<<<<<<< HEAD
 
     private function populatePortfolio($userId, $firstname, $lastname){
         $url = strtolower(substr($firstname, 0, 1) . $lastname);
         $firstname = substr($firstname, 0, 1);
 
+=======
+    private function populatePortfolio($userId, $firstname, $lastname){
+        $url = strtolower(substr($firstname, 0, 1) . $lastname);
+        $firstname = substr($firstname, 0, 1);
+>>>>>>> refs/remotes/origin/master
         $stmt = $this->dbc->prepare("SELECT id FROM user WHERE SUBSTRING(firstname, 1, 1) = :firstname AND lastname = :lastname");
         $stmt->bindParam(":firstname", $firstname);
         $stmt->bindParam(":lastname", $lastname);
@@ -114,7 +144,10 @@ class User
         if($stmt->rowCount() > 1){
             $url .= $stmt->rowCount();
         }
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
         $stmt = $this->dbc->prepare(
             "INSERT INTO portfolio VALUES (:userid, :url, 0, 'ffffff', '808080', 'D54247');" .
             "INSERT INTO module VALUES (null, :userid, 3, 1, 100, 'Welkom op je eigen portfolio! Dit is een header text.', UNIX_TIMESTAMP());" .
@@ -127,7 +160,10 @@ class User
         }
         return false;
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
     // Returnd de 'credentials' array en wordt voornamelijk gebruik om gebruikerdata te verkrijgen op de volgende manier: get()['email']
     public function get(){
         if(isset($this->userdata) && !empty($this->userdata)){
@@ -136,15 +172,23 @@ class User
             return $this->getUserData();
         }
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
     // Checkt of de 'loggedIn' sessie is geset en of deze true bevat van het type boolean. Zoja, return true en anders return false;
     public function isLoggedIn(){
         return isset($_SESSION['loggedIn']) && $_SESSION['loggedIn'] === true ?: false;
     }
+<<<<<<< HEAD
 
     public function updateUserData($id, $array){
         $sql = "UPDATE user SET ";
 
+=======
+    public function updateUserData($id, $array){
+        $sql = "UPDATE user SET ";
+>>>>>>> refs/remotes/origin/master
         $i = 0;
         foreach($array as $set => $value){
             if(++$i !== count($array)){
@@ -152,11 +196,17 @@ class User
             }else{
                 $sql .= $set . " = '" . $value . "'";
             }
+<<<<<<< HEAD
 
         }
         $sql .= " WHERE id = :id";
         //echo $sql;
 
+=======
+        }
+        $sql .= " WHERE id = :id";
+        //echo $sql;
+>>>>>>> refs/remotes/origin/master
         $stmt = $this->dbc->prepare($sql);
         $stmt->bindParam(":id", $id);
         if($stmt->execute()){
@@ -164,14 +214,20 @@ class User
         }
         return false;
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
     // Deze functie haalt de userId en wachtwoord op aan de hand van de email die is ingevuld door de gebruiker. Wanneer er een resultaat uit de query komt worden de gehashte wachtwoorden
     // vergeleken.
     private function auth(){
         $stmt = $this->dbc->prepare("SELECT id, password FROM user WHERE email = :email");
         $stmt->bindParam(":email", $this->email);
         $stmt->execute();
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
         if($stmt->rowCount() > 0){
             $results = $stmt->fetch(PDO::FETCH_ASSOC);
             if(password_verify($this->password, $results['password'])){
@@ -184,14 +240,20 @@ class User
             return false;
         }
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
     // Een select all query voor wanneer de gebruiker geauthenticeerd is. In deze functie worden alle gebruikekrsgegevens opgeslagen in een PHP array.
     private function getUserData(){
         $stmt = $this->dbc->prepare("SELECT * FROM user WHERE id = :id");
         $stmt->bindParam(":id", $_SESSION['userId']);
         $stmt->execute();
         $results = $stmt->fetch(PDO::FETCH_ASSOC);
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
         $this->userdata['id'] = $results['id'];
         $this->userdata['levelid'] = $results['levelid'];
         $this->userdata['slb'] = $results['slb'];
@@ -202,47 +264,70 @@ class User
         $this->userdata['zipcode'] = $results['zipcode'];
         $this->userdata['address'] = $results['address'];
     }
+<<<<<<< HEAD
 
 }
 
 class Validate
 {
 
+=======
+}
+class Validate
+{
+>>>>>>> refs/remotes/origin/master
     public function email($email){
         if(filter_var($email, FILTER_VALIDATE_EMAIL)){
             return true;
         }
         return false;
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
     public function passwordRepeat($password, $password_repeat){
         if($password === $password_repeat){
             return true;
         }
         return false;
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
     public function password($password){
         if(preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/', $password)){
             return true;
         }
         return false;
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
     public function phone($phone){
         if(is_numeric($phone) && (strlen($phone) === 10)){
             return true;
         }
         return false;
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
     public function zipcode($zipcode){
         if(preg_match('/^[0-9]{4}[A-Z]{2}$/', $zipcode)){
             return true;
         }
         return false;
     }
+<<<<<<< HEAD
 
 }
 
 ?>
+=======
+}
+?>
+>>>>>>> refs/remotes/origin/master
