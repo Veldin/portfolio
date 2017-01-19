@@ -46,7 +46,9 @@ class User
                     $password = stripslashes($password);
                     $password_repeat = stripslashes($password_repeat);
                     $firstname = stripslashes($firstname);
+                    $firstname = htmlentities($firstname);
                     $lastname = stripslashes($lastname);
+                    $lastname = htmlentities($lastname);
                     $phone = stripslashes($phone);
                     $zipcode = stripslashes($zipcode);
                     $address = stripslashes($address);
@@ -95,7 +97,7 @@ class User
         }
     }
     private function populatePortfolio($userId, $firstname, $lastname){
-        $url = strtolower(substr($firstname, 0, 1) . $lastname);
+        $url = strtolower(substr($firstname, 0, 1) . "_" . str_replace(' ', '_', $lastname));
         $firstname = substr($firstname, 0, 1);
         $stmt = $this->dbc->prepare("SELECT id FROM user WHERE SUBSTRING(firstname, 1, 1) = :firstname AND lastname = :lastname");
         $stmt->bindParam(":firstname", $firstname);

@@ -1,6 +1,6 @@
 <?php
 //Een class met al mijn paginas als functies
-class Pages {  
+class Pages {
 	//Hoofd pagina
 //Hoofd pagina
 	function home(){
@@ -8,13 +8,13 @@ class Pages {
 		global $pages;
 		global $dbc;
 		global $user;
-		
+
 		//$levelid = $user->get()['levelid'];
 		$currentuser = $user->get()['levelid'];
-		
+
 		//if login true
 		if($user->isLoggedIn()){
-						
+
 			$SQLstring = $dbc->prepare("SELECT user.levelid FROM user
 						WHERE user.id = $currentuser");
 			$SQLstring->execute();
@@ -23,7 +23,7 @@ class Pages {
 				//if student
 				if($value['levelid'] == 1){	//$value['levelid'] wordt $levelid
 					echo $pages->studentHome();
-				//if teacher 
+				//if teacher
 				}elseif($value['levelid'] == 2){
 					echo $pages->teacherHome();
 				//if admin
@@ -33,17 +33,17 @@ class Pages {
 			}
 		//if not logged in show login pages
 		}else{
-			
+
 			echo $pages->login();
-		}				
+		}
 	}
-	
+
 	function login(){
 		global $user;
 		global $mysqliconnect;
 		global $pages;
 		global $core;
-		
+
 		if($user->isLoggedIn() == FALSE){
 			if(isset($_POST['submit'])){
 				if(empty($_POST['email']) OR empty($_POST['password'])){
@@ -51,7 +51,7 @@ class Pages {
 				}else{
 					$email = $_POST['email'];
 					$password = $_POST['password'];
-					
+
 					$user->login($email, $password);
 				}
 			}
@@ -64,49 +64,75 @@ class Pages {
 		}else{ //Als $isLoggedIn == TRUE
 			echo "U bent al ingelogd.";
 		}
-		
-		
+
+
 	}
-	
+
 	function logout(){
 		global $user;
 		//logout(){
-		
+
 		$user->logout();
 	}
-	
+
 	function register(){
+		global $user;
+
+		$errors = array(
+				99 => "Je hebt niet alle velden ingevuld.",
+				100 => "Het ingevoerde email adres is niet correct.",
+				101 => "De ingevoerde wachtwoorden komen niet overeen.",
+				102 => "Het ingevoerde wachtwoord voldoet niet aan de eisen. (Minstens 1 kleine letter, 1 hoofdletter, 1 cijfer en een speciaal teken)",
+				103 => "Het ingevoerde telefoonnummer is niet numeriek of 10 karakters lang.",
+				104 => "De ingevoerde postcode is niet volgens het 1234AB formaat.",
+				105 => "Het email adres is al in gebruik.",
+				106 => "Er is een fout opgetreden bij het aanmaken van het portfolio."
+		);
+
+		if(isset($_POST['register'])){
+				if(!empty($_POST['email']) && !empty($_POST['password']) && !empty($_POST['password_repeat']) && !empty($_POST['firstname']) && !empty($_POST['lastname']) && !empty($_POST['phone']) && !empty($_POST['zipcode']) && !empty($_POST['address'])){
+						$resultCode = $user->register($_POST['email'], $_POST['password'], $_POST['password_repeat'], $_POST['firstname'], $_POST['lastname'], $_POST['phone'], $_POST['zipcode'], $_POST['address']);
+						if(is_numeric($resultCode) && array_key_exists($resultCode, $errors)){
+								echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> " . $errors[$resultCode] . "</div>";
+						}else{
+								"Je hebt alles goed ingevuld. Jippie";
+						}
+				}else{
+						echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> Je hebt niet alle velden ingevuld.</div>";
+				}
+		}
+
 		echo "<h2>Maak een account aan</h2>";
-			
-		echo "	<form method='' action=''>
-				<input type='text' placeholder='E-mail' required><br>
-				<input type='password' placeholder='Wachtwoord' required><br>
-				<input type='password' placeholder='Herhaal wachtwoord' required><br>
-				<input type='text' placeholder='Voornaam' required><br>
-				<input type='text' placeholder='Achternaam' required><br>
-				<input type='number' placeholder='Telefoonnummer' required><br>
-				<input type='text' placeholder='Postcode' required><br>
-				<input type='text' placeholder='Adres' required><br>
-				<input type='submit' value='Registreer'>
+
+		echo "	<form method='post' action='#'>
+				<input type='email' name='email' placeholder='E-mail' required><br>
+				<input type='password' name='password' placeholder='Wachtwoord' required><br>
+				<input type='password' name='password_repeat' placeholder='Herhaal wachtwoord' required><br>
+				<input type='text' name='firstname' placeholder='Voornaam' required><br>
+				<input type='text' name='lastname' placeholder='Achternaam' required><br>
+				<input type='number' name='phone' placeholder='Telefoonnummer' required><br>
+				<input type='text' name='zipcode' placeholder='Postcode' required><br>
+				<input type='text' name='address' placeholder='Huisnummer' required><br>
+				<input type='submit' name='register' value='Registreer'>
 				</form>";
-				
+
 		echo "<p>Heb je al een account? <a href='index.php?p=login'>Log in</a></p>";
 	}
-	
+
 	function adminHome(){
 		global $dbc;
 		global $user;
 		global $pages;
-		
+
 		$levelid = $user->get()['levelid'];
 		if($user->isLoggedIn() AND $levelid == 3){
-												
-		
+
+
 		$firstname = $user->get()['firstname'];
 		$lastname = $user->get()['lastname'];
-		
+
 		echo "<h2>Welkom ".$firstname." ".$lastname.".</h2>";
-		
+
 		$SQLstring = $dbc->prepare("SELECT COUNT(user.id) AS useramount FROM user");
 		$SQLstring->execute();
 		foreach($SQLstring as $key => $value){
@@ -117,43 +143,43 @@ class Pages {
 		foreach($SQLstring as $key => $value){
 			echo "<p>	".$value['useramount']." studenten accounts.<br>";
 		}
-		
+
 		$SQLstring = $dbc->prepare("SELECT COUNT(user.id) AS useramount FROM user WHERE levelid = 2");
 		$SQLstring->execute();
 		foreach($SQLstring as $key => $value){
 			echo $value['useramount']." docenten accounts.</p>";
 		}
-		
+
 		echo "<p><a href='LINK'>Overzicht accounts</a><p>";	//Link naar overzicht account
 		echo "<p><a href='LINK'>Aanpassen accounts</a><p>";	//Link naar de wijzig account pagina
-		
+
 		//if not logged in go to home
 		}else{
-			
+
 			echo $pages->home();
 		}
 	}
-	
+
 	function teacherHome(){
 		global $dbc;
 		global $user;
 		global $pages;
-		
+
 		$levelid = $user->get()['levelid'];
 		if($user->isLoggedIn() AND $levelid == 2){
-		
+
 		$firstname = $user->get()['firstname'];
 		$lastname = $user->get()['lastname'];
-		
+
 		echo "<h2>Welkom ".$firstname." ".$lastname.".</h2>";
-		
+
 		$SQLstring = $dbc->prepare('SELECT lastname, firstname, zipcode, phone, email, url FROM user, portfolio
-						WHERE user.levelid = 1 AND user.id = portfolio.userid 
+						WHERE user.levelid = 1 AND user.id = portfolio.userid
 						ORDER BY lastname ASC'
 						);
 		$SQLstring->execute();
 		$SQLstring = $SQLstring->fetchAll(PDO::FETCH_ASSOC);
-		
+
 		echo "<table border='1'>";
 		echo "<tr><th>Achternaam</th> <th>Voornaam</th> <th>Postcode</th> <th>Telefoonnummer</th> <th>E-mail</th> <th>url</th></tr>";
 		foreach($SQLstring as $key => $value)
@@ -164,43 +190,43 @@ class Pages {
                         echo "<td>{$value['phone']}</td>";
                         echo "<td>{$value['email']}</td>";
 						echo "<td><a href='{$value['url']}'>portfolio</a></td></tr>";
-                        
+
                     }
-                
+
 		echo "</table>";
-		
+
 		//if not logged in go to home
 		}else{
-			
+
 			echo $pages->home();	//HOME REGELT DE REST
 		}
 	}
-	
+
 	function studentHome(){
 		global $dbc;
 		global $user;
 		global $pages;
-		
+
 		$levelid = $user->get()['levelid'];
 		if($user->isLoggedIn() AND $levelid == 1){
-		
+
 		$editprofile = "Link";	//Link naar de profile edit
 		$viewprofile = "Link";	//Link naar het profile overzicht
 		$viewportfolio = "Link";	//Link naar je portfolio
 		$createportfolio = "Link";	//Link naar de pagina voor het aanmaken van je portfolio
-		
+
 		$currentuser = $user->get()['id'];
-		
-		$SQLstring = $dbc->prepare("SELECT user.timestamp, user.firstname, user.lastname FROM user 
+
+		$SQLstring = $dbc->prepare("SELECT user.timestamp, user.firstname, user.lastname FROM user
 						WHERE user.id = $currentuser");
 		$SQLstring->execute();
 		$SQLstring = $SQLstring->fetchAll(PDO::FETCH_ASSOC);
-		
+
 		foreach($SQLstring as $key => $value){
 		echo "<p>Hallo {$value['firstname']} {$value['lastname']}.</p>";
 		echo "<p>Dit account is aangemaakt op {$value['timestamp']}.</p>";
-		}		
-		$SQLstring2 = $dbc->prepare("SELECT COUNT(chat.targetid) AS commentamount, MIN(chat.timestamp) AS lasttimestamp FROM chat 
+		}
+		$SQLstring2 = $dbc->prepare("SELECT COUNT(chat.targetid) AS commentamount, MIN(chat.timestamp) AS lasttimestamp FROM chat
 									WHERE chat.targetid = $currentuser");
 		$SQLstring2->execute();
 		$SQLstring2 = $SQLstring2->fetchAll(PDO::FETCH_ASSOC);
@@ -210,7 +236,7 @@ class Pages {
 			$seconds = $value['lasttimestamp'];
 			echo "<p>De laatste comment was ".floor($seconds)." seconden geleden.</p>";
 		}elseif($value['lasttimestamp'] > 60 AND $value['lasttimestamp'] < 3600){
-			$minutes = $value['lasttimestamp']/60;	
+			$minutes = $value['lasttimestamp']/60;
 			echo "<p>De laatste comment was ".floor($minutes)." minuten geleden.</p>";
 		}elseif($value['lasttimestamp'] > 3600 AND $value['lasttimestamp'] < 86400){
 			$hours = $value['lasttimestamp']/3600;
@@ -222,16 +248,16 @@ class Pages {
 			echo "<p>Je hebt nog geen comments.</p>";
 		}
 		}
-		
+
 		//if not logged in go to home
 		}else{
-			
+
 			echo $pages->home();	//HOME REGELT DE REST
 		}
 	}
-	
+
 	function generatecsscolls(){
-	
+
 		for ($x = 0; $x <= 100; $x++) {
 			echo "<br>";
 			echo ".coll-".$x."{";
@@ -241,7 +267,7 @@ class Pages {
 				echo"position: relative;";
 			echo"}";
 		}
-		
+
 		echo"<br>@media only screen and (max-width: 700px) {<br>";
 		for ($x = 0; $x <= 99; $x++) {
 			echo".coll-".$x.",<br>";
@@ -250,26 +276,26 @@ class Pages {
 				echo"width: 100%;<br>";
 			echo"}<br>";
 		echo"}<br>";
-		
-		
+
+
 	}
-	
+
 	function header(){
 		global $pages;
-		
+
 		echo $pages->navigation();
 	}
-	
-	
+
+
 	function navigation() {
 		global $user;
 		global $core;
-			
+
 			if($user->isLoggedIn()){
 				$currentSLB = $user->get()['slb'];
 				$userID = $user->get()['id'];
 				$levelID = $user->get()['levelid'];
-				
+
 				if(($user->get()['slb'] == $user->get()['id']) && $user->get()['levelid'] == 2){
 					$isSLB = TRUE;
 				}else{
@@ -279,9 +305,9 @@ class Pages {
 				$levelID = 0;
 				$isSLB = false;
 			}
-			
-			
-			
+
+
+
 			// Deze variabelen zijn voor de linkjes naar de bijbehorende paginas.
 			$viewFiles = "showUploads";
 			$uploadFiles = "uploadFile"; //
@@ -292,9 +318,9 @@ class Pages {
 			$profiel = "linkie9|right";
 			$login = "login|right";
 			$logout = "logout|right";
-			
+
 			$menu = array();
-			
+
 			// checked of levelID het ID van een student is.
 			if($levelID == 1){
 				// maakt de array aan met de navigatie structuur.
@@ -305,7 +331,7 @@ class Pages {
 					"Upload bestanden" => $uploadFiles
 				);
 			}
-			
+
 			// checked of levelID het ID van een docent is //
 			if($levelID == 2){
 				// checked of de docent een studieloopbaanbegeleider is //
@@ -340,12 +366,12 @@ class Pages {
 /* 			echo "<pre>";
 			var_export($menu);
 			echo "</pre>"; */
-			
-			
-			
+
+
+
 			echo "<ul>";
 
-			
+
 			if($levelID == 3 || $isSLB == TRUE){
 				echo "<li><form method='post' action='index.php?p=search'>
 							<input type='text' name='search'>
@@ -356,34 +382,34 @@ class Pages {
 			if($levelID > 0){
 				foreach($menu as $optionDesc => $option){
 					$option = explode("|", $option);
-					
+
 					if(isset($_GET["p"])){
 						$page = htmlspecialchars($_GET["p"]);
 					}else{
 						$page = 'home';
 					}
-					
+
 					$liClass = ''; //Voor het houden van de classes op de LI
 					$AClass = ''; //Voor het houden van de classes op de A
-					
+
 					//Extra meegegeven classes toevoegne aan de LI. (left/right ect)
 					if(isset($option[1])){
 						$liClass .= $option[1];
 					}
-					
+
 					//Extra meegegeven classes toevoegne aan de A. (button color ect)
 					if((isset($_GET["p"]) && htmlspecialchars($_GET["p"]) == $option[0]) || ($page == 'portfolio' && $option[0] == 'eigenportfolio')){
 						$AClass .= 'btn btn-primary';
 					}else{
 						$AClass .= 'btn btn-default';
 					}
-					
-					
-					
+
+
+
 					echo "<li class=".$liClass." ><a role='button' class='".$AClass."' href=index.php?p=$option[0]>$optionDesc</a></li>";
-					
-					
-					
+
+
+
 					/* if(isset($option[1])){
 						echo "<li class='".$option[1]."'><a class='btn btn-default' role='button'  href=index.php?p=$option[0]>$optionDesc</a></li>";
 					}else{
@@ -392,7 +418,7 @@ class Pages {
 				}
 				echo "</ul>";
 			}
-		
+
 		echo '<div class="clear"></div>';
 	}
 
@@ -400,22 +426,22 @@ class Pages {
 		echo 'FOOTER';
 	}
 
-	
+
 	function search(){
 		global $user;
 		global $core;
 		global $dbc;
 		global $mysqlconn;
-		
+
 		if($user->isLoggedIn()){
 			$currentSLB = $user->get()['slb'];
 			$userID = $user->get()['id'];
 			$levelid = $user->get()['levelid'];
-			
+
 			if($levelid < 2){
 				header("Location: index.php");
 			}
-			
+
 			if($userID == $currentSLB){
 				$isSLB = TRUE;
 			}else{
@@ -424,17 +450,17 @@ class Pages {
 		}
 		$tablename = "user";
 
-		
-			
+
+
 		if(isset($_POST['waarmerk']) AND $isSLB == TRUE){
-		
+
 			$query = "SELECT id FROM $tablename WHERE levelid = 1 AND slb = $currentSLB";
 			$result = mysqli_query($mysqlconn, $query);
 			while($fetch = mysqli_fetch_assoc($result)){
 				$userid = $fetch['id'];
-				
-				
-				
+
+
+
 				if(isset($_POST[$userid])){
 					$waarmerk = 1;
 				}else{
@@ -445,8 +471,8 @@ class Pages {
 			}
 			echo "<p>De portfolios zijn gewaarmerkt!";
 		}
-			
-			
+
+
 			if(isset($_POST['submit']) AND $levelid == 3){
 				if(!empty($_POST['search'])){
 					$searchName = $_POST['search'];
@@ -460,20 +486,20 @@ class Pages {
 					$queryresult = mysqli_query($mysqlconn, $query);
 				}
 			}else if($levelid == 2){
-					$query = "SELECT * FROM user, portfolio 
+					$query = "SELECT * FROM user, portfolio
 					WHERE user.id = portfolio.userid
 					AND user.levelid = 1
 					ORDER BY lastname ASC, firstname ASC,id ASC";
 					$queryresult = mysqli_query($mysqlconn, $query);
 			}else if($levelid == 3){
-					$query = "SELECT * FROM user, portfolio 
+					$query = "SELECT * FROM user, portfolio
 					WHERE user.id = portfolio.userid
 					ORDER BY lastname ASC, firstname ASC,id ASC";
 					$queryresult = mysqli_query($mysqlconn, $query);
 			}
-			
-			
-			
+
+
+
 				echo "<table>";
 				echo "<tr><th>Voornaam</th><th>Achternaam</th><th>Email</th>";
 				if($levelid == 3){
@@ -519,7 +545,7 @@ class Pages {
 						echo "<td><a href='?p=search&userid=$id'>Gegevens</a></td>";
 						echo "<td><a href='?p=portfolio&u=$url'>Portfolio</a></td>";
 					}
-					
+
 					if($levelid == 2){
 						echo "<td><a href='?p=search&userid=$id'>Gegevens</a></td>";
 						echo "<td><a href='?p=portfolio&u=$url'>Portfolio</a></td>";
@@ -527,7 +553,7 @@ class Pages {
 							echo "<td><form method='post' action='#'> GEWAARMERKT </td>";
 						}else{
 							$currentslb = $fetch['slb'];
-							
+
 							if(($currentslb == $currentSLB) && $fetch['levelid'] == 1){
 								echo "<td><form method='post' action='#'><input type='checkbox' value=1 name='$id'></td>";
 							}
@@ -536,11 +562,11 @@ class Pages {
 					echo "</tr>";
 				}
 				if($levelid == 2 AND $currentSLB != 0){
-					echo "<tr><td></td><td></td><td></td><td></td><td></td><td><input type='submit' name='waarmerk' value='Waarmerk'></td></tr>"; 
+					echo "<tr><td></td><td></td><td></td><td></td><td></td><td><input type='submit' name='waarmerk' value='Waarmerk'></td></tr>";
 					echo "</form>";
 				}
 				echo "</table>";
-			
+
 			if(!empty($_GET['userid']) AND $levelid == 3){
 				$userid = $_GET['userid'];
 				$query = "SELECT * FROM $tablename WHERE id = $userid";
@@ -624,7 +650,7 @@ class Pages {
 					$levelid = $_POST['rank'];
 					$query = "UPDATE $tablename SET firstname='$firstname', lastname='$lastname', email='$email', phone=$phone, zipcode='$zipcode', levelid='$levelid'$slb WHERE id = $userid";
 					if(mysqli_query($mysqlconn, $query) == TRUE){
-						
+
 					}else{
 						echo mysqli_error($mysqlconn) . "<br />";
 					}
@@ -649,23 +675,23 @@ class Pages {
 
 			}
 	}
-	
+
 	//Test voor de database.
 	//Toon alle info in de database.
 	function testdb(){
 		global $dbc;
 
-		//Test 
+		//Test
 		$sth = $dbc->prepare('show tables');
 		$sth->execute();
-		
+
 		$all = $sth->fetchAll(PDO::FETCH_OBJ);
-		
+
 		foreach ($all as $value) {
 			echo '<hr>';
 			echo '<h2>'.$value->Tables_in_md253219db370063.'</h2>';
 			echo '<br>';
-			
+
 			echo '<b>Describe</b><br>';
 			$describe = $dbc->prepare('describe '.$value->Tables_in_md253219db370063);
 			$describe->execute();
@@ -674,7 +700,7 @@ class Pages {
 				print_r($describe_value);
 				echo '<br>';
 			}
-			
+
 			echo '<b>Select</b><br>';
 			$display = $dbc->prepare('select * from '.$value->Tables_in_md253219db370063);
 			$display->execute();
@@ -684,34 +710,34 @@ class Pages {
 				print_r($value);
 				echo '<br>';
 			}
-			
+
 		}
 	}
-	
+
 	//Laden Custom CSS van potfolio
 	function portfolioCSS(){
 		global $dbc;
-	
+
 		if(isset($_GET["u"])){
 			$userId = htmlspecialchars($_GET["u"]);
 			$requestedPortfolio = $dbc->prepare('SELECT * FROM `portfolio` WHERE `url` = "'.$userId.'"');
 			$requestedPortfolio->execute();
 			$requestedPortfolio = $requestedPortfolio->fetchAll(PDO::FETCH_ASSOC);
-			
-			
-			
+
+
+
 			if(!empty($requestedPortfolio)){
 
 				$requestedPortfolio = $requestedPortfolio[0];
-			
+
 				echo '<style>
-				
+
 					.inhoudsopgave {
 					  list-style-type: none;
 					}
-					
-					.inhoudsopgave li { 
-						padding-left: 1em; 
+
+					.inhoudsopgave li {
+						padding-left: 1em;
 						text-indent: -.7em;
 					}
 
@@ -719,39 +745,39 @@ class Pages {
 						content: "• ";
 						color: #'.$requestedPortfolio['tertiarycolour'].';
 					}
-					
+
 					.moduleSeparator a{
 						color: #'.$requestedPortfolio['colour'].';
 						text-decoration: underline;
 						-moz-text-decoration-color: #'.$requestedPortfolio['tertiarycolour'].';
 						text-decoration-color: #'.$requestedPortfolio['tertiarycolour'].';
 					}
-					
+
 					.moduleSeparator.odd a{
 						color: #'.$requestedPortfolio['secondarycolour'].';
 						text-decoration: underline;
 						-moz-text-decoration-color: #'.$requestedPortfolio['tertiarycolour'].';
 						text-decoration-color: #'.$requestedPortfolio['tertiarycolour'].';
 					}
-				
+
 					.moduleSeparator{
 						color: #'.$requestedPortfolio['colour'].';
 						background-color: #'.$requestedPortfolio['secondarycolour'].';
 						border-bottom: 2px solid #'.$requestedPortfolio['tertiarycolour'].';
-						
+
 						padding-top: 10px;
 						padding-bottom: 10px;
-						
+
 						padding-top: 10vh;
 						padding-bottom: 10vh;
 					}
 					.moduleSeparator.odd{
 						padding-top: 10px;
 						padding-bottom: 10px;
-				
+
 						padding-top: 10vh;
 						padding-bottom: 10vh;
-						
+
 						color: #'.$requestedPortfolio['secondarycolour'].';
 						background-color: #'.$requestedPortfolio['colour'].';
 					}
@@ -759,13 +785,13 @@ class Pages {
 			}
 		}
 	}
-	
+
 	//redirecten eigen portfolio
 	function eigenportfolio(){
 		global $dbc;
 		global $core;
 		global $user;
-	
+
 		if($user->isLoggedIn()){
 			$userID = $user->get()['id'];
 
@@ -774,64 +800,64 @@ class Pages {
 			header('Location: index.php');
 		}
 	}
-	
+
 	//Laten zien van portfolio
 	function portfolio(){
 		global $dbc;
 		global $core;
 		global $portfolio;
 		global $user;
-		
+
 		if(isset($_GET["u"])){
 			$userId = htmlspecialchars($_GET["u"]);
-			
+
 			$requestedPortfolio = $dbc->prepare('SELECT * FROM `portfolio` WHERE `url` = "'.$userId.'"');
 			$requestedPortfolio->execute();
 			$requestedPortfolio = $requestedPortfolio->fetchAll(PDO::FETCH_ASSOC);
-			
+
 			if(!empty($requestedPortfolio)){
 				//user bestaat
-			
+
 				$requestedPortfolio = $dbc->prepare('SELECT * FROM `portfolio` WHERE `url` = "'.$userId.'" LIMIT 1');
 				$requestedPortfolio->execute();
 				$requestedPortfolio = $requestedPortfolio->fetchAll(PDO::FETCH_ASSOC)[0];
-				
+
 				//print_r($requestedPortfolio);
-				
-				
-				
+
+
+
 				/* echo '<pre>';
 				print_r($requestedPortfolio);
 				echo '</pre>'; */
-				
+
 				$modules = $dbc->prepare('SELECT * FROM `module` WHERE `portfolioid` = "'.$requestedPortfolio['userid'].'" ORDER BY `position`');
 				$modules->execute();
 				$modules = $modules->fetchAll(PDO::FETCH_ASSOC);
-				
+
 				/*  echo '<pre>';
 				print_r($modules);
 				echo '</pre>'; */
-				
+
 				echo '<div id="containerOuter">';
 					echo '<div class="portfolio" id="containerInner">';
-				
+
 					//variable om op teslaan waneer er een nieuwe break toegevoegd moet worden.
 					$break = 0;
 					$countbreaks = 0;
-					
+
 					if($user->get()['id'] == $core->getUserFromURL($userId) && isset($_GET["edit"])){
 						echo '<a href="index.php?p=portfolio&u='.$userId.'"><div class="EditModusAan">Edit modus aan.</div></a>';
 					}
-					
+
 					if($user->get()['id'] == $core->getUserFromURL($userId) && !isset($_GET["edit"])){
 						echo '<a href="index.php?p=portfolio&u='.$userId.'&edit"><div class="EditModusUit">Edit modus uit.</div></a>';
 					}
-				
-					
-				
+
+
+
 					echo '<div class="moduleSeparator">';
 					echo '<div class="coll-100">';
-				
+
 					foreach ($modules as $module) {
 						$moduletemplate = $dbc->prepare('SELECT * FROM `moduletemplate` WHERE `id` = "'.$module['moduleid'].'" LIMIT 1');
 						$moduletemplate->execute();
@@ -841,12 +867,12 @@ class Pages {
 							//echo 'Function Found';
 							$input = explode(",", $module['input']);
 							$fields = explode(",", $moduletemplate['field']);
-							
+
 							//Headers tellen niet mee met de break!
 							if($moduletemplate['function'] !== 'header'){
 								$break += $module['size'];
 							}
-							
+
 
 							echo '<div class="module coll-'.$module['size'].'">';
 								echo '<div class="contentMargin">';
@@ -856,7 +882,7 @@ class Pages {
 									}else if(count($input) == 2){
 										echo $portfolio->$moduletemplate['function']($input[0], $input[1]);
 									}
-									
+
 									//$user = new User("amr.jonkman@gmail.com", "pass", $dbc);
 									//print_r($user);
 									if($user->isLoggedIn()){
@@ -869,21 +895,21 @@ class Pages {
 								}else{
 									echo 'Aantal inputs komt niet overeen met het aantal benodigde velden.';
 								}
-								
-								
-								
+
+
+
 								echo '</div>';
 							echo '</div>';
-							
+
 							if($break > 99){
 									echo '</div>';
 									echo '<div class="clear"></div>';
 								echo '</div>';
-								
+
 								if ($countbreaks % 2 == 0) {
 									echo '<div class="moduleSeparator odd">';
 										echo '<div class="coll-100">';
-											
+
 								}else{
 									echo '<div class="moduleSeparator">';
 										echo '<div class="coll-100">';
@@ -897,9 +923,9 @@ class Pages {
 							echo 'Methode niet gevonden!';
 						}
 					}
-					
+
 					echo '</div>';
-					
+
 					echo '<div class="clear"></div>';
 					echo '</div>';
 				echo '</div>';
@@ -920,47 +946,47 @@ class Pages {
 			echo '</div>';
 		}
 	}
-	
-		
+
+
 	function addmodule(){
 		global $user;
 		global $dbc;
-	
+
 		//echo "Gebruiker is ingelogd";
 		if($user->isLoggedIn()){
 
 			echo '<div id="containerOuter">';
 				echo '<div id="containerInner">';
 					echo '<h1>Module toevoegen</h1>';
-				
+
 					echo '<p>Selecteer een module die u wilt toevoegen, deze word dan direct toegevoegd.</P>';
-				
+
 					if(!isset($_GET["id"])){
 						$moduleTemplates = $dbc->prepare('SELECT * FROM `moduletemplate`');
 						$moduleTemplates->execute();
 						$moduleTemplates = $moduleTemplates->fetchAll(PDO::FETCH_ASSOC);
-						
+
 						if(!empty($moduleTemplates)){
 
 							echo '<div class="coll-100">';
 								$count = 0;
 								foreach($moduleTemplates as $moduleTemplate){
-								
+
 									if($count == 3){
 										echo '<div class="clear"></div>';
 										$count = 0;
 									}
-									
+
 									echo '<div class="coll-33 selectModule">';
-										
+
 										echo '<h3 class=>'.$moduleTemplate['name'].'</h2>';
 										echo $moduleTemplate['description'];
 										echo '<br>';
 										echo '<br>';
-										
+
 										echo '<a href="index.php?p=addmodule&id='.$moduleTemplate['id'].'" class="btn btn-default" role="button">Toevoegen</a>';
 									echo '</div>';
-									
+
 									$count++;
 								}
 							echo '</div>';
@@ -968,54 +994,54 @@ class Pages {
 						}
 					}else{
 						$id = htmlentities($_GET["id"]);
-						
+
 						$moduleUser = $dbc->prepare('SELECT * FROM `module` WHERE `portfolioid` = "'.$user->get()['id'].'"');
 						$moduleUser->execute();
 						$moduleUser = $moduleUser->fetchAll(PDO::FETCH_ASSOC);
-						
+
 						$moduleTemplates = $dbc->prepare('SELECT * FROM `moduletemplate` WHERE `id` = "'.$id .'"');
 						$moduleTemplates->execute();
 						$moduleTemplates = $moduleTemplates->fetchAll(PDO::FETCH_ASSOC);
-						
-						
+
+
 						if(!empty($moduleTemplates)){
 							$moduleTemplates = $moduleTemplates[0];
-							
+
 							$position = 0;
 							foreach ($moduleUser as &$module) {
 								if ($module['position'] > $position){
 									$position = $module['position'] + 1;
 								}
 							}
-							
+
 							Print_r($moduleTemplates);
-							
+
 							$insert = "INSERT INTO `module` (portfolioid, moduleid, position, size, input, timestamp)
 							VALUES (".$user->get()['id'].",".$id.",".$position.",100,' ',".TIME().")";
-							
+
 							$dbcInsert = $dbc->prepare($insert);
 							$dbcInsert->execute();
-							
-							
+
+
 							if($dbcInsert){
 								$lastId = $dbc->lastInsertId();
-							
+
 								echo '<div class="alert alert-success">
 								  <strong>Success!</strong> De module is toegevoegd!.
 								</div>';
-								
+
 								header('Location: index.php?p=editmodule&m='.$lastId.'&add');
-								
+
 							}else{
 								echo '<div class="alert alert-danger">
 								  <strong>:(</strong> Er is iets fout gegaan probeer het later opnieuw.
 								</div>';
 							}
 						}
-						
-						
+
+
 					}
-					
+
 					echo '<div class="clear"></div>';
 
 				echo '</div>';
@@ -1028,19 +1054,19 @@ class Pages {
 			echo '</div>';
 		}
 	}
-	
-	
+
+
 	//functie voor het editen van een module
 	function editmodule(){
 		global $dbc;
 		global $core;
 		global $portfolio;
 		global $user;
-		
+
 		if(isset($_GET["m"])){
 				$moduleId = htmlspecialchars($_GET["m"]);
 				$moduleId = preg_replace("/[^0-9,.]/", "", $moduleId);
-				
+
 				$userID = $user->get()['id']; //loged in userID
 
 				$module = $dbc->prepare('SELECT * FROM `module` WHERE `id` = "'.$moduleId.'" AND `portfolioid` = '.$userID.' LIMIT 1');
@@ -1053,20 +1079,20 @@ class Pages {
 					echo '<div id="containerOuter">';
 						echo '<div id="containerInner">';
 							//verwerken van POST (module aanpassen)
-						
+
 							echo '<h1>Aanpassen Module</h1>';
-						
+
 							//Als het een nieuwe module is
 							if(isset($_GET["add"])){
 								echo '<div class="alert alert-success">';
 								  echo '<strong>success!</strong> Module is toegevoegd.';
 								echo '</div>';
 							}
-						
-						
+
+
 							if(isset($_POST['Submit'])){
-								$input = ''; 
-								
+								$input = '';
+
 								//De elementen van de module worden genummerd opgestuurd.
 								for ($x = 0; $x < 10; $x++) {
 									if(isset($_POST[$x])){
@@ -1076,24 +1102,24 @@ class Pages {
 								}
 								//replace '
 								$input = str_replace("'","`",$input);
-								
+
 								//eerste comma verwijderen
 								$input = substr($input, 1);
-								
+
 								$size = 100; //Standaard breete
-								if(isset($_POST['size'])){		
+								if(isset($_POST['size'])){
 									$size = htmlspecialchars($_POST['size']);
 									$size = preg_replace("/[^0-9,.]/", "", $size);
 								}
-								
+
 								$sql = "UPDATE `module` SET `input`='".$input."',`size`='".$size."'  WHERE id=".$moduleId;
-								
+
 								$update = $dbc->prepare($sql);
 								$update->execute();
-								
+
 								//berichtgeving
-								
-								
+
+
 								if($update == true){
 									echo '<div class="alert alert-success">';
 									  echo '<strong>success!</strong> Module is aangepast.';
@@ -1104,90 +1130,90 @@ class Pages {
 									echo '</div>';
 								}
 							}
-						
+
 							//ophalen module
 							$module = $dbc->prepare('SELECT * FROM `module` WHERE `id` = "'.$moduleId.'" AND `portfolioid` = '.$userID.' LIMIT 1');
 							$module->execute();
 							$module = $module->fetchAll(PDO::FETCH_ASSOC)[0];
-							
+
 							$moduletemplate = $dbc->prepare('SELECT * FROM `moduletemplate` WHERE `id` = "'.$module['moduleid'].'" LIMIT 1');
 							$moduletemplate->execute();
 							$moduletemplate = $moduletemplate->fetchAll(PDO::FETCH_ASSOC)[0];
-						
+
 							/* echo '<pre>';
 							print_r($module);
 							echo '</pre>';
 							echo '<pre>';
-							print_r($moduletemplate);	
+							print_r($moduletemplate);
 							echo '</pre>'; */
-							
-							
-							
+
+
+
 							//URL van deze gebruiker
 							$url = $core->getPortfolioURL($module['portfolioid']);
 
-							
+
 							echo '<div class="coll-75">';
 								echo '<h2>'.ucfirst($moduletemplate['name']).'</h2>';
 								echo '<p>'.ucfirst($moduletemplate['description']).'</p>';
-								
+
 								$inputs = explode(",", $module['input']);
 								$fields = explode(",", $moduletemplate['field']);
 								$titles = explode(",", $moduletemplate['fieldTitle']);
-								
+
 								echo '<div class="coll-90">';
 									echo '<form action="#" method="post">';
-									
+
 										//Voeg alle inputvelden toe die bij deze module horen.
-										
+
 										for ($x = 0; $x < count($fields); $x++) {
 											if(!empty($fields[$x])){
 												if(!isset($inputs[$x])){
 													$inputs[$x] = '';
 												}
-											
+
 												echo $core->input($fields[$x],$titles[$x],$x,$inputs[$x]);
 											}
-										} 
-										
+										}
+
 										//Range slider voor breete
 										echo '<div class="form-group">';
 											echo '<label>Breedte van de module:</label>';
 											echo '<input type="range" name="size" min="0" max="100" step="5" value="'.$module['size'].'">';
 										echo '</div>';
-						
+
 										echo '<input type="submit" class="btn btn-default" type="submit" name="Submit" value="Verstuur">';
 									echo '</form>';
 								echo '</div>';
 							echo '</div>';
-							
+
 							echo '<div class="coll-25">';
 								echo '<h2>Portfolio Layout</h2>';
-								
 
-									
+
+
 									echo '<div class="coll-100">';
 										//Portfolio layout met links tonen.
 										$core->portfoliolayout($module['portfolioid'], $moduleId);
 									echo '</div>';
-			
-									
+
+
 									echo '<div class="clear"></div>';
 
 								echo '<div class="clear"></div>';
 							echo '</div>';
-							
+
 							echo '<div class="clear"></div>';
-							
+
 							//Tonen van de uitkomst
 							echo '<h2>Live module</h2>';
 							echo '<p>Dit is hoe de module eruit ziet op uw portfolio!</p>';
-							
+
 							if (method_exists($portfolio,$moduletemplate['function'])){
 								//echo 'Function Found';
 								$input = explode(",", $module['input']);
 								$fields = explode(",", $moduletemplate['field']);
-								
+
 								/* print_r($moduletemplate);*/
 								echo '<div class="coll-100 borderSmall">';
 									echo '<div class="module coll-'.$module['size'].'">';
@@ -1203,7 +1229,7 @@ class Pages {
 										}
 										echo '</div>';
 									echo '</div>';
-									
+
 									echo '<div class="clear"></div>';
 								echo '</div>';
 							//echo $portfolio->$moduletemplate['function']('sdfdsf');
@@ -1219,7 +1245,7 @@ class Pages {
 							echo 'Module niet gevonden.';
 						echo '</div>';
 					echo '</div>';
-				}	
+				}
 		}else{
 			//Portfolio niet gevonden.
 			echo '<div id="containerOuter">';
@@ -1228,30 +1254,30 @@ class Pages {
 				echo '</div>';
 			echo '</div>';
 		}
-	
+
 	}
-	
+
 	function portfoliooverzicht(){
 		global $user;
 		global $mysqlconn;
 		global $core;
-		
+
 		echo '<div id="containerOuter">';
 		echo '<div id="containerInner">';
-		
+
 		echo "<h1>Portfolio Overzicht</h1>";
-		
+
 		$changed = '';
-		
+
 		$dbc = $mysqlconn;
 		$DBName = "md253219db370063";
 		if(!mysqli_select_db ($dbc, $DBName)){
 			echo "<p>There is no database...</p>";
 		}else{
-			if(isset ($_POST["up"]) && ($_POST["ID"])){	
+			if(isset ($_POST["up"]) && ($_POST["ID"])){
 				//Getting the position of the selected row
 				$UID = $_POST["ID"];
-				
+
 				$changed = $_POST["ID"];
 
 				$getposition = "SELECT position FROM module WHERE id = $UID LIMIT 1";
@@ -1270,7 +1296,7 @@ class Pages {
 
 				mysqli_query($dbc, $moveup);
 				mysqli_query($dbc, $moveup2);
-				
+
 				//Checking if the query's are working
 				if(mysqli_query($dbc, $moveup) == TRUE){
 
@@ -1288,7 +1314,7 @@ class Pages {
 				$UID = $_POST["ID"];
 
 				$changed = $_POST["ID"];
-				
+
 				$getposition = "SELECT position FROM module WHERE id = $UID LIMIT 1";
 
 				$result = mysqli_query($dbc, $getposition);
@@ -1314,16 +1340,16 @@ class Pages {
 				if(mysqli_query($dbc, $moveup2) == TRUE){
 				}else{
 						echo mysqli_error($dbc) . "2";
-				}						
+				}
 			}
 			//The portfolioID is required to retrieve the correct modules for this user
 			$portfolioid = $user->get()['id'];
 			//Generating the overview
 			$Generateoverview = "SELECT module.id, module.portfolioid, module.moduleid, module.position, moduletemplate.name FROM module, moduletemplate WHERE portfolioid = ".$portfolioid." AND module.moduleid = moduletemplate.id ORDER BY position ASC;";
-		
+
 			$result = mysqli_query($dbc, $Generateoverview);
 			if (mysqli_num_rows($result) == 0){
-					echo "<p>You have no modules yet!</p>"; 
+					echo "<p>You have no modules yet!</p>";
 			}else{
 					echo '<div class="coll-100">';
 						echo '<div class="coll-75">';
@@ -1337,15 +1363,15 @@ class Pages {
 									  <th>EDIT</th></tr></thead><tbody>";
 							//Getting the last position out of the database
 							$getlastpos = "SELECT MAX(position) AS maxpos FROM module LIMIT 1;";
-							
+
 							$lastposresult = mysqli_query($dbc, $getlastpos);
-							
+
 							$fetchlastpos = mysqli_fetch_array($lastposresult);
-							
+
 							$lastposition = $fetchlastpos['maxpos'];
-							
+
 							while($row = mysqli_fetch_assoc($result)){
-							
+
 								$ID = $row['id'];
 								//Printing the table
 
@@ -1354,13 +1380,13 @@ class Pages {
 								}else{
 									echo "<tr><td>{$row['position']}</td>";
 								}
-								
-								
+
+
 								if($row['position'] == 0){
 								echo '<td><form action="#" method="POST">
 												<input type="submit"  name="down" value="Down" />
 												<input type="hidden" name="ID" value="'. $ID .'" />
-												</form></td>';	
+												</form></td>';
 								}elseif($row['position'] > 0 && $row['position'] < $lastposition){
 								echo '<td><form action="#" method="POST">
 												<input type="submit" name="up" value="Up" /><input type="submit"  name="down" value="Down" />
@@ -1370,22 +1396,22 @@ class Pages {
 								echo '<td><form action="#" method="POST">
 												<input type="submit" name="up" value="Up" />
 												<input type="hidden" name="ID" value="'. $ID .'" />
-												</form></td>';	
+												</form></td>';
 								}
-								
+
 								echo "<td>{$row['name']}</td>";
 								echo '<td><p><a href="index.php?p=editmodule&m='. $ID .'">Edit</a></p></td></tr>';
 							}
 							echo "</tbody></table>";
 							echo "</div>";
 						echo "</div>";
-						
+
 						echo '<div class="coll-25">';
 							echo '<h2>Portfolio Layout</h2>';
-							
+
 							$core->portfoliolayout($user->get()['id']);
 						echo '</div>';
-						
+
 					echo "</div>";
 			}
 			// Selecting and setting the portfolio colours
@@ -1393,34 +1419,34 @@ class Pages {
 				$updmaincolour = substr($_POST["maincolour"],1);
 				$updsecondarycolour = substr($_POST["secondarycolour"],1);
 				$updtertiarycolour = substr($_POST["tertiarycolour"],1);
-				
+
 				$updatecolours = "UPDATE portfolio SET colour = '$updmaincolour', secondarycolour = '$updsecondarycolour', tertiarycolour = '$updtertiarycolour' WHERE userid = $portfolioid;";
-				
+
 				//echo $updatecolours;  <-- Used for testing the Query
 				mysqli_query($dbc, $updatecolours);
-			}	
-			
+			}
+
 			//Getting the colors out of the database
-			
+
 				$retrievecolours = "SELECT colour, secondarycolour, tertiarycolour FROM portfolio WHERE userid = $portfolioid;";
-				
+
 				$colourinsert = mysqli_query($dbc, $retrievecolours);
-					
+
 				$fetchcolours = mysqli_fetch_array($colourinsert);
-					
+
 				$maincolour = $fetchcolours['colour'];
 				$secondarycolour = $fetchcolours['secondarycolour'];
 				$tertiarycolour = $fetchcolours['tertiarycolour'];
-				
+
 				echo '<form action="#" method="POST">
 				<p>Maincolour <input type="color" name="maincolour" value="#'. $maincolour .'"></p>
 				<p>Secondarycolour <input type="color" name="secondarycolour" value="#'. $secondarycolour .'"></p>
 				<p>Tertiarycolour <input type="color" name="tertiarycolour" value="#'. $tertiarycolour .'"></p>
 				<input type="submit" name="sendcolours" value="Update" /></form>';
-				
+
 		}
 		mysqli_close($dbc);
-		
+
 		echo '</div>';
 		echo '</div>';
 	}
@@ -1429,7 +1455,7 @@ class Pages {
 		global $user;
 		global $dbc;
 		global $core;
-		
+
 		$uploads = new Uploads;
 
 		$id = $user->get()['id'];
@@ -1448,9 +1474,9 @@ class Pages {
 						$stmt2->execute();
 						$approvedresult = $stmt2->fetch(PDO::FETCH_ASSOC);
 						$uploadid = $upload['id'];
-						if(!empty($_POST[$uploadid])){		
+						if(!empty($_POST[$uploadid])){
 							$note = $_POST[$uploadid];
-							$stmt3 = $dbc->prepare("INSERT INTO approved (approvedid, useridcreator, useridgrader, note) 
+							$stmt3 = $dbc->prepare("INSERT INTO approved (approvedid, useridcreator, useridgrader, note)
 													VALUES ($uploadid, $useridcreator, $id, '$note')");
 							$stmt3->bindParam(":uploadid", $upload['id']);
 							$stmt3->execute();
@@ -1467,7 +1493,7 @@ class Pages {
 			$stmt->execute();
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			foreach($result AS $row){
-				echo $row['firstname'] . " " 
+				echo $row['firstname'] . " "
 				. $row['lastname'] . "<br />";
 				foreach($uploads->getUserUploads($row['id'], TRUE) AS $upload){
 					echo "<p>" . $upload['fileicon'] . " " . $upload['name'];
@@ -1494,12 +1520,12 @@ class Pages {
 			$stmt->execute();
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			foreach($result AS $row){
-				echo $row['firstname'] . " " 
+				echo $row['firstname'] . " "
 				. $row['lastname'] . "<br />";
-				
-		
-				
-				
+
+
+
+
 				foreach($uploads->getUserUploads($row['id']) AS $upload){
 					echo "<p>" . $upload['fileicon'] . " " . $upload['name'];
 					echo "<br />";
@@ -1519,18 +1545,18 @@ class Pages {
 				echo "<hr>";
 			}
 		}
-	
+
 	}
 
 	function showUploads(){
 			global $dbc;
 			global $user;
-			
+
 			echo '<div id="containerOuter">';
 			echo '<div id="containerInner">';
-			
+
 			echo '<h1>Uploads</h1>';
-			
+
 			$userID = $user->get()['id'];
 
 			$uploads = new Uploads;
@@ -1548,7 +1574,7 @@ class Pages {
 					}
 			}
 			if(isset($_POST['saveChanges'])){
-			
+
 					if($uploads->getUserUploads($userID) != false){
 						foreach($uploads->getUserUploads($userID) as $id){
 								if($_POST['public_' . $id['id']] == "non_public"){
@@ -1557,7 +1583,7 @@ class Pages {
 										$records[$id['id']] = 1;
 								}
 						}
-					
+
 						if($uploads->updateFile($records)){
 								echo "<div class='alert alert-success alert-dismissible' role='alert'><strong>Succes!</strong> Wijzigingen zijn opgeslagen.</div>";
 						}else{
@@ -1608,23 +1634,23 @@ class Pages {
 					<button type='submit' name='saveChanges' class='btn btn-info'>Wijzigingen opslaan</button>
 				</form>
 			</div>";
-			
+
 			echo '</div>';
 			echo '</div>';
 	}
-	
+
 	// Functie voor het uploaden van files
 	function uploadFile(){
 			global $dbc;
 			global $user;
-			
+
 			echo '<div id="containerOuter">';
 			echo '<div id="containerInner">';
-			
+
 			echo '<h1>Bestand Uploaden</h1>';
-			
+
 			$userID = $user->get()['id'];
-			
+
 			if(isset($_POST["upload"])){
 					if(!empty($_POST['fileName']) && !empty($_POST['fileDescription']) && !empty($_FILES['fileToUpload']['name'])){
 							$name = stripslashes($_POST['fileName']);
@@ -1661,14 +1687,14 @@ class Pages {
   				</div>
 		    		<button type='submit' name='upload' class='btn btn-info'>Upload</button>
 				</form>";
-				
+
 			echo '</div>';
 			echo '</div>';
 	}
-	
+
 	//404
 	function notfound(){
-	
+
 		echo '404';
 	}
 }

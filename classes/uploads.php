@@ -101,7 +101,7 @@ class Uploads
         if(in_array($mimeType, $this->mimes)){
             if(!file_exists($targetFile)){
                 move_uploaded_file($file["tmp_name"], $targetFile);
-                $userId = 1;
+                $userId = $_SESSION['userId'];
                 $stmt = $dbc->prepare("INSERT INTO `uploads` VALUES (NULL, :userid, :name, :description, :target, 0)");
                 $stmt->bindParam(":userid", $userId);
                 $stmt->bindParam(":name", $name);
