@@ -79,13 +79,13 @@
 			echo '</div>';
 
 			
-			if($user->login("amr.jonkman@gmail.com", "pass")){
+			/* if($user->login("amr.jonkman@gmail.com", "pass")){
 				//echo "Gebruiker logged in.";
 			}
 			
 			if($user->isLoggedIn()){
 				//echo "Gebruiker is ingelogd";
-			}
+			} */
 		
 			$core->load();
 			

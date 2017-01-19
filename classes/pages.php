@@ -2,9 +2,232 @@
 //Een class met al mijn paginas als functies
 class Pages {  
 	//Hoofd pagina
+//Hoofd pagina
 	function home(){
 		global $core;
-
+		global $pages;
+		global $dbc;
+		global $user;
+		
+		//$levelid = $user->get()['levelid'];
+		$currentuser = $user->get()['levelid'];
+		
+		//if login true
+		if($user->isLoggedIn()){
+						
+			$SQLstring = $dbc->prepare("SELECT user.levelid FROM user
+						WHERE user.id = $currentuser");
+			$SQLstring->execute();
+			foreach($SQLstring as $key => $value)
+			{
+				//if student
+				if($value['levelid'] == 1){	//$value['levelid'] wordt $levelid
+					echo $pages->studentHome();
+				//if teacher 
+				}elseif($value['levelid'] == 2){
+					echo $pages->teacherHome();
+				//if admin
+				}elseif($value['levelid'] == 3){
+					echo $pages->adminHome();
+				}
+			}
+		//if not logged in show login pages
+		}else{
+			
+			echo $pages->login();
+		}				
+	}
+	
+	function login(){
+		global $user;
+		global $mysqliconnect;
+		global $pages;
+		global $core;
+		
+		if($user->isLoggedIn() == FALSE){
+			if(isset($_POST['submit'])){
+				if(empty($_POST['email']) OR empty($_POST['password'])){
+					echo "<p>Vul alle velden in.</p>";
+				}else{
+					$email = $_POST['email'];
+					$password = $_POST['password'];
+					
+					$user->login($email, $password);
+				}
+			}
+			echo "<h2>Login</h2>";
+			echo "<form method='POST' action='#'>
+					E-mail:<br><input type='text' name='email' patttern='/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/' required><br>";
+			echo "	Wachtwoord:<br><input type='password' name='password' required><br>";
+			echo "<input type='submit' name='submit' value='Login'></form>";
+			echo "<a href='index.php?p=register'>Registreer</a>";
+		}else{ //Als $isLoggedIn == TRUE
+			echo "U bent al ingelogd.";
+		}
+		
+		
+	}
+	
+	function logout(){
+		global $user;
+		//logout(){
+		
+		$user->logout();
+	}
+	
+	function register(){
+		echo "<h2>Maak een account aan</h2>";
+			
+		echo "	<form method='' action=''>
+				<input type='text' placeholder='E-mail' required><br>
+				<input type='password' placeholder='Wachtwoord' required><br>
+				<input type='password' placeholder='Herhaal wachtwoord' required><br>
+				<input type='text' placeholder='Voornaam' required><br>
+				<input type='text' placeholder='Achternaam' required><br>
+				<input type='number' placeholder='Telefoonnummer' required><br>
+				<input type='text' placeholder='Postcode' required><br>
+				<input type='text' placeholder='Adres' required><br>
+				<input type='submit' value='Registreer'>
+				</form>";
+				
+		echo "<p>Heb je al een account? <a href='index.php?p=login'>Log in</a></p>";
+	}
+	
+	function adminHome(){
+		global $dbc;
+		global $user;
+		global $pages;
+		
+		$levelid = $user->get()['levelid'];
+		if($user->isLoggedIn() AND $levelid == 3){
+												
+		
+		$firstname = $user->get()['firstname'];
+		$lastname = $user->get()['lastname'];
+		
+		echo "<h2>Welkom ".$firstname." ".$lastname.".</h2>";
+		
+		$SQLstring = $dbc->prepare("SELECT COUNT(user.id) AS useramount FROM user");
+		$SQLstring->execute();
+		foreach($SQLstring as $key => $value){
+			echo "<p>Er zijn ".$value['useramount']." accounts aangemaakt:</p>";
+		}
+		$SQLstring = $dbc->prepare("SELECT COUNT(user.id) AS useramount FROM user WHERE levelid = 1");
+		$SQLstring->execute();
+		foreach($SQLstring as $key => $value){
+			echo "<p>	".$value['useramount']." studenten accounts.<br>";
+		}
+		
+		$SQLstring = $dbc->prepare("SELECT COUNT(user.id) AS useramount FROM user WHERE levelid = 2");
+		$SQLstring->execute();
+		foreach($SQLstring as $key => $value){
+			echo $value['useramount']." docenten accounts.</p>";
+		}
+		
+		echo "<p><a href='LINK'>Overzicht accounts</a><p>";	//Link naar overzicht account
+		echo "<p><a href='LINK'>Aanpassen accounts</a><p>";	//Link naar de wijzig account pagina
+		
+		//if not logged in go to home
+		}else{
+			
+			echo $pages->home();
+		}
+	}
+	
+	function teacherHome(){
+		global $dbc;
+		global $user;
+		global $pages;
+		
+		$levelid = $user->get()['levelid'];
+		if($user->isLoggedIn() AND $levelid == 2){
+		
+		$firstname = $user->get()['firstname'];
+		$lastname = $user->get()['lastname'];
+		
+		echo "<h2>Welkom ".$firstname." ".$lastname.".</h2>";
+		
+		$SQLstring = $dbc->prepare('SELECT lastname, firstname, zipcode, phone, email, url FROM user, portfolio
+						WHERE user.levelid = 1 AND user.id = portfolio.userid 
+						ORDER BY lastname ASC'
+						);
+		$SQLstring->execute();
+		$SQLstring = $SQLstring->fetchAll(PDO::FETCH_ASSOC);
+		
+		echo "<table border='1'>";
+		echo "<tr><th>Achternaam</th> <th>Voornaam</th> <th>Postcode</th> <th>Telefoonnummer</th> <th>E-mail</th> <th>url</th></tr>";
+		foreach($SQLstring as $key => $value)
+                    {
+                        echo "<tr><td>{$value['lastname']}</td>";
+                        echo "<td>{$value['firstname']}</td>";
+                        echo "<td>{$value['zipcode']}</td>";
+                        echo "<td>{$value['phone']}</td>";
+                        echo "<td>{$value['email']}</td>";
+						echo "<td><a href='{$value['url']}'>portfolio</a></td></tr>";
+                        
+                    }
+                
+		echo "</table>";
+		
+		//if not logged in go to home
+		}else{
+			
+			echo $pages->home();	//HOME REGELT DE REST
+		}
+	}
+	
+	function studentHome(){
+		global $dbc;
+		global $user;
+		global $pages;
+		
+		$levelid = $user->get()['levelid'];
+		if($user->isLoggedIn() AND $levelid == 1){
+		
+		$editprofile = "Link";	//Link naar de profile edit
+		$viewprofile = "Link";	//Link naar het profile overzicht
+		$viewportfolio = "Link";	//Link naar je portfolio
+		$createportfolio = "Link";	//Link naar de pagina voor het aanmaken van je portfolio
+		
+		$currentuser = $user->get()['id'];
+		
+		$SQLstring = $dbc->prepare("SELECT user.timestamp, user.firstname, user.lastname FROM user 
+						WHERE user.id = $currentuser");
+		$SQLstring->execute();
+		$SQLstring = $SQLstring->fetchAll(PDO::FETCH_ASSOC);
+		
+		foreach($SQLstring as $key => $value){
+		echo "<p>Hallo {$value['firstname']} {$value['lastname']}.</p>";
+		echo "<p>Dit account is aangemaakt op {$value['timestamp']}.</p>";
+		}		
+		$SQLstring2 = $dbc->prepare("SELECT COUNT(chat.targetid) AS commentamount, MIN(chat.timestamp) AS lasttimestamp FROM chat 
+									WHERE chat.targetid = $currentuser");
+		$SQLstring2->execute();
+		$SQLstring2 = $SQLstring2->fetchAll(PDO::FETCH_ASSOC);
+		foreach($SQLstring2 as $key => $value){
+		echo "<p>Je hebt ".$value['commentamount']." comment(s) op jou portfolio.</p>";
+		if($value['lasttimestamp'] < 60){
+			$seconds = $value['lasttimestamp'];
+			echo "<p>De laatste comment was ".floor($seconds)." seconden geleden.</p>";
+		}elseif($value['lasttimestamp'] > 60 AND $value['lasttimestamp'] < 3600){
+			$minutes = $value['lasttimestamp']/60;	
+			echo "<p>De laatste comment was ".floor($minutes)." minuten geleden.</p>";
+		}elseif($value['lasttimestamp'] > 3600 AND $value['lasttimestamp'] < 86400){
+			$hours = $value['lasttimestamp']/3600;
+			echo "<p>De laatste comment was ".floor($hours)." uur geleden.</p>";
+		}elseif($value['lasttimestamp'] > 86400){
+			$days = $value['lasttimestamp']/86400;
+			echo "<p>De laatste comment was ".floor($days)." dag(en) geleden.</p>";
+		}else{
+			echo "<p>Je hebt nog geen comments.</p>";
+		}
+		}
+		
+		//if not logged in go to home
+		}else{
+			
+			echo $pages->home();	//HOME REGELT DE REST
+		}
 	}
 	
 	function generatecsscolls(){
@@ -37,6 +260,7 @@ class Pages {
 		echo $pages->navigation();
 	}
 	
+	
 	function navigation() {
 		global $user;
 		global $core;
@@ -63,11 +287,11 @@ class Pages {
 			$uploadFiles = "uploadFile"; //
 			$viewPortfolio = "eigenportfolio";
 			$editPortfolio = "portfoliooverzicht"; //leerling eigen
-			$overviewFiles = "linkie7"; //admin / slb
-			$guidedStudents = "search|right"; //admin / slb <-search
+			$overviewFiles = "overzichtUploads"; //admin / slb
+			$guidedStudents = "search"; //admin / slb <-search
 			$profiel = "linkie9|right";
-			$login = "linkie9|right";
-			$logout = "linkie10|right";
+			$login = "login|right";
+			$logout = "logout|right";
 			
 			$menu = array();
 			
@@ -77,7 +301,8 @@ class Pages {
 				$menu = array(
 					"Bekijk jou portfolio" => $viewPortfolio,
 					"Bewerk jou portfolio" => $editPortfolio,
-					"Bekijk jou bestanden" => $viewFiles
+					"Bekijk jou bestanden" => $viewFiles,
+					"Upload bestanden" => $uploadFiles
 				);
 			}
 			
@@ -1200,6 +1425,102 @@ class Pages {
 		echo '</div>';
 	}
 
+	function overzichtUploads(){
+		global $user;
+		global $dbc;
+		global $core;
+		
+		$uploads = new Uploads;
+
+		$id = $user->get()['id'];
+		$levelid = $user->get()['levelid'];
+		$slb = $user->get()['slb'];
+		if(isset($_POST['submit'])){
+			if($id == $slb AND $levelid == 2){
+				$stmt = $dbc->prepare("SELECT id, firstname, lastname FROM user WHERE levelid = 1 AND slb = $slb");
+				$stmt->execute();
+				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				foreach($result AS $row){
+					$useridcreator = $row['id'];
+					foreach($uploads->getUserUploads($row['id'], TRUE) AS $upload){
+						$stmt2 = $dbc->prepare("SELECT * FROM approved WHERE approvedid = :uploadid");
+						$stmt2->bindParam(":uploadid", $upload['id']);
+						$stmt2->execute();
+						$approvedresult = $stmt2->fetch(PDO::FETCH_ASSOC);
+						$uploadid = $upload['id'];
+						if(!empty($_POST[$uploadid])){		
+							$note = $_POST[$uploadid];
+							$stmt3 = $dbc->prepare("INSERT INTO approved (approvedid, useridcreator, useridgrader, note) 
+													VALUES ($uploadid, $useridcreator, $id, '$note')");
+							$stmt3->bindParam(":uploadid", $upload['id']);
+							$stmt3->execute();
+						}
+					}
+				}
+			}
+			//URL MOET ANDERS WORDEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			header("Refresh:0; url=overzichtbestanden2.php");
+		}
+		if($id == $slb AND $levelid == 2){
+			echo "<form method='post' action='#'>";
+			$stmt = $dbc->prepare("SELECT id, firstname, lastname FROM user WHERE levelid = 1 AND slb = $slb");
+			$stmt->execute();
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			foreach($result AS $row){
+				echo $row['firstname'] . " " 
+				. $row['lastname'] . "<br />";
+				foreach($uploads->getUserUploads($row['id'], TRUE) AS $upload){
+					echo "<p>" . $upload['fileicon'] . " " . $upload['name'];
+					echo "<br />";
+					echo $upload['description'];
+					echo "</p>";
+					$stmt2 = $dbc->prepare("SELECT * FROM approved WHERE approvedid = :uploadid");
+					$stmt2->bindParam(":uploadid", $upload['id']);
+					$stmt2->execute();
+					$approvedresult = $stmt2->fetch(PDO::FETCH_ASSOC);
+					if($stmt2->rowCount() > 0){
+						echo $approvedresult['note'];
+					}else{
+						$uploadid = $upload['id'];
+						echo "<textarea placeholder='Commentaar' name=$uploadid></textarea>";
+					}
+				}
+				echo "<hr>";
+			}
+			echo "<input type='submit' name='submit' value='Waarmerken'>";
+			echo "</form>";
+		}elseif($levelid == 3){
+			$stmt = $dbc->prepare("SELECT id, firstname, lastname FROM user WHERE levelid = 1");
+			$stmt->execute();
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			foreach($result AS $row){
+				echo $row['firstname'] . " " 
+				. $row['lastname'] . "<br />";
+				
+		
+				
+				
+				foreach($uploads->getUserUploads($row['id']) AS $upload){
+					echo "<p>" . $upload['fileicon'] . " " . $upload['name'];
+					echo "<br />";
+					echo $upload['description'];
+					echo "</p>";
+					$stmt2 = $dbc->prepare("SELECT * FROM approved WHERE approvedid = :uploadid");
+					$stmt2->bindParam(":uploadid", $upload['id']);
+					$stmt2->execute();
+					$approvedresult = $stmt2->fetch(PDO::FETCH_ASSOC);
+					if($stmt2->rowCount() > 0){
+						echo $approvedresult['note'];
+					}else{
+						$uploadid = $upload['id'];
+						echo "Not approved";
+					}
+				}
+				echo "<hr>";
+			}
+		}
+	
+	}
 
 	function showUploads(){
 			global $dbc;
