@@ -165,7 +165,7 @@ class Uploads
     function deleteFile($id){
         global $dbc;
 
-        $stmt = $dbc->prepare("DELETE FROM uploads WHERE id = :id");
+        $stmt = $dbc->prepare("DELETE FROM uploads WHERE id = :id; DELETE FROM approved WHERE approvedid = :id");
         $stmt->bindParam(":id", $id);
         if($stmt->execute()){
             return true;
