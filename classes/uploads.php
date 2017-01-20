@@ -115,9 +115,8 @@ class Uploads
             if(!file_exists($targetFile)){
                 move_uploaded_file($file["tmp_name"], $targetFile);
 
-                $userId = 1;
                 $stmt = $dbc->prepare("INSERT INTO `uploads` VALUES (NULL, :userid, :name, :description, :target, 0)");
-                $stmt->bindParam(":userid", $userId);
+                $stmt->bindParam(":userid", $_SESSION['userId']);
                 $stmt->bindParam(":name", $name);
                 $stmt->bindParam(":description", $description);
                 $stmt->bindParam(":target", $targetFile);
@@ -148,12 +147,10 @@ class Uploads
 
     function hasRemovePermission($id){
         global $dbc;
-        $userId = 1;
 
         $stmt = $dbc->prepare("SELECT id FROM uploads WHERE id = :id AND userid = :userid");
         $stmt->bindParam(":id", $id);
-        //$stmt->bindParam(":userid", $_SESSION['userid']);
-        $stmt->bindParam(":userid", $userId);
+        $stmt->bindParam(":userid", $_SESSION['userid']);
         $stmt->execute();
         if($stmt->rowCount() > 0){
             return true;
