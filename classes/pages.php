@@ -103,19 +103,21 @@ class Pages {
 		}
 
 		echo "<h2>Maak een account aan</h2>";
+		?>
 
-		echo "	<form method='post' action='#'>
-				<input type='email' name='email' placeholder='E-mail' required><br>
-				<input type='password' name='password' placeholder='Wachtwoord' required><br>
-				<input type='password' name='password_repeat' placeholder='Herhaal wachtwoord' required><br>
-				<input type='text' name='firstname' placeholder='Voornaam' required><br>
-				<input type='text' name='lastname' placeholder='Achternaam' required><br>
-				<input type='number' name='phone' placeholder='Telefoonnummer' required><br>
-				<input type='text' name='zipcode' placeholder='Postcode' required><br>
-				<input type='text' name='address' placeholder='Huisnummer' required><br>
+		<form method='post' action='#'>
+				<input type='email' name='email' placeholder='E-mail' required value=<?php if(isset($_POST['email'])) echo $_POST['email']; ?>><br>
+				<input type='password' name='password' placeholder='Wachtwoord' required value=<?php if(isset($_POST['password'])) echo $_POST['password']; ?>><br>
+				<input type='password' name='password_repeat' placeholder='Herhaal wachtwoord' required value=<?php if(isset($_POST['password_repeat'])) echo $_POST['password_repeat']; ?>><br>
+				<input type='text' name='firstname' placeholder='Voornaam' required value=<?php if(isset($_POST['firstname'])) echo $_POST['firstname']; ?>><br>
+				<input type='text' name='lastname' placeholder='Achternaam' required value=<?php if(isset($_POST['lastname'])) echo $_POST['lastname']; ?>><br>
+				<input type='number' name='phone' placeholder='Telefoonnummer' required value=<?php if(isset($_POST['phone'])) echo $_POST['phone']; ?>><br>
+				<input type='text' name='zipcode' placeholder='Postcode' required value=<?php if(isset($_POST['zipcode'])) echo $_POST['zipcode']; ?>><br>
+				<input type='text' name='address' placeholder='Huisnummer' required value=<?php if(isset($_POST['address'])) echo $_POST['address']; ?>><br>
 				<input type='submit' name='register' value='Registreer'>
-				</form>";
+				</form>
 
+				<?php
 		echo "<p>Heb je al een account? <a href='index.php?p=login'>Log in</a></p>";
 	}
 
