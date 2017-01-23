@@ -95,7 +95,7 @@ class Pages {
 						if(is_numeric($resultCode) && array_key_exists($resultCode, $errors)){
 								echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> " . $errors[$resultCode] . "</div>";
 						}else{
-								header('Location: ?p=login');
+								header('Location: index.php');
 						}
 				}else{
 						echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> Je hebt niet alle velden ingevuld.</div>";
