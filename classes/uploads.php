@@ -117,8 +117,8 @@ class Uploads
 
                 $stmt = $dbc->prepare("INSERT INTO `uploads` VALUES (NULL, :userid, :name, :description, :target, 0)");
                 $stmt->bindParam(":userid", $_SESSION['userId']);
-                $stmt->bindParam(":name", $name);
-                $stmt->bindParam(":description", $description);
+                $stmt->bindParam(":name", htmlspecialchars($name));
+                $stmt->bindParam(":description", htmlspecialchars($description));
                 $stmt->bindParam(":target", $targetFile);
                 $stmt->execute();
 
