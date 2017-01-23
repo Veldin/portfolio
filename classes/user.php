@@ -174,7 +174,7 @@ class User
         $this->userdata['id'] = $results['id'];
         $this->userdata['levelid'] = $results['levelid'];
         $this->userdata['slb'] = $results['slb'];
-        $this->userdata['email'] = $this->email;
+        $this->userdata['email'] = $results['email'];
         $this->userdata['firstname'] = $results['firstname'];
         $this->userdata['lastname'] = $results['lastname'];
         $this->userdata['phone'] = $results['phone'];
