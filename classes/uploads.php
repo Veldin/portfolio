@@ -38,6 +38,7 @@ class Uploads
         "zip" => "<i class='fa fa-file-archive-o' aria-hidden='true'></i>",
         "gz" => "<i class='fa fa-file-archive-o' aria-hidden='true'></i>",
         "ppt" => "<i class='fa fa-file-powerpoint-o' aria-hidden='true'></i>",
+        "pptx" => "<i class='fa fa-file-powerpoint-o' aria-hidden='true'></i>",
         "pdf" => "<i class='fa fa-file-pdf-o' aria-hidden='true'></i>",
         "xlsx" => "<i class='fa fa-file-excel-o' aria-hidden='true'></i>",
         "gif" => "<i class='fa fa-file-image-o' aria-hidden='true'></i>",
@@ -49,6 +50,7 @@ class Uploads
     );
     function getUserUploads($userid, $publicOnly = false){
         global $dbc;
+
         if($publicOnly){
             $stmt = $dbc->prepare("SELECT * FROM uploads WHERE userid = :userid AND public = :public ORDER BY id DESC");
             $stmt->bindParam(":public", $publicOnly);
@@ -61,7 +63,11 @@ class Uploads
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             foreach($results as &$result){
                 $result['extension'] = pathinfo($result['url'], PATHINFO_EXTENSION);
-                $result['fileicon'] = $this->fileIcons[pathinfo($result['url'], PATHINFO_EXTENSION)];
+                if(array_key_exists($result['extension'], $this->fileIcons)){
+                    $result['fileicon'] = $this->fileIcons[pathinfo($result['url'], PATHINFO_EXTENSION)];
+                }else{
+                      $result['fileicon'] = "<i class='fa fa-file-o' aria-hidden='true'></i>";
+                }
             }
             return $results;
         }else{
@@ -129,9 +135,10 @@ class Uploads
     }
     function hasRemovePermission($id){
         global $dbc;
+
         $stmt = $dbc->prepare("SELECT id FROM uploads WHERE id = :id AND userid = :userid");
         $stmt->bindParam(":id", $id);
-        $stmt->bindParam(":userid", $_SESSION['userid']);
+        $stmt->bindParam(":userid", $_SESSION['userId']);
         $stmt->execute();
         if($stmt->rowCount() > 0){
             return true;
