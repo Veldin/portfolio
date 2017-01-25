@@ -12,6 +12,7 @@ class Portfolio {
 	function tableOfContents(){
 		global $core;
 		global $dbc;
+		global $user;
 		
 		$page = $_GET["p"];
 	
@@ -30,6 +31,10 @@ class Portfolio {
 		foreach ($headers as &$header) {
 			$header = explode(",", $header['input']);
 			$header[2] = str_replace(' ', '_', $header[0]);
+			
+			if(isset($header[1])){
+			
+			}
 			
 			echo '<li class="size'.$header[1].'">';
 				echo '<a href="#header'.$header[2].'">'.$header[0].'</a>';
@@ -61,6 +66,7 @@ class Portfolio {
 	
 	function files(){
 		global $core;
+		global $user;
 	
 		$uploads = new Uploads;
 		

@@ -4,22 +4,54 @@ class Core {
 	//Functie om de pagina te laden.
 	function load(){
 		global $pages;
-
+		global $dbc;
+		global $user;
+		
+		//Haal de rechten van de user op
+		if($user->isLoggedIn()){
+			$levelid = $user->get()['levelid'];
+		}else{
+			$levelid = 0;
+		}
+		$blockedPages = $dbc->prepare('SELECT * FROM `level` WHERE `id` = '.$levelid);
+		$blockedPages->execute();
+		$blockedPages = $blockedPages->fetchAll(PDO::FETCH_ASSOC)[0];
+		$blockedPages = explode(",", $blockedPages['blocked']);
+		$blockedPages = array_map('strtolower', $blockedPages);
+		
 		//Als pagina is aangegeven set de Pagina variabele.
 		//Als de pagina niet is aangegeven - ga naar de Homepage.
 		if (empty($_GET["p"])){ 
-			$page = 'Home';
+			$page = 'home';
 		}else{
-			$page = $_GET["p"];
+			$page = strtolower($_GET["p"]);
 		}
 		
 		//Laad of de aangegeven pagina bestaat. 
 		//Als deze niet bestaat - ga naar de notfound pagina.
 		if (method_exists($pages,$page)){
-			echo $pages->$page();
+			//echo $pages->$page();
+			
+			if (in_array($page,$blockedPages)) {
+				//page is blocked
+				header("Location: index.php?p=home");
+			}else{
+				echo $pages->$page();
+			}
+			
+			//check if page is blocked.
+			
+			
 		}else{
 			echo $pages->notfound();
 		}	
+	}
+	
+	// Geeft een kleur terug gebaseerd op de string.
+	function stringToColorCode($str) {
+	  $code = dechex(crc32($str));
+	  $code = substr($code, 0, 6);
+	  return $code;
 	}
 
 	// Functie die de pagina titel returned voor in de titel. (Lagestreep _ voor spatie)

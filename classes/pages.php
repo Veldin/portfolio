@@ -9,11 +9,18 @@ class Pages {
 		global $dbc;
 		global $user;
 		
+		
+		
 		//$levelid = $user->get()['levelid'];
 		$currentuser = $user->get()['levelid'];
 		
 		//if login true
 		if($user->isLoggedIn()){
+		
+			echo '<div id="containerOuter">';
+			echo '<div id="containerInner">';
+			echo '<h1>Welcome!</h1>';
+		
 						
 			$SQLstring = $dbc->prepare("SELECT user.levelid FROM user
 						WHERE user.id = $currentuser");
@@ -31,9 +38,51 @@ class Pages {
 					echo $pages->adminHome();
 				}
 			}
+			
+			echo '<h2>Chatbox</h2>';
+			echo '<p>Voel je vrij om te chatten!</p>';
+			echo '<iframe class="iframechat" src="chat.php"></iframe>';
+			
+
+			if(isset($_POST['message']) && !empty($_POST['message'])){
+				$stmt = $dbc->prepare("INSERT INTO `chat` (
+				`userid` ,
+				`timestamp` ,
+				`targetid` ,
+				`message`
+				)
+				VALUES (
+				'".$user->get()['id']."',  '".TIME()."',  '0',  '".$_POST['message']."'
+				);");
+				
+				$stmt->execute();
+			}
+			
+			
+			
+			
+			
+			/* foreach ($result as &$message) {
+				echo '<tr>';
+					echo '<td class="firstname">';
+						echo $message['firstname'];
+					echo '</td>';
+					echo '<td class="message">';
+						echo $message['message'];
+					echo '</td>';
+				echo '</tr>';
+			} */
+			
+			
+			echo '<form method="Post" action="?p=home">';
+				echo '<input class="form-control" type="text" name="message" placeholder="Chat!" value=" ">';
+			echo '</form>';
+			echo '</div>';
+			echo '</div>';
+			
 		//if not logged in show login pages
 		}else{
-			
+			header("Location: index.php?p=login");
 			echo $pages->login();
 		}				
 	}
@@ -44,26 +93,49 @@ class Pages {
 		global $pages;
 		global $core;
 		
+		echo '<div id="containerOuter">';
+		echo '<div id="containerInner">';
+		echo '<h1>Login</h1>';
+		
 		if($user->isLoggedIn() == FALSE){
 			if(isset($_POST['submit'])){
 				if(empty($_POST['email']) OR empty($_POST['password'])){
-					echo "<p>Vul alle velden in.</p>";
+					echo'<div class="alert alert-danger">
+					  <strong>:( </strong> vul alle velden in.
+					</div>';
+					
 				}else{
 					$email = $_POST['email'];
 					$password = $_POST['password'];
 					
 					$user->login($email, $password);
+					if($user->login($email, $password) == TRUE){
+						header("Location: index.php");
+					}else{
+						echo'<div class="alert alert-danger">
+						  <strong>:( </strong> Inloggegevens ongeldig
+						</div>';
+					}
 				}
+			}else{
+				$email = "";
 			}
-			echo "<h2>Login</h2>";
+			
+			if(!isset($email)){
+				$email = "";
+			}
+			
 			echo "<form method='POST' action='#'>
-					E-mail:<br><input type='text' name='email' patttern='/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/' required><br>";
-			echo "	Wachtwoord:<br><input type='password' name='password' required><br>";
+					E-mail:<br><input type='text' name='email' value='$email'><br>";
+			echo "	Wachtwoord:<br><input type='password' name='password'><br>";
 			echo "<input type='submit' name='submit' value='Login'></form>";
 			echo "<a href='index.php?p=register'>Registreer</a>";
 		}else{ //Als $isLoggedIn == TRUE
 			echo "U bent al ingelogd.";
 		}
+		
+		echo '</div>';
+		echo '</div>';
 		
 		
 	}
@@ -76,21 +148,54 @@ class Pages {
 	}
 	
 	function register(){
-		echo "<h2>Maak een account aan</h2>";
-			
-		echo "	<form method='' action=''>
-				<input type='text' placeholder='E-mail' required><br>
-				<input type='password' placeholder='Wachtwoord' required><br>
-				<input type='password' placeholder='Herhaal wachtwoord' required><br>
-				<input type='text' placeholder='Voornaam' required><br>
-				<input type='text' placeholder='Achternaam' required><br>
-				<input type='number' placeholder='Telefoonnummer' required><br>
-				<input type='text' placeholder='Postcode' required><br>
-				<input type='text' placeholder='Adres' required><br>
-				<input type='submit' value='Registreer'>
-				</form>";
-				
+		global $user;
+		
+		echo '<div id="containerOuter">';
+		echo '<div id="containerInner">';
+		echo "<h1>Maak een account aan</h1>";
+		
+		$errors = array(
+				99 => "Je hebt niet alle velden ingevuld.",
+				100 => "Het ingevoerde email adres is niet correct.",
+				101 => "De ingevoerde wachtwoorden komen niet overeen.",
+				102 => "Het ingevoerde wachtwoord voldoet niet aan de eisen. (Minstens 1 kleine letter, 1 hoofdletter, 1 cijfer en een speciaal teken)",
+				103 => "Het ingevoerde telefoonnummer is niet numeriek of 10 karakters lang.",
+				104 => "De ingevoerde postcode is niet volgens het 1234AB formaat.",
+				105 => "Het email adres is al in gebruik.",
+				106 => "Er is een fout opgetreden bij het aanmaken van het portfolio."
+		);
+		if(isset($_POST['register'])){
+				if(!empty($_POST['email']) && !empty($_POST['password']) && !empty($_POST['password_repeat']) && !empty($_POST['firstname']) && !empty($_POST['lastname']) && !empty($_POST['phone']) && !empty($_POST['zipcode']) && !empty($_POST['address'])){
+						$resultCode = $user->register($_POST['email'], $_POST['password'], $_POST['password_repeat'], $_POST['firstname'], $_POST['lastname'], $_POST['phone'], $_POST['zipcode'], $_POST['address']);
+						if(is_numeric($resultCode) && array_key_exists($resultCode, $errors)){
+								echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> " . $errors[$resultCode] . "</div>";
+						}else{
+								"Je hebt alles goed ingevuld. Jippie";
+						}
+				}else{
+						echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> Je hebt niet alle velden ingevuld.</div>";
+				}
+		}
+
+		?>
+
+		<form method='post' action='#'>
+				<input type='email' name='email' placeholder='E-mail'  value=<?php if(isset($_POST['email'])) echo $_POST['email']; ?>><br>
+				<input type='password' name='password' placeholder='Wachtwoord'  value=<?php if(isset($_POST['password'])) echo $_POST['password']; ?>><br>
+				<input type='password' name='password_repeat' placeholder='Herhaal wachtwoord'  value=<?php if(isset($_POST['password_repeat'])) echo $_POST['password_repeat']; ?>><br>
+				<input type='text' name='firstname' placeholder='Voornaam'  value=<?php if(isset($_POST['firstname'])) echo $_POST['firstname']; ?>><br>
+				<input type='text' name='lastname' placeholder='Achternaam'  value=<?php if(isset($_POST['lastname'])) echo $_POST['lastname']; ?>><br>
+				<input type='number' name='phone' placeholder='Telefoonnummer'  value=<?php if(isset($_POST['phone'])) echo $_POST['phone']; ?>><br>
+				<input type='text' name='zipcode' placeholder='Postcode'  value=<?php if(isset($_POST['zipcode'])) echo $_POST['zipcode']; ?>><br>
+				<input type='text' name='address' placeholder='Huisnummer'  value=<?php if(isset($_POST['address'])) echo $_POST['address']; ?>><br>
+				<input type='submit' name='register' value='Registreer'>
+				</form>
+
+				<?php
 		echo "<p>Heb je al een account? <a href='index.php?p=login'>Log in</a></p>";
+
+		echo '</div>';
+		echo '</div>';
 	}
 	
 	function adminHome(){
@@ -289,7 +394,7 @@ class Pages {
 			$editPortfolio = "portfoliooverzicht"; //leerling eigen
 			$overviewFiles = "overzichtUploads"; //admin / slb
 			$guidedStudents = "search"; //admin / slb <-search
-			$profiel = "linkie9|right";
+			$profiel = "profile|right";
 			$login = "login|right";
 			$logout = "logout|right";
 			
@@ -312,7 +417,8 @@ class Pages {
 				if($isSLB == TRUE){
 					// voegt extra menu opties toe voor SLBers //
 					$menu = array(
-						"Overzicht van studenten" => $guidedStudents
+						"Overzicht van studenten" => $guidedStudents,
+						"Overzicht van bestanden" => $overviewFiles
 					);
 					// Als het geen SLBer is dan maakt hij een overzicht voor een gewone leraar aan.
 				}else{
@@ -323,8 +429,8 @@ class Pages {
 			}
 			if($levelID == 3){
 				$menu = array(
-					"Overzicht van bestanden" => $overviewFiles,
-					"Overzicht van alle gebruikers" => $guidedStudents
+					"Overzicht van alle gebruikers" => $guidedStudents,
+					"Overzicht van bestanden" => $overviewFiles
 				);
 			}
 			if($levelID > 0){
@@ -345,11 +451,18 @@ class Pages {
 			
 			echo "<ul>";
 
+			if($levelID > 0){
+			echo '<li><a role="button" class="btn btn-default madebystudent" href="index.php?p=home"></a></li>';
+			}
 			
 			if($levelID == 3 || $isSLB == TRUE){
 				echo "<li><form method='post' action='index.php?p=search'>
-							<input type='text' name='search'>
-							<input type='submit' name='submit' value='Zoeken'>
+							<input class='btn btn-zoeken' type='text' name='search' placeholder='Zoeken'>
+							<button type='submit' name='submit' class='btn btn-default'>
+								 <i class='fa fa-search' aria-hidden='true'></i>
+							</button>
+							
+
 						</form></li>";
 			}
 
@@ -377,18 +490,8 @@ class Pages {
 					}else{
 						$AClass .= 'btn btn-default';
 					}
-					
-					
-					
+
 					echo "<li class=".$liClass." ><a role='button' class='".$AClass."' href=index.php?p=$option[0]>$optionDesc</a></li>";
-					
-					
-					
-					/* if(isset($option[1])){
-						echo "<li class='".$option[1]."'><a class='btn btn-default' role='button'  href=index.php?p=$option[0]>$optionDesc</a></li>";
-					}else{
-						echo "<li><a class='btn btn-default' role='button'  href=index.php?p=$option[0]>$optionDesc</a></li>";
-					} */
 				}
 				echo "</ul>";
 			}
@@ -397,7 +500,7 @@ class Pages {
 	}
 
 	function footer(){
-		echo 'FOOTER';
+		echo '';
 	}
 
 	
@@ -406,6 +509,10 @@ class Pages {
 		global $core;
 		global $dbc;
 		global $mysqlconn;
+		
+		echo '<div id="containerOuter">';
+		echo '<div id="containerInner">';
+		echo '<h1>Gebruiker Overzicht</h1>';
 		
 		if($user->isLoggedIn()){
 			$currentSLB = $user->get()['slb'];
@@ -452,11 +559,22 @@ class Pages {
 					$searchName = $_POST['search'];
 					$query = "SELECT * FROM user, portfolio WHERE concat(firstname, ' ', lastname) LIKE '%$searchName%' AND user.id = portfolio.userid ORDER BY lastname ASC, firstname ASC";
 					$queryresult = mysqli_query($mysqlconn, $query);
+				}else{
+					$query = "SELECT * FROM user, portfolio 
+					WHERE user.id = portfolio.userid
+					ORDER BY lastname ASC, firstname ASC,id ASC";
+					$queryresult = mysqli_query($mysqlconn, $query);
 				}
 			}else if(isset($_POST['submit']) AND $levelid == 2){
 				if(!empty($_POST['search'])){
 					$searchName = $_POST['search'];
 					$query = "SELECT * FROM user, portfolio WHERE concat(firstname, ' ', lastname) LIKE '%$searchName%' AND levelid = 1 AND user.id = portfolio.userid ORDER BY lastname ASC, firstname ASC";
+					$queryresult = mysqli_query($mysqlconn, $query);
+				}else{
+					$query = "SELECT * FROM user, portfolio 
+					WHERE user.id = portfolio.userid
+					AND user.levelid = 1
+					ORDER BY lastname ASC, firstname ASC,id ASC";
 					$queryresult = mysqli_query($mysqlconn, $query);
 				}
 			}else if($levelid == 2){
@@ -474,8 +592,8 @@ class Pages {
 			
 			
 			
-				echo "<table>";
-				echo "<tr><th>Voornaam</th><th>Achternaam</th><th>Email</th>";
+				echo "<table class='table table-striped table-responsive'>";
+				echo "<thead><tr><th>Voornaam</th><th>Achternaam</th><th>Email</th>";
 				if($levelid == 3){
 					echo "<th>ID</th><th>Rank</th>";
 				}
@@ -484,7 +602,7 @@ class Pages {
 				if($isSLB == TRUE && $levelid == 2){
 					echo "<th>Waarmerk</th>";
 				}
-				echo "</tr>";
+				echo "</tr></thead></tbody>";
 				while ($fetch = mysqli_fetch_assoc($queryresult)){
 					if($fetch['levelid'] == 1){
 						$rank = "Student";
@@ -539,7 +657,7 @@ class Pages {
 					echo "<tr><td></td><td></td><td></td><td></td><td></td><td><input type='submit' name='waarmerk' value='Waarmerk'></td></tr>"; 
 					echo "</form>";
 				}
-				echo "</table>";
+				echo "</tbody></table>";
 			
 			if(!empty($_GET['userid']) AND $levelid == 3){
 				$userid = $_GET['userid'];
@@ -648,6 +766,7 @@ class Pages {
 				echo "<p>Adres: " . $zipcode;
 
 			}
+		echo '<div></div>';
 	}
 	
 	//Test voor de database.
@@ -1136,7 +1255,7 @@ class Pages {
 								$titles = explode(",", $moduletemplate['fieldTitle']);
 								
 								echo '<div class="coll-90">';
-									echo '<form action="#" method="post">';
+									echo '<form action="?p=editmodule&m='.$moduleId.'" method="post">';
 									
 										//Voeg alle inputvelden toe die bij deze module horen.
 										
@@ -1241,6 +1360,8 @@ class Pages {
 		
 		echo "<h1>Portfolio Overzicht</h1>";
 		
+		echo '<a class="button" href="index.php?p=addmodule">Voeg een module toe.</a>';
+		
 		$changed = '';
 		
 		$dbc = $mysqlconn;
@@ -1315,6 +1436,52 @@ class Pages {
 				}else{
 						echo mysqli_error($dbc) . "2";
 				}						
+			}elseif(isset($_POST["delete"]) && ($_POST["ID"])){
+				//Getting the position of the selected row
+				$UID = $_POST["ID"];
+
+				$getposition = "SELECT position FROM module WHERE id = $UID LIMIT 1";
+
+				$result = mysqli_query($dbc, $getposition);
+
+				$fetch = mysqli_fetch_array($result);
+				
+				$initialpos = $fetch['position'];
+				
+				//Getting the last position out of the DB 
+				$getlastpos = "SELECT MAX(position) AS maxpos FROM module LIMIT 1;";
+			
+				$lastposresult = mysqli_query($dbc, $getlastpos);
+		
+				$fetchlastpos = mysqli_fetch_array($lastposresult);
+		
+				$lastposition = $fetchlastpos['maxpos'];
+				
+				//Checking if you want to delete the last position, if so then we don't need an update
+				if($initialpos === $lastposition){
+					
+				//Deleting the row that needs to be deleted
+				$deletemodule = "DELETE FROM module WHERE id = $UID;";
+
+				mysqli_query($dbc, $deletemodule);
+				
+				//echo $deletemodule;
+					
+				}else{
+				//Deleting the row that needs to be deleted
+				$deletemodule = "DELETE FROM module WHERE id = $UID;";
+
+				mysqli_query($dbc, $deletemodule);
+				
+				//echo $deletemodule;
+				
+				//Updating all the above rows of the deleted modules
+				$updaterows = "UPDATE module SET position = position - 1 WHERE position > $initialpos;";
+				
+				mysqli_query($dbc, $updaterows);
+				
+				//echo $updaterows;
+				}
 			}
 			//The portfolioID is required to retrieve the correct modules for this user
 			$portfolioid = $user->get()['id'];
@@ -1334,7 +1501,7 @@ class Pages {
 									  <th>UP/DOWN</th>
 
 									  <th>Input</th>
-									  <th>EDIT</th></tr></thead><tbody>";
+									  <th>EDIT</th><th>DELETE</th></tr></thead><tbody>";
 							//Getting the last position out of the database
 							$getlastpos = "SELECT MAX(position) AS maxpos FROM module LIMIT 1;";
 							
@@ -1374,7 +1541,11 @@ class Pages {
 								}
 								
 								echo "<td>{$row['name']}</td>";
-								echo '<td><p><a href="index.php?p=editmodule&m='. $ID .'">Edit</a></p></td></tr>';
+								echo '<td><p><a href="index.php?p=editmodule&m='. $ID .'">Edit</a></p></td>';
+								echo '<td><form action="#" method="POST"><input type="submit" name="delete" value="Delete" />
+												<input type="hidden" name="ID" value="'. $ID .'" /></form></td></tr>';
+								
+								
 							}
 							echo "</tbody></table>";
 							echo "</div>";
@@ -1387,7 +1558,8 @@ class Pages {
 						echo '</div>';
 						
 					echo "</div>";
-			}
+					}
+		}
 			// Selecting and setting the portfolio colours
 			if(isset ($_POST["sendcolours"])){
 				$updmaincolour = substr($_POST["maincolour"],1);
@@ -1411,15 +1583,14 @@ class Pages {
 				$maincolour = $fetchcolours['colour'];
 				$secondarycolour = $fetchcolours['secondarycolour'];
 				$tertiarycolour = $fetchcolours['tertiarycolour'];
-				
+				echo '<div class="clear"></div>';
 				echo '<form action="#" method="POST">
 				<p>Maincolour <input type="color" name="maincolour" value="#'. $maincolour .'"></p>
 				<p>Secondarycolour <input type="color" name="secondarycolour" value="#'. $secondarycolour .'"></p>
 				<p>Tertiarycolour <input type="color" name="tertiarycolour" value="#'. $tertiarycolour .'"></p>
 				<input type="submit" name="sendcolours" value="Update" /></form>';
 				
-		}
-		mysqli_close($dbc);
+		
 		
 		echo '</div>';
 		echo '</div>';
@@ -1429,6 +1600,10 @@ class Pages {
 		global $user;
 		global $dbc;
 		global $core;
+		
+		echo '<div id="containerOuter">';
+		echo '<div id="containerInner">';
+		echo '<h1>Bestanden Overzicht</h1>';
 		
 		$uploads = new Uploads;
 
@@ -1520,6 +1695,8 @@ class Pages {
 			}
 		}
 	
+		echo '</div>';
+		echo '</div>';
 	}
 
 	function showUploads(){
@@ -1529,10 +1706,8 @@ class Pages {
 			echo '<div id="containerOuter">';
 			echo '<div id="containerInner">';
 			
-			echo '<h1>Uploads</h1>';
+			echo '<h1>Overzicht bestanden</h1>';
 			
-			$userID = $user->get()['id'];
-
 			$uploads = new Uploads;
 			// Wanneer een get request wordt gedaan om een bestand te verwijderen.
 			if(isset($_GET['id'])){
@@ -1541,54 +1716,56 @@ class Pages {
 									if($uploads->hasRemovePermission($_GET['id'])){
 											unlink($uploads->getFileLocationById($_GET['id']));
 											if($uploads->deleteFile($_GET['id'])){
-												header("Location: index.php?p=showUploads");
+													header("Location: ?p=showUploads" . $url);
 											}
+									}else{
+										echo '<div class="alert alert-danger">
+										  <strong>:(</strong> U heeft geen rechten voor deze actie.
+										</div>';
 									}
 							}
 					}
 			}
 			if(isset($_POST['saveChanges'])){
-			
-					if($uploads->getUserUploads($userID) != false){
-						foreach($uploads->getUserUploads($userID) as $id){
-								if($_POST['public_' . $id['id']] == "non_public"){
-										$records[$id['id']] = 0;
-								}else if($_POST['public_' . $id['id']] == "public"){
-										$records[$id['id']] = 1;
-								}
-						}
-					
-						if($uploads->updateFile($records)){
-								echo "<div class='alert alert-success alert-dismissible' role='alert'><strong>Succes!</strong> Wijzigingen zijn opgeslagen.</div>";
-						}else{
-								echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> De wijzingen konden niet worden opgeslagen, probeer het later opnieuw.</div>";
-						}
+					foreach($uploads->getUserUploads($user->get()['id']) as $id){
+							if($_POST['public_' . $id['id']] == "non_public"){
+									$records[$id['id']] = 0;
+							}else if($_POST['public_' . $id['id']] == "public"){
+									$records[$id['id']] = 1;
+							}
+					}
+					if($uploads->updateFile($records)){
+							echo "<div class='alert alert-success alert-dismissible' role='alert'><strong>Succes!</strong> Wijzigingen zijn opgeslagen.</div>";
+					}else{
+							echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> De wijzingen konden niet worden opgeslagen, probeer het later opnieuw.</div>";
 					}
 			}
 			echo
 			"
-			<div>
+			<div class='table-responsive'>
 				<form action='#' method='post'>
-					<table class='table table-striped'>
-						<thead>
+					<table class='table table-bordered'>
 						<tr>
 							<th>Bestandsnaam</th>
 							<th>Beschrijving</th>
 							<th>Publiekelijk</th>
 							<th>Download</th>
 							<th>Verwijder</th>
-						</tr></thead><tbody>";
-						if($uploads->getUserUploads($userID)){
-								$arrayLength = count($uploads->getUserUploads($userID));
-								foreach($uploads->getUserUploads($userID) as $upload){
+						</tr>";
+						if($uploads->getUserUploads($user->get()['id'])){
+								$arrayLength = count($uploads->getUserUploads($user->get()['id']));
+								foreach($uploads->getUserUploads($user->get()['id']) as $upload){
 										$id = $upload['id'];
+										$extension = $upload['extension'];
+										$fileIcon = $upload['fileicon'];
+										if(empty($fileIcon)) $fileIcon = "<i class='fa fa-file-o' aria-hidden='true'></i>";
 										$name = $upload['name'];
 										$description = $upload['description'];
 										$downloadUrl = $upload['url'];
 										$public = $upload['public'];
 										echo
 										"<tr>
-											<td>$name</td>
+											<td>$fileIcon $name</td>
 											<td>$description</td>
 											<input type='hidden' name='public_$id' value='non_public'>";
 											if($public)
@@ -1596,7 +1773,7 @@ class Pages {
 												else
 													echo "<td><input type='checkbox' name='public_$id' value='public'></td>";
 										echo
-											"<td><a href='$downloadUrl'><i class='fa fa-download' aria-hidden='true'></i></a></td>
+											"<td><a href='$downloadUrl'><i class='fa fa-download' aria-hidden='true'></i> .$extension</a></td>
 											<td><a href='?p=showUploads&id=$id&action=remove'><i class='fa fa-trash' aria-hidden='true'></i></a></td></tr>";
 								}
 								echo "<input type='hidden' name='size' value='$arrayLength'>";
@@ -1604,13 +1781,13 @@ class Pages {
 								echo "<div class='alert alert-warning' role='alert'><strong>Oh nee!</strong> Er zijn nog geen bestanden geüpload.</div>";
 						}
 					echo
-					"</tbody></table>
+					"</table>
 					<button type='submit' name='saveChanges' class='btn btn-info'>Wijzigingen opslaan</button>
 				</form>
 			</div>";
 			
-			echo '</div>';
-			echo '</div>';
+			echo "</div>";
+			echo "</div>";
 	}
 	
 	// Functie voor het uploaden van files
@@ -1666,10 +1843,181 @@ class Pages {
 			echo '</div>';
 	}
 	
-	//404
-	function notfound(){
+	function profile() {
+        global $dbc;
+        global $user;
+
+        if (isset($_POST['address']) || (isset($_POST['zipcode'])) || (isset($_POST['phone'])) || (isset($_POST['newslb']))) {
+
+            $id = $user->get()['id'];
+            $adress = htmlentities($_POST['address']);
+            $zipcode = htmlentities($_POST['zipcode']);
+            $phone = htmlentities($_POST['phone']);
+            $slb = htmlentities($_POST['newslb']);
+			
+            $query = "UPDATE user SET address='$adress', zipcode='$zipcode', phone='".$phone."', slb='$slb' WHERE id='$id'";
+           
+
+		   echo $query;
+		    $result = $dbc->prepare($query);
+            $result->execute();
+
+            if ($result) {
+                header("Location: index.php?p=profile");
+                //TODO: Refresh.
+            }
+        }
+
+        $query = "SELECT * from user WHERE id=" . $user->get()['slb'];
+        $getSLB = $dbc->prepare($query);
+        $getSLB->execute();
+        $getSLB = $getSLB->fetchAll(PDO::FETCH_ASSOC);
+				if (!empty($getSLB[0])) {
+            $getSLB = $getSLB[0];
+            $slber = $getSLB['firstname'] . " " . $getSLB['lastname'];
+        } else {
+            echo "<p></p>";
+        }
+
+				echo
+				"
+					<div class='container'>
+						<h1>Uw profiel</h1>
+						<div class='row'>
+							<table class='table table-striped'>
+								<thead>
+									<tr>
+										<th>Voornaam</th>
+										<th>Achternaam</th>
+										<th>Adres</th>
+										<th>Postcode</th>
+										<th>Telefoonnummer</th>
+										<th>Emailadres</th>
+										<th>Studieloopbaanbegeleider</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>" . $user->get()['firstname'] . "</td>
+										<td>" . $user->get()['lastname'] . "</td>
+										<td>" . $user->get()['address'] . "</td>
+										<td>" . $user->get()['zipcode'] . "</td>
+										<td>" . $user->get()['phone'] . "</td>
+										<td>" . $user->get()['email'] . "</td>
+										<td>" . $slber . "</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				";
+
+        echo
+				"
+					<div class='container'>
+						<div class='row'>
+							<div class='col-s12'>
+								<form id='button' method='POST' action='?p=editprofile'>
+									<button type='submit' class='btn btn-success' data-toggle='dropdown' type='submit' name='submit'>Aanpassen</button>
+								</form>
+							</div>
+        		</div>
+					</div>
+				";
+    }
+
+    function editprofile() {
+        global $mysqlconn;
+        global $user;
+
+				$query = "SELECT id, firstname, lastname FROM user WHERE id = slb AND levelid = 2";
+        $result = mysqli_query($mysqlconn, $query);
+        $query2 = "SELECT slb FROM user WHERE id = " . $user->get()['id'] . "";
+        $result2 = mysqli_query($mysqlconn, $query2);
+        $fetch2 = mysqli_fetch_assoc($result2);
+        $currentslb = $user->get()['slb'];
+
+				echo
+				"
+					<div class='container'>
+						<div class='row'><h1>Profiel Aanpassen</h1></div>
+						<div class='row'><p>Hier kun je jou profiel aanpassen als je verhuist bent of van telefoon nummer veranderd bent</p></div>
+							<form method='post' action='index.php?p=profile'>
+								<div class='row'>
+									Adres
+									<input style='width:100%' name='address' type='text' value=" . $user->get()['address'] . " required>
+								</div>
+								<br>
+								<div class='row'>
+									Postcode
+									<input style='width:100%' name='zipcode' type='text' value=" . $user->get()['zipcode'] . " required>
+								</div>
+								<br>
+								<div class='row'>
+									Telefoonnummer
+									<input style='width:100%' name='phone' type='text' value=" . $user->get()['phone'] . " required>
+								</div>
+								<br>
+								<div class='row'>
+									Studieloopbaanbegeleider<br>
+									<select name='newslb'>
+										<option value='0'>Geen SLBer</option>";
+										while ($fetch = mysqli_fetch_assoc($result)) {
+												if ($fetch['id'] == $fetch2['slb']) {
+														$selected = " selected='selected'";
+												} else {
+														$selected = FALSE;
+												}
+												echo "<option value='" . $fetch['id'] . "' $selected'>" . $fetch['firstname'] . " " . $fetch['lastname'] . "</option>";
+										}
+										echo "
+									</select>
+								</div>
+								<br>
+								<div class='row'><button type='submit' class='btn btn-success' data-toggle='dropdown' type='submit' name='submit'>Aanpassen</button></div>
+							</form>
+						</div>
+					</div>
+				";
+    }
 	
-		echo '404';
+	//404
+	function chat(){
+		global $core;
+		global $pages;
+		global $dbc;
+		global $user;
+		
+		$stmt = $dbc->prepare("SELECT * FROM chat, user WHERE user.id = chat.userid AND chat.targetid = 0 ORDER BY  `chat`.`timestamp` DESC LIMIT 20");
+		$stmt->execute();
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		
+		echo '<div class="refresh"><a href="chat.php"><i class="fa fa-refresh" aria-hidden="true"></i></a></div>';
+		
+		
+		echo '<table class="chatbox">';
+		
+		
+		$result = array_reverse($result);
+		
+		foreach ($result as &$message) {
+			echo '<tr>';
+				echo '<td class="firstname" style="color:#'.$core->stringToColorCode($message['firstname']).';" green;">';
+					echo $message['firstname'].':';
+				echo '</td>';
+				echo '<td class="message">';
+					echo htmlentities($message['message']);
+				echo '</td>';
+			echo '</tr>';
+		}
+		
+		echo '</table>';
+		
+		//print_r($result);
+	}
+	
+	function notfound(){
+		echo ' ';
 	}
 }
 ?>

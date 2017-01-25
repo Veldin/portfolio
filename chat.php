@@ -1,3 +1,7 @@
+<?php
+header( "refresh:10000;url=chat.php" );
+?>
+
 <!DOCTYPE html>
 <?php
 	session_start();
@@ -70,31 +74,15 @@
 	
 		<?php $pages->portfolioCSS(); ?>
 	</head>
-	<body>
-		<?php 
-			echo '<div id="headerOuter">';
-				echo '<div id="headerInner">';
-					$pages->header();
-				echo '</div>';
-			echo '</div>';
-
-			
-			/* if($user->login("amr.jonkman@gmail.com", "pass")){
-				//echo "Gebruiker logged in.";
-			}
-			
-			if($user->isLoggedIn()){
-				//echo "Gebruiker is ingelogd";
-			} */
+	<body style="
+    background: initial;
+	">
+		<?php	
+		$pages->chat(); 
 		
-			$core->load();
-			
-			echo '<div id="footerOuter">';
-				echo '<div id="footerInner">';
-					$pages->footer();
-				echo '</div>';
-			echo '</div>';
 		?>
+		
+
 	</body>
 </html>
 
