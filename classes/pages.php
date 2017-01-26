@@ -19,32 +19,29 @@ class Pages {
 		
 			echo '<div id="containerOuter">';
 			echo '<div id="containerInner">';
-			echo '<h1>Welcome!</h1>';
-		
-						
-			$SQLstring = $dbc->prepare("SELECT user.levelid FROM user
-						WHERE user.id = $currentuser");
-			$SQLstring->execute();
-			foreach($SQLstring as $key => $value)
-			{
-				//if student
-				if($value['levelid'] == 1){	//$value['levelid'] wordt $levelid
-					echo $pages->studentHome();
-				//if teacher 
-				}elseif($value['levelid'] == 2){
-					echo $pages->teacherHome();
-				//if admin
-				}elseif($value['levelid'] == 3){
-					echo $pages->adminHome();
-				}
-			}
+			echo '<h1>Welkom!</h1>';
 			
+			
+				//if student
+				
+			if($currentuser == 1){	//$value['levelid'] wordt $levelid
+				echo $pages->studentHome();
+			//if teacher 
+			}elseif($currentuser == 2){
+					echo $pages->teacherHome();
+			//if admin
+			}elseif($currentuser == 3){
+				echo $pages->adminHome();
+			}
+
 			echo '<h2>Chatbox</h2>';
 			echo '<p>Voel je vrij om te chatten!</p>';
 			echo '<iframe class="iframechat" src="chat.php"></iframe>';
-			
 
 			if(isset($_POST['message']) && !empty($_POST['message'])){
+				
+				$_POST['message'] = preg_replace('/[^a-z0-9]/i', ' ', $_POST['message']);
+				
 				$stmt = $dbc->prepare("INSERT INTO `chat` (
 				`userid` ,
 				`timestamp` ,
@@ -125,9 +122,15 @@ class Pages {
 				$email = "";
 			}
 			
+			if(isset($_GET["register"])){
+				echo '<div class="alert alert-success">
+				  <strong>Success!</strong> Uw account is aangemaakt! U kunt nu inloggen.
+				</div>';
+			}
+			
 			echo "<form method='POST' action='#'>
-					E-mail:<br><input type='text' name='email' value='$email'><br>";
-			echo "	Wachtwoord:<br><input type='password' name='password'><br>";
+					<input type='text' name='email' placeholder='E-mail' value='$email'><br>";
+			echo "	<input type='password' placeholder='Wachtwoord' name='password'><br>";
 			echo "<input type='submit' name='submit' value='Login'></form>";
 			echo "<a href='index.php?p=register'>Registreer</a>";
 		}else{ //Als $isLoggedIn == TRUE
@@ -145,15 +148,12 @@ class Pages {
 		//logout(){
 		
 		$user->logout();
+		
+		header("Location: index.php");
 	}
 	
 	function register(){
 		global $user;
-		
-		echo '<div id="containerOuter">';
-		echo '<div id="containerInner">';
-		echo "<h1>Maak een account aan</h1>";
-		
 		$errors = array(
 				99 => "Je hebt niet alle velden ingevuld.",
 				100 => "Het ingevoerde email adres is niet correct.",
@@ -170,73 +170,64 @@ class Pages {
 						if(is_numeric($resultCode) && array_key_exists($resultCode, $errors)){
 								echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> " . $errors[$resultCode] . "</div>";
 						}else{
-								"Je hebt alles goed ingevuld. Jippie";
+								header('Location: index.php?p=login?register');
 						}
 				}else{
 						echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> Je hebt niet alle velden ingevuld.</div>";
 				}
 		}
-
+		echo "<h2>Maak een account aan</h2>";
 		?>
 
 		<form method='post' action='#'>
-				<input type='email' name='email' placeholder='E-mail'  value=<?php if(isset($_POST['email'])) echo $_POST['email']; ?>><br>
-				<input type='password' name='password' placeholder='Wachtwoord'  value=<?php if(isset($_POST['password'])) echo $_POST['password']; ?>><br>
-				<input type='password' name='password_repeat' placeholder='Herhaal wachtwoord'  value=<?php if(isset($_POST['password_repeat'])) echo $_POST['password_repeat']; ?>><br>
-				<input type='text' name='firstname' placeholder='Voornaam'  value=<?php if(isset($_POST['firstname'])) echo $_POST['firstname']; ?>><br>
-				<input type='text' name='lastname' placeholder='Achternaam'  value=<?php if(isset($_POST['lastname'])) echo $_POST['lastname']; ?>><br>
-				<input type='number' name='phone' placeholder='Telefoonnummer'  value=<?php if(isset($_POST['phone'])) echo $_POST['phone']; ?>><br>
-				<input type='text' name='zipcode' placeholder='Postcode'  value=<?php if(isset($_POST['zipcode'])) echo $_POST['zipcode']; ?>><br>
-				<input type='text' name='address' placeholder='Huisnummer'  value=<?php if(isset($_POST['address'])) echo $_POST['address']; ?>><br>
+				<input type='email' name='email' placeholder='E-mail' required value=<?php if(isset($_POST['email'])) echo $_POST['email']; ?>><br>
+				<input type='password' name='password' placeholder='Wachtwoord' required value=<?php if(isset($_POST['password'])) echo $_POST['password']; ?>><br>
+				<input type='password' name='password_repeat' placeholder='Herhaal wachtwoord' required value=<?php if(isset($_POST['password_repeat'])) echo $_POST['password_repeat']; ?>><br>
+				<input type='text' name='firstname' placeholder='Voornaam' required value=<?php if(isset($_POST['firstname'])) echo $_POST['firstname']; ?>><br>
+				<input type='text' name='lastname' placeholder='Achternaam' required value=<?php if(isset($_POST['lastname'])) echo $_POST['lastname']; ?>><br>
+				<input type='number' name='phone' placeholder='Telefoonnummer' required value=<?php if(isset($_POST['phone'])) echo $_POST['phone']; ?>><br>
+				<input type='text' name='zipcode' placeholder='Postcode' required value=<?php if(isset($_POST['zipcode'])) echo $_POST['zipcode']; ?>><br>
+				<input type='text' name='address' placeholder='Huisnummer' required value=<?php if(isset($_POST['address'])) echo $_POST['address']; ?>><br>
 				<input type='submit' name='register' value='Registreer'>
 				</form>
 
 				<?php
 		echo "<p>Heb je al een account? <a href='index.php?p=login'>Log in</a></p>";
-
-		echo '</div>';
-		echo '</div>';
 	}
 	
 	function adminHome(){
 		global $dbc;
 		global $user;
 		global $pages;
-		
-		$levelid = $user->get()['levelid'];
-		if($user->isLoggedIn() AND $levelid == 3){
-												
-		
-		$firstname = $user->get()['firstname'];
-		$lastname = $user->get()['lastname'];
-		
-		echo "<h2>Welkom ".$firstname." ".$lastname.".</h2>";
-		
-		$SQLstring = $dbc->prepare("SELECT COUNT(user.id) AS useramount FROM user");
-		$SQLstring->execute();
-		foreach($SQLstring as $key => $value){
-			echo "<p>Er zijn ".$value['useramount']." accounts aangemaakt:</p>";
-		}
-		$SQLstring = $dbc->prepare("SELECT COUNT(user.id) AS useramount FROM user WHERE levelid = 1");
-		$SQLstring->execute();
-		foreach($SQLstring as $key => $value){
-			echo "<p>	".$value['useramount']." studenten accounts.<br>";
-		}
-		
-		$SQLstring = $dbc->prepare("SELECT COUNT(user.id) AS useramount FROM user WHERE levelid = 2");
-		$SQLstring->execute();
-		foreach($SQLstring as $key => $value){
-			echo $value['useramount']." docenten accounts.</p>";
-		}
-		
-		echo "<p><a href='LINK'>Overzicht accounts</a><p>";	//Link naar overzicht account
-		echo "<p><a href='LINK'>Aanpassen accounts</a><p>";	//Link naar de wijzig account pagina
-		
-		//if not logged in go to home
-		}else{
+
+			$levelid = $user->get()['levelid'];
+
+			$firstname = $user->get()['firstname'];
+			$lastname = $user->get()['lastname'];
 			
-			echo $pages->home();
-		}
+			echo "<h2>Welkom ".$firstname." ".$lastname.".</h2>";
+			
+			$SQLstring = $dbc->prepare("SELECT COUNT(user.id) AS useramount FROM user");
+			$SQLstring->execute();
+			foreach($SQLstring as $key => $value){
+				echo "<p>Er zijn ".$value['useramount']." accounts aangemaakt:</p>";
+			}
+			$SQLstring = $dbc->prepare("SELECT COUNT(user.id) AS useramount FROM user WHERE levelid = 1");
+			$SQLstring->execute();
+			foreach($SQLstring as $key => $value){
+				echo "<p>	".$value['useramount']." studenten accounts.<br>";
+			}
+			
+			$SQLstring = $dbc->prepare("SELECT COUNT(user.id) AS useramount FROM user WHERE levelid = 2");
+			$SQLstring->execute();
+			foreach($SQLstring as $key => $value){
+				echo $value['useramount']." docenten accounts.</p>";
+			}
+			
+			echo "<p><a href='LINK'>Overzicht accounts</a><p>";	//Link naar overzicht account
+			echo "<p><a href='LINK'>Aanpassen accounts</a><p>";	//Link naar de wijzig account pagina
+			
+			//if not logged in go to home
 	}
 	
 	function teacherHome(){
@@ -244,7 +235,9 @@ class Pages {
 		global $user;
 		global $pages;
 		
-		$levelid = $user->get()['levelid'];
+		$pages->search();
+		
+		/* $levelid = $user->get()['levelid'];
 		if($user->isLoggedIn() AND $levelid == 2){
 		
 		$firstname = $user->get()['firstname'];
@@ -272,13 +265,13 @@ class Pages {
                         
                     }
                 
-		echo "</table>";
+		echo "</table>"; */
 		
 		//if not logged in go to home
-		}else{
+		/* }else{
 			
 			echo $pages->home();	//HOME REGELT DE REST
-		}
+		} */
 	}
 	
 	function studentHome(){
@@ -397,6 +390,7 @@ class Pages {
 			$profiel = "profile|right";
 			$login = "login|right";
 			$logout = "logout|right";
+			$overviewPort = "search";
 			
 			$menu = array();
 			
@@ -500,7 +494,8 @@ class Pages {
 	}
 
 	function footer(){
-		echo '';
+		echo '<div id="footerOuter"><div id="footerInner"></div></div>';
+		
 	}
 
 	
@@ -642,12 +637,12 @@ class Pages {
 						echo "<td><a href='?p=search&userid=$id'>Gegevens</a></td>";
 						echo "<td><a href='?p=portfolio&u=$url'>Portfolio</a></td>";
 						if($checked && $fetch['levelid'] == 1){
-							echo "<td><form method='post' action='#'> GEWAARMERKT </td>";
+							echo "<td><form method='post' action='index.php?p=search'> GEWAARMERKT </td>";
 						}else{
 							$currentslb = $fetch['slb'];
 							
 							if(($currentslb == $currentSLB) && $fetch['levelid'] == 1){
-								echo "<td><form method='post' action='#'><input type='checkbox' value=1 name='$id'></td>";
+								echo "<td><form method='post' action='index.php?p=search'><input type='checkbox' value=1 name='$id'></td>";
 							}
 						}
 					}
@@ -683,7 +678,7 @@ class Pages {
 					echo " met ID " . $userid . ":";
 				}
 				echo "</p>";
-				echo "<form method='post' action='#'>";
+				echo "<form method='post' action='index.php?p=search&userid=".htmlentities($_GET['userid'])."'>";
 				echo "<p>Voornaam: <input type='text' name='firstname' value='$firstname'></p>";
 				echo "<p>Achternaam: <input type='text' name='lastname' value='$lastname'></p>";
 				echo "<p>E-mail: <input type='text' name='email' value='$email'></p>";
@@ -723,6 +718,10 @@ class Pages {
 				echo "<p><input type='submit' name='update' value='update'></p>";
 				echo "</form>";
 				if(isset($_POST['update'])){
+				
+				
+					echo '<hr>TRYING TO UPDATE!';
+				
 					if($levelid == 1){
 						$newslb = $_POST['newslb'];
 						$slb = ", slb='$newslb'";
@@ -746,7 +745,7 @@ class Pages {
 					}else{
 						echo mysqli_error($mysqlconn) . "<br />";
 					}
-					header("Refresh:0");
+					echo '<script>window.location.href = "index.php?p=search";</script>';
 				}
 			}
 			if(!empty($_GET['userid']) AND $levelid == 2 AND $isSLB == TRUE){
@@ -759,11 +758,11 @@ class Pages {
 				$email = $fetch['email'];
 				$phone = $fetch['phone'];
 				$zipcode = $fetch['zipcode'];
-				echo "<p>Voornaam: " . $firstname;
+				/* echo "<p>Voornaam: " . $firstname;
 				echo "<p>Achternaam: " . $lastname;
 				echo "<p>e-mail: " . $email;
 				echo "<p>telefoon nummer: " . $phone;
-				echo "<p>Adres: " . $zipcode;
+				echo "<p>Adres: " . $zipcode; */
 
 			}
 		echo '<div></div>';
@@ -916,112 +915,119 @@ class Pages {
 				$requestedPortfolio = $requestedPortfolio->fetchAll(PDO::FETCH_ASSOC)[0];
 				
 				//print_r($requestedPortfolio);
+				$requestedUser = $dbc->prepare('SELECT * FROM `user` WHERE `id` = "'.$requestedPortfolio['userid'].'" LIMIT 1');
+				$requestedUser->execute();
+				$requestedUser = $requestedUser->fetchAll(PDO::FETCH_ASSOC)[0];
 				
-				
-				
-				/* echo '<pre>';
-				print_r($requestedPortfolio);
-				echo '</pre>'; */
-				
-				$modules = $dbc->prepare('SELECT * FROM `module` WHERE `portfolioid` = "'.$requestedPortfolio['userid'].'" ORDER BY `position`');
-				$modules->execute();
-				$modules = $modules->fetchAll(PDO::FETCH_ASSOC);
-				
-				/*  echo '<pre>';
-				print_r($modules);
-				echo '</pre>'; */
-				
-				echo '<div id="containerOuter">';
-					echo '<div class="portfolio" id="containerInner">';
-				
-					//variable om op teslaan waneer er een nieuwe break toegevoegd moet worden.
-					$break = 0;
-					$countbreaks = 0;
+				if($requestedUser['levelid'] == 1){
+					$modules = $dbc->prepare('SELECT * FROM `module` WHERE `portfolioid` = "'.$requestedPortfolio['userid'].'" ORDER BY `position`');
+					$modules->execute();
+					$modules = $modules->fetchAll(PDO::FETCH_ASSOC);
 					
-					if($user->get()['id'] == $core->getUserFromURL($userId) && isset($_GET["edit"])){
-						echo '<a href="index.php?p=portfolio&u='.$userId.'"><div class="EditModusAan">Edit modus aan.</div></a>';
-					}
 					
-					if($user->get()['id'] == $core->getUserFromURL($userId) && !isset($_GET["edit"])){
-						echo '<a href="index.php?p=portfolio&u='.$userId.'&edit"><div class="EditModusUit">Edit modus uit.</div></a>';
-					}
-				
+					echo '<div id="containerOuter">';
+						echo '<div class="portfolio" id="containerInner">';
 					
-				
-					echo '<div class="moduleSeparator">';
-					echo '<div class="coll-100">';
-				
-					foreach ($modules as $module) {
-						$moduletemplate = $dbc->prepare('SELECT * FROM `moduletemplate` WHERE `id` = "'.$module['moduleid'].'" LIMIT 1');
-						$moduletemplate->execute();
-						$moduletemplate = $moduletemplate->fetchAll(PDO::FETCH_ASSOC)[0];
+						//variable om op teslaan waneer er een nieuwe break toegevoegd moet worden.
+						$break = 0;
+						$countbreaks = 0;
+						
+						if($user->get()['id'] == $core->getUserFromURL($userId) && isset($_GET["edit"])){
+							echo '<a href="index.php?p=portfolio&u='.$userId.'"><div class="EditModusAan">Edit modus aan.</div></a>';
+						}
+						
+						if($user->get()['id'] == $core->getUserFromURL($userId) && !isset($_GET["edit"])){
+							echo '<a href="index.php?p=portfolio&u='.$userId.'&edit"><div class="EditModusUit">Edit modus uit.</div></a>';
+						}
+					
+						
+					
+						echo '<div class="moduleSeparator">';
+						echo '<div class="coll-100">';
+					
+						foreach ($modules as $module) {
+							$moduletemplate = $dbc->prepare('SELECT * FROM `moduletemplate` WHERE `id` = "'.$module['moduleid'].'" LIMIT 1');
+							$moduletemplate->execute();
+							$moduletemplate = $moduletemplate->fetchAll(PDO::FETCH_ASSOC)[0];
 
-						if (method_exists($portfolio,$moduletemplate['function'])){
-							//echo 'Function Found';
-							$input = explode(",", $module['input']);
-							$fields = explode(",", $moduletemplate['field']);
-							
-							//Headers tellen niet mee met de break!
-							if($moduletemplate['function'] !== 'header'){
-								$break += $module['size'];
-							}
-							
+							if (method_exists($portfolio,$moduletemplate['function'])){
+								//echo 'Function Found';
+								$input = explode(",", $module['input']);
+								$fields = explode(",", $moduletemplate['field']);
+								
+								//Headers tellen niet mee met de break!
+								if($moduletemplate['function'] !== 'header'){
+									$break += $module['size'];
+								}
+								
 
-							echo '<div class="module coll-'.$module['size'].'">';
-								echo '<div class="contentMargin">';
-								if(count($input) == count($fields)){
-									if(count($input) == 1){
-										echo $portfolio->$moduletemplate['function']($input[0]);
-									}else if(count($input) == 2){
-										echo $portfolio->$moduletemplate['function']($input[0], $input[1]);
+								echo '<div class="module coll-'.$module['size'].'">';
+									echo '<div class="contentMargin">';
+									if(count($input) == count($fields)){
+										if(count($input) == 1){
+											echo $portfolio->$moduletemplate['function']($input[0]);
+										}else if(count($input) == 2){
+											echo $portfolio->$moduletemplate['function']($input[0], $input[1]);
+										}
+										
+										//$user = new User("amr.jonkman@gmail.com", "pass", $dbc);
+										//print_r($user);
+										if($user->isLoggedIn()){
+											if($user->get()['id'] == $core->getUserFromURL($userId) && isset($_GET["edit"])){
+												echo '<a href="?p=editmodule&m='.$module['id'].'">';
+												echo "<div class='editModule'> Edit </div>";
+												echo '</a>';
+											}
+										}
+									}else{
+										echo '<div class="alert alert-danger">
+										  <strong>:(</strong> Aantal inputs komt niet overeen met het aantal benodigde velden.
+										</div>';
 									}
 									
-									//$user = new User("amr.jonkman@gmail.com", "pass", $dbc);
-									//print_r($user);
-									if($user->isLoggedIn()){
-										if($user->get()['id'] == $core->getUserFromURL($userId) && isset($_GET["edit"])){
-											echo '<a href="?p=editmodule&m='.$module['id'].'">';
-											echo "<div class='editModule'> Edit </div>";
-											echo '</a>';
-										}
-									}
-								}else{
-									echo 'Aantal inputs komt niet overeen met het aantal benodigde velden.';
-								}
-								
-								
-								
-								echo '</div>';
-							echo '</div>';
-							
-							if($break > 99){
+									
+									
 									echo '</div>';
-									echo '<div class="clear"></div>';
 								echo '</div>';
 								
-								if ($countbreaks % 2 == 0) {
-									echo '<div class="moduleSeparator odd">';
-										echo '<div class="coll-100">';
-											
-								}else{
-									echo '<div class="moduleSeparator">';
-										echo '<div class="coll-100">';
+								if($break > 99){
+										echo '</div>';
+										echo '<div class="clear"></div>';
+									echo '</div>';
+									
+									if ($countbreaks % 2 == 0) {
+										echo '<div class="moduleSeparator odd">';
+											echo '<div class="coll-100">';
+												
+									}else{
+										echo '<div class="moduleSeparator">';
+											echo '<div class="coll-100">';
+									}
+									$break = 0;
+									$countbreaks++;
 								}
-								$break = 0;
-								$countbreaks++;
-							}
 
-						//echo $portfolio->$moduletemplate['function']('sdfdsf');
-						}else{
-							echo 'Methode niet gevonden!';
+							//echo $portfolio->$moduletemplate['function']('sdfdsf');
+							}else{
+								echo 'Methode niet gevonden!';
+							}
 						}
-					}
-					
+						
+						echo '</div>';
+						
+						echo '<div class="clear"></div>';
+						echo '</div>';
+						
+						
 					echo '</div>';
-					
-					echo '<div class="clear"></div>';
+				}else{
+					//Gebruiker is geen leerling.
+					echo '<div id="containerOuter">';
+						echo '<div id="containerInner">';
+							echo 'Gebruiker niet gevonden.';
+						echo '</div>';
 					echo '</div>';
-				echo '</div>';
+				}
 			}else{
 				//Gebruiker niet gevonden.
 				echo '<div id="containerOuter">';
@@ -1100,37 +1106,42 @@ class Pages {
 						if(!empty($moduleTemplates)){
 							$moduleTemplates = $moduleTemplates[0];
 							
-							$position = 0;
+							$position = -1;
 							foreach ($moduleUser as &$module) {
-								if ($module['position'] > $position){
-									$position = $module['position'] + 1;
+								if ($module['position'] >= $position){
+									$position = $module['position'];
 								}
 							}
 							
-							Print_r($moduleTemplates);
-							
-							$insert = "INSERT INTO `module` (portfolioid, moduleid, position, size, input, timestamp)
-							VALUES (".$user->get()['id'].",".$id.",".$position.",100,' ',".TIME().")";
-							
-							$dbcInsert = $dbc->prepare($insert);
-							$dbcInsert->execute();
-							
-							
-							if($dbcInsert){
-								$lastId = $dbc->lastInsertId();
-							
-								echo '<div class="alert alert-success">
-								  <strong>Success!</strong> De module is toegevoegd!.
-								</div>';
-								
-								header('Location: index.php?p=editmodule&m='.$lastId.'&add');
-								
-							}else{
-								echo '<div class="alert alert-danger">
-								  <strong>:(</strong> Er is iets fout gegaan probeer het later opnieuw.
-								</div>';
-							}
+							$position = $position + 1;
+						}else{
+							$position = 0;
 						}
+						
+
+						
+						$insert = "INSERT INTO `module` (portfolioid, moduleid, position, size, input, timestamp)
+						VALUES (".$user->get()['id'].",".$id.",".$position.",100,' ',".TIME().")";
+						
+						$dbcInsert = $dbc->prepare($insert);
+						$dbcInsert->execute();
+						
+						
+						if($dbcInsert){
+							$lastId = $dbc->lastInsertId();
+						
+							echo '<div class="alert alert-success">
+							  <strong>Success!</strong> De module is toegevoegd!.
+							</div>';
+							
+							header('Location: index.php?p=editmodule&m='.$lastId.'&add');
+							
+						}else{
+							echo '<div class="alert alert-danger">
+							  <strong>:(</strong> Er is iets fout gegaan probeer het later opnieuw.
+							</div>';
+						}
+						
 						
 						
 					}
@@ -1362,7 +1373,7 @@ class Pages {
 		
 		echo '<a class="button" href="index.php?p=addmodule">Voeg een module toe.</a>';
 		
-		$changed = '';
+	
 		
 		$dbc = $mysqlconn;
 		$DBName = "md253219db370063";
@@ -1372,7 +1383,6 @@ class Pages {
 			if(isset ($_POST["up"]) && ($_POST["ID"])){	
 				//Getting the position of the selected row
 				$UID = $_POST["ID"];
-				
 				$changed = $_POST["ID"];
 
 				$getposition = "SELECT position FROM module WHERE id = $UID LIMIT 1";
@@ -1405,9 +1415,8 @@ class Pages {
 				}
 
 			}elseif(isset ($_POST["down"]) && ($_POST["ID"])){
-				//Getting the position of the selected row
+			//Getting the position of the selected row
 				$UID = $_POST["ID"];
-
 				$changed = $_POST["ID"];
 				
 				$getposition = "SELECT position FROM module WHERE id = $UID LIMIT 1";
@@ -1435,7 +1444,7 @@ class Pages {
 				if(mysqli_query($dbc, $moveup2) == TRUE){
 				}else{
 						echo mysqli_error($dbc) . "2";
-				}						
+				}								
 			}elseif(isset($_POST["delete"]) && ($_POST["ID"])){
 				//Getting the position of the selected row
 				$UID = $_POST["ID"];
@@ -1449,7 +1458,7 @@ class Pages {
 				$initialpos = $fetch['position'];
 				
 				//Getting the last position out of the DB 
-				$getlastpos = "SELECT MAX(position) AS maxpos FROM module LIMIT 1;";
+				$getlastpos = "SELECT count(*) - 1 AS maxpos FROM module WHERE portfolioid = ".$user->get()['id'].";";
 			
 				$lastposresult = mysqli_query($dbc, $getlastpos);
 		
@@ -1503,12 +1512,12 @@ class Pages {
 									  <th>Input</th>
 									  <th>EDIT</th><th>DELETE</th></tr></thead><tbody>";
 							//Getting the last position out of the database
-							$getlastpos = "SELECT MAX(position) AS maxpos FROM module LIMIT 1;";
+							$getlastpos = "SELECT count(*) - 1 AS maxpos FROM module WHERE portfolioid = ".$user->get()['id'].";";
 							
 							$lastposresult = mysqli_query($dbc, $getlastpos);
 							
 							$fetchlastpos = mysqli_fetch_array($lastposresult);
-							
+
 							$lastposition = $fetchlastpos['maxpos'];
 							
 							while($row = mysqli_fetch_assoc($result)){
@@ -1516,28 +1525,35 @@ class Pages {
 								$ID = $row['id'];
 								//Printing the table
 
+								if(!isset($changed)){
+									$changed = '';
+								}
+								
 								if($ID == $changed){
 									echo "<tr class='changed'><td>{$row['position']}</td>";
 								}else{
 									echo "<tr><td>{$row['position']}</td>";
 								}
 								
-								
-								if($row['position'] == 0){
-								echo '<td><form action="#" method="POST">
-												<input type="submit"  name="down" value="Down" />
-												<input type="hidden" name="ID" value="'. $ID .'" />
-												</form></td>';	
-								}elseif($row['position'] > 0 && $row['position'] < $lastposition){
-								echo '<td><form action="#" method="POST">
-												<input type="submit" name="up" value="Up" /><input type="submit"  name="down" value="Down" />
-												<input type="hidden" name="ID" value="'. $ID .'" />
-												</form></td>';
-								}elseif(($row['position'] == $lastposition)){
-								echo '<td><form action="#" method="POST">
-												<input type="submit" name="up" value="Up" />
-												<input type="hidden" name="ID" value="'. $ID .'" />
-												</form></td>';	
+								if(mysqli_num_rows($result) > 1){
+									if($row['position'] == 0){
+									echo '<td><form action="#" method="POST">
+													<input type="submit"  name="down" value="Down" />
+													<input type="hidden" name="ID" value="'. $ID .'" />
+													</form></td>';	
+									}elseif($row['position'] > 0 && $row['position'] < $lastposition){
+									echo '<td><form action="#" method="POST">
+													<input type="submit" name="up" value="Up" /><input type="submit"  name="down" value="Down" />
+													<input type="hidden" name="ID" value="'. $ID .'" />
+													</form></td>';
+									}elseif(($row['position'] == $lastposition)){
+									echo '<td><form action="#" method="POST">
+													<input type="submit" name="up" value="Up" />
+													<input type="hidden" name="ID" value="'. $ID .'" />
+													</form></td>';	
+									}
+								}else{
+									echo '<td></td>';
 								}
 								
 								echo "<td>{$row['name']}</td>";
@@ -1558,7 +1574,7 @@ class Pages {
 						echo '</div>';
 						
 					echo "</div>";
-					}
+				}
 		}
 			// Selecting and setting the portfolio colours
 			if(isset ($_POST["sendcolours"])){
@@ -1634,62 +1650,89 @@ class Pages {
 				}
 			}
 			//URL MOET ANDERS WORDEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			header("Refresh:0; url=overzichtbestanden2.php");
+			header("Refresh:0; url=index.php?p=overzichtUploads");
 		}
 		if($id == $slb AND $levelid == 2){
 			echo "<form method='post' action='#'>";
 			$stmt = $dbc->prepare("SELECT id, firstname, lastname FROM user WHERE levelid = 1 AND slb = $slb");
 			$stmt->execute();
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			
+			$count = 0;
 			foreach($result AS $row){
+				$count++;
+			
+				echo '<b>';
 				echo $row['firstname'] . " " 
 				. $row['lastname'] . "<br />";
-				foreach($uploads->getUserUploads($row['id'], TRUE) AS $upload){
-					echo "<p>" . $upload['fileicon'] . " " . $upload['name'];
-					echo "<br />";
-					echo $upload['description'];
-					echo "</p>";
-					$stmt2 = $dbc->prepare("SELECT * FROM approved WHERE approvedid = :uploadid");
-					$stmt2->bindParam(":uploadid", $upload['id']);
-					$stmt2->execute();
-					$approvedresult = $stmt2->fetch(PDO::FETCH_ASSOC);
-					if($stmt2->rowCount() > 0){
-						echo $approvedresult['note'];
-					}else{
-						$uploadid = $upload['id'];
-						echo "<textarea placeholder='Commentaar' name=$uploadid></textarea>";
+				echo '</b>';
+				
+				if(!empty($uploads->getUserUploads($row['id'], TRUE))){
+					foreach($uploads->getUserUploads($row['id'], TRUE) AS $upload){
+						echo "<p>" . $upload['fileicon'] . " " . $upload['name'];
+						echo "<br />";
+						echo $upload['description'];
+						echo "</p>";
+						$stmt2 = $dbc->prepare("SELECT * FROM approved WHERE approvedid = :uploadid");
+						$stmt2->bindParam(":uploadid", $upload['id']);
+						$stmt2->execute();
+						$approvedresult = $stmt2->fetch(PDO::FETCH_ASSOC);
+						if($stmt2->rowCount() > 0){
+							echo '<i>Commentaar: </i>';
+							echo $approvedresult['note'];
+						}else{
+							$uploadid = $upload['id'];
+							echo "<textarea placeholder='Commentaar' name=$uploadid></textarea>";
+						}
 					}
+				}else{
+						echo 'Deze gebruiker heeft geen bestanden.';
 				}
+				
 				echo "<hr>";
 			}
-			echo "<input type='submit' name='submit' value='Waarmerken'>";
+			
+			if($count == 0){
+					echo '<div class="alert alert-danger">
+					  <strong>:(</strong> Er zijn geen bestanden geupload.
+					</div>';
+			}else{
+				echo "<input type='submit' name='submit' value='Waarmerken'>";
+			}
+			
 			echo "</form>";
 		}elseif($levelid == 3){
 			$stmt = $dbc->prepare("SELECT id, firstname, lastname FROM user WHERE levelid = 1");
 			$stmt->execute();
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			foreach($result AS $row){
+				echo '<b>';
+			
 				echo $row['firstname'] . " " 
 				. $row['lastname'] . "<br />";
-				
+				echo '</b>';
 		
 				
-				
-				foreach($uploads->getUserUploads($row['id']) AS $upload){
-					echo "<p>" . $upload['fileicon'] . " " . $upload['name'];
-					echo "<br />";
-					echo $upload['description'];
-					echo "</p>";
-					$stmt2 = $dbc->prepare("SELECT * FROM approved WHERE approvedid = :uploadid");
-					$stmt2->bindParam(":uploadid", $upload['id']);
-					$stmt2->execute();
-					$approvedresult = $stmt2->fetch(PDO::FETCH_ASSOC);
-					if($stmt2->rowCount() > 0){
-						echo $approvedresult['note'];
-					}else{
-						$uploadid = $upload['id'];
-						echo "Not approved";
+				if(!empty($uploads->getUserUploads($row['id']))){
+					foreach($uploads->getUserUploads($row['id']) AS $upload){
+						echo "<p>" . $upload['fileicon'] . " " . $upload['name'];
+						echo "<br />";
+						echo $upload['description'];
+						echo "</p>";
+						$stmt2 = $dbc->prepare("SELECT * FROM approved WHERE approvedid = :uploadid");
+						$stmt2->bindParam(":uploadid", $upload['id']);
+						$stmt2->execute();
+						$approvedresult = $stmt2->fetch(PDO::FETCH_ASSOC);
+						if($stmt2->rowCount() > 0){
+							echo '<i>Commentaar: </i>';
+							echo $approvedresult['note'];
+						}else{
+							$uploadid = $upload['id'];
+							echo "Not approved";
+						}
 					}
+				}else{
+						echo 'Deze gebruiker heeft geen publieke bestanden.';
 				}
 				echo "<hr>";
 			}
@@ -1702,12 +1745,12 @@ class Pages {
 	function showUploads(){
 			global $dbc;
 			global $user;
-			
+
 			echo '<div id="containerOuter">';
 			echo '<div id="containerInner">';
-			
+
 			echo '<h1>Overzicht bestanden</h1>';
-			
+
 			$uploads = new Uploads;
 			// Wanneer een get request wordt gedaan om een bestand te verwijderen.
 			if(isset($_GET['id'])){
@@ -1740,18 +1783,22 @@ class Pages {
 							echo "<div class='alert alert-danger' role='alert'><strong>Oops!</strong> De wijzingen konden niet worden opgeslagen, probeer het later opnieuw.</div>";
 					}
 			}
+			$hasFiles = $uploads->getUserUploads($user->get()['id']);
+
 			echo
 			"
 			<div class='table-responsive'>
 				<form action='#' method='post'>
-					<table class='table table-bordered'>
-						<tr>
-							<th>Bestandsnaam</th>
-							<th>Beschrijving</th>
-							<th>Publiekelijk</th>
-							<th>Download</th>
-							<th>Verwijder</th>
-						</tr>";
+					<table class='table table-bordered'>";
+						if($hasFiles){
+								echo "<tr>
+									<th>Bestandsnaam</th>
+									<th>Beschrijving</th>
+									<th>Publiekelijk</th>
+									<th>Download</th>
+									<th>Verwijder</th>
+								</tr>";
+						}
 						if($uploads->getUserUploads($user->get()['id'])){
 								$arrayLength = count($uploads->getUserUploads($user->get()['id']));
 								foreach($uploads->getUserUploads($user->get()['id']) as $upload){
@@ -1780,12 +1827,14 @@ class Pages {
 						}else{
 								echo "<div class='alert alert-warning' role='alert'><strong>Oh nee!</strong> Er zijn nog geen bestanden geüpload.</div>";
 						}
-					echo
-					"</table>
-					<button type='submit' name='saveChanges' class='btn btn-info'>Wijzigingen opslaan</button>
-				</form>
+						echo
+						"</table>";
+						if($hasFiles){
+								echo "<button type='submit' name='saveChanges' class='btn btn-info'>Wijzigingen opslaan</button>";
+						}
+				echo "</form>
 			</div>";
-			
+
 			echo "</div>";
 			echo "</div>";
 	}
@@ -1846,27 +1895,31 @@ class Pages {
 	function profile() {
         global $dbc;
         global $user;
+				$message = "";
+				if(isset($_GET['message'])){
+						$message = "<div class='alert alert-success'><strong>Succes </strong> U heeft uw profiel aangepast.</div>";
+				}
 
-        if (isset($_POST['address']) || (isset($_POST['zipcode'])) || (isset($_POST['phone'])) || (isset($_POST['newslb']))) {
+				if(isset($_POST['submit'])){
+						if (isset($_POST['address']) || (isset($_POST['zipcode'])) || (isset($_POST['phone'])) || (isset($_POST['newslb']))) {
+								if(Validate::zipcode($_POST['zipcode']) && Validate::phone($_POST['phone'])){
+										$id = $user->get()['id'];
+										$adress = htmlentities($_POST['address']);
+										$zipcode = htmlentities($_POST['zipcode']);
+										$phone = htmlentities($_POST['phone']);
+										$slb = htmlentities($_POST['newslb']);
 
-            $id = $user->get()['id'];
-            $adress = htmlentities($_POST['address']);
-            $zipcode = htmlentities($_POST['zipcode']);
-            $phone = htmlentities($_POST['phone']);
-            $slb = htmlentities($_POST['newslb']);
-			
-            $query = "UPDATE user SET address='$adress', zipcode='$zipcode', phone='".$phone."', slb='$slb' WHERE id='$id'";
-           
-
-		   echo $query;
-		    $result = $dbc->prepare($query);
-            $result->execute();
-
-            if ($result) {
-                header("Location: index.php?p=profile");
-                //TODO: Refresh.
-            }
-        }
+										$query = "UPDATE user SET address='$adress', zipcode='$zipcode', phone='".$phone."', slb='$slb' WHERE id='$id'";
+										$result = $dbc->prepare($query);
+										$result->execute();
+										header("Location: ?p=profile&message=succes");
+								}else{
+										$message = "<div class='alert alert-danger'><strong>:( </strong> U heeft geen geldige postcode of telefoonnummer ingevuld.</div>";
+								}
+						}else{
+								$message = "<div class='alert alert-danger'><strong>:( </strong> U dient elk veld in te vullen.</div>";
+						}
+				}
 
         $query = "SELECT * from user WHERE id=" . $user->get()['slb'];
         $getSLB = $dbc->prepare($query);
@@ -1876,14 +1929,16 @@ class Pages {
             $getSLB = $getSLB[0];
             $slber = $getSLB['firstname'] . " " . $getSLB['lastname'];
         } else {
-            echo "<p></p>";
+            $slber = "Geen";
         }
 
 				echo
 				"
 					<div class='container'>
-						<h1>Uw profiel</h1>
 						<div class='row'>
+							<br>
+							<h1>Uw profiel</h1>
+							{$message}
 							<table class='table table-striped'>
 								<thead>
 									<tr>
@@ -1941,7 +1996,7 @@ class Pages {
 				"
 					<div class='container'>
 						<div class='row'><h1>Profiel Aanpassen</h1></div>
-						<div class='row'><p>Hier kun je jou profiel aanpassen als je verhuist bent of van telefoon nummer veranderd bent</p></div>
+						<div class='row'><p>Hier kun je jouw profiel aanpassen als je verhuist bent of van telefoon nummer veranderd bent.</p></div>
 							<form method='post' action='index.php?p=profile'>
 								<div class='row'>
 									Adres
@@ -1956,24 +2011,27 @@ class Pages {
 								<div class='row'>
 									Telefoonnummer
 									<input style='width:100%' name='phone' type='text' value=" . $user->get()['phone'] . " required>
-								</div>
-								<br>
-								<div class='row'>
-									Studieloopbaanbegeleider<br>
-									<select name='newslb'>
-										<option value='0'>Geen SLBer</option>";
-										while ($fetch = mysqli_fetch_assoc($result)) {
-												if ($fetch['id'] == $fetch2['slb']) {
-														$selected = " selected='selected'";
-												} else {
-														$selected = FALSE;
+								</div>";
+
+								if(($user->get()['id'] != $user->get()['slb']) && $user->get()['levelid'] != 3 && $user->get()['levelid'] != 2){
+										echo "<br><div class='row'>
+											Studieloopbaanbegeleider<br>
+											<select name='newslb'>
+												<option value='0'>Geen SLBer</option>";
+												while ($fetch = mysqli_fetch_assoc($result)) {
+														if ($fetch['id'] == $fetch2['slb']) {
+																$selected = " selected='selected'";
+														} else {
+																$selected = FALSE;
+														}
+														echo "<option value='" . $fetch['id'] . "' $selected'>" . $fetch['firstname'] . " " . $fetch['lastname'] . "</option>";
 												}
-												echo "<option value='" . $fetch['id'] . "' $selected'>" . $fetch['firstname'] . " " . $fetch['lastname'] . "</option>";
-										}
-										echo "
-									</select>
-								</div>
-								<br>
+												echo "
+											</select>
+										</div>";
+								}
+
+								echo "<br>
 								<div class='row'><button type='submit' class='btn btn-success' data-toggle='dropdown' type='submit' name='submit'>Aanpassen</button></div>
 							</form>
 						</div>

@@ -79,26 +79,33 @@ class Portfolio {
 			$userId = $core->getUserFromURL($_GET["u"]);
 		}
 
-		//est wainting for icon xD
 		$count = 0;
-		foreach($uploads->getUserUploads($userId,true) as $upload){
 		
-			if($count == 3){
-				echo '<div class="clear"></div>';
-				$count = 0;
-			}
+		if(!empty($uploads->getUserUploads($userId,true))){
+			foreach($uploads->getUserUploads($userId,true) as $upload){
 			
-			echo '<div class="coll-33 selectModule">';
-
-				echo '<h3 class=>'.$upload['name'].'</h2>';
-				echo '<div class="iconHuge">'.$upload['fileicon'].'</div>';
-				echo '<p>'.$upload['description'].'<br></p>';
+				if($count == 3){
+					echo '<div class="clear"></div>';
+					$count = 0;
+				}
 				
-				echo '<a href="'.$upload['url'].'" class="btn btn-default" role="button" download>Download<br><span class="extension">als: .'.$upload['extension'].'</span></a>';
-			echo '</div>';
-			
-			$count++;
+				echo '<div class="coll-33 selectModule">';
+
+					echo '<h3 class=>'.$upload['name'].'</h2>';
+					echo '<div class="iconHuge">'.$upload['fileicon'].'</div>';
+					echo '<p>'.$upload['description'].'<br></p>';
+					
+					echo '<a href="'.$upload['url'].'" class="btn btn-info" role="button" download>Download<br><span class="extension">als: .'.$upload['extension'].'</span></a>';
+				echo '</div>';
+				
+				$count++;
+			}
+		}else{
+			echo '<div class="alert alert-danger">
+			  <strong>:(</strong> Er zijn geen publiekelijke bestanden gevonden.
+			</div>';
 		}
+		
 		
 	
 		
@@ -110,6 +117,10 @@ class Portfolio {
 		global $core;
 		global $user;
 		global $dbc;
+	
+		if (!is_numeric($ammount)) { 
+			$ammount = 3;
+		}
 	
 		$page = $_GET["p"];
 	
@@ -125,6 +136,7 @@ class Portfolio {
 
 		//Haal alle reacties op!
 		$comments = $dbc->prepare('SELECT * FROM `chat` WHERE `targetid` = "'.$userId.'" ORDER BY `timestamp` DESC LIMIT '.$ammount.'');
+		
 		$comments->execute();
 		$comments = $comments->fetchAll(PDO::FETCH_ASSOC);
 	

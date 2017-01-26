@@ -108,8 +108,8 @@ class User
         }
         $stmt = $this->dbc->prepare(
             "INSERT INTO portfolio VALUES (:userid, :url, 0, 'ffffff', '808080', 'D54247');" .
-            "INSERT INTO module VALUES (null, :userid, 3, 1, 100, 'Welkom op je eigen portfolio! Dit is een header text.', UNIX_TIMESTAMP());" .
-            "INSERT INTO module VALUES (null, :userid, 1, 2, 100, 'Dit is een paragraaf met text.', UNIX_TIMESTAMP())"
+            "INSERT INTO module VALUES (null, :userid, 3, 0, 100, 'Welkom op je eigen portfolio! Dit is een header text.,1', UNIX_TIMESTAMP());" .
+            "INSERT INTO module VALUES (null, :userid, 1, 1, 100, 'Dit is een paragraaf met text.', UNIX_TIMESTAMP())"
         );
         $stmt->bindParam(":userid", $userId);
         $stmt->bindParam(":url", $url);

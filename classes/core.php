@@ -14,6 +14,7 @@ class Core {
 			$levelid = 0;
 		}
 		$blockedPages = $dbc->prepare('SELECT * FROM `level` WHERE `id` = '.$levelid);
+		
 		$blockedPages->execute();
 		$blockedPages = $blockedPages->fetchAll(PDO::FETCH_ASSOC)[0];
 		$blockedPages = explode(",", $blockedPages['blocked']);
@@ -60,7 +61,7 @@ class Core {
 			$page = 'home';
 		}else{
 			if($spatie == true){
-				$page = str_replace("_"," ",$_GET["p"]); //Voor het tonen op pagina
+				$page = htmlentities (str_replace("_"," ",$_GET["p"])); //Voor het tonen op pagina
 			}else{
 				$page = strtolower($_GET["p"]); //Voor in de code
 			}
@@ -191,7 +192,7 @@ class Core {
     } 
 	
 	//genereren van de inputvelden voor het aanpassen van de modules
-	function input($type = 'text', $title = 'naam', $name = 'naam', $value = ' '){
+	function input($type = 'text', $title = 'naam', $name = 'naam', $value = ''){
 		echo '<div class="form-group">';
 			echo '<label>'.$title.':</label>';
 			

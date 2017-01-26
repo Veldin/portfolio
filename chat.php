@@ -1,5 +1,5 @@
 <?php
-header( "refresh:10000;url=chat.php" );
+header( "refresh:10;url=chat.php" );
 ?>
 
 <!DOCTYPE html>
